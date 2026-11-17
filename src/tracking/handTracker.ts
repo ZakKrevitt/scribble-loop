@@ -4,6 +4,8 @@ import type { Point } from '@/model/score'
 /** One tracked hand: 21 keypoints as fractions of the camera image. */
 export interface TrackedHand {
   landmarks: Point[]
+  /** Which of the player's hands this is, when the model can tell. */
+  side: 'left' | 'right' | null
 }
 
 /**
@@ -35,7 +37,13 @@ export async function createHandTracker(): Promise<HandTracker> {
   return {
     detect(video, timeMs) {
       const result = landmarker.detectForVideo(video, timeMs)
-      return result.landmarks.map((landmarks) => ({ landmarks }))
+      // MediaPipe names hands as if the picture were mirrored. Ours is the raw camera image,
+      // so its "Left" is the player's right hand.
+      return result.landmarks.map((landmarks, i) => {
+        const label = result.handedness?.[i]?.[0]?.categoryName
+        const side = label === 'Left' ? 'right' : label === 'Right' ? 'left' : null
+        return { landmarks, side }
+      })
     },
     close() {
       landmarker.close()

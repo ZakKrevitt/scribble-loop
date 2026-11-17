@@ -47,20 +47,26 @@ test('a drawn line and a held blob become a playing loop', async ({ page }) => {
   expect(await page.evaluate(() => (window as any).scribble.engine.stats.notes)).toBeGreaterThan(0)
 
   // A robot walks by itself and chirps when the playhead finds it.
-  await page.getByRole('button', { name: 'Add a walking robot' }).click()
-  await page.getByRole('button', { name: 'Add a walking robot' }).click()
+  for (const bot of ['Singer', 'Dropper']) {
+    await page.getByRole('button', { name: 'Add robot' }).click()
+    await page.getByRole('menuitem', { name: new RegExp(`^${bot}`) }).click()
+  }
   await expect(page.getByRole('status')).toHaveText('1 line, 3 drums, 2 robots')
   const where = () => page.evaluate(() => JSON.stringify((window as any).scribble.robots()))
   const before = await where()
   await expect.poll(where, { timeout: 4000 }).not.toBe(before)
   await expect
-    .poll(() => page.evaluate(() => (window as any).scribble.engine.stats.chirps), { timeout: 20000 })
+    .poll(() => page.evaluate(() => (window as any).scribble.engine.stats.robot), { timeout: 20000 })
+    .toBeGreaterThan(0)
+  // The dropper leaves things on the grid by itself.
+  await expect
+    .poll(() => page.evaluate(() => (window as any).scribble.items().filter((i: any) => i.by).length), { timeout: 20000 })
     .toBeGreaterThan(0)
 
   await page.screenshot({ path: '.impeccable/review/desktop.png' })
   await page.getByRole('button', { name: 'Undo' }).click()
   await page.getByRole('button', { name: 'Undo' }).click()
-  await expect(page.getByRole('status')).toHaveText('1 line, 3 drums, 0 robots')
+  await expect(page.getByRole('status')).toContainText('0 robots')
 
   await page.getByRole('button', { name: 'Undo' }).click()
   await expect(page.getByRole('status')).toHaveText('1 line, 2 drums, 0 robots')

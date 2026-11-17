@@ -41,8 +41,12 @@ is the main feedback; the screen confirms where the hand is and what has been pl
 ## Capabilities and Constraints
 
 - Two kinds of object. A line is melody: it sounds for as long as the playhead is inside it and its height bends the
-  pitch. A blob is percussion: it fires once when the playhead reaches it, and its height picks the drum.
-- Pinch and drag draws a line. Pinch and hold in place grows a blob. A closed fist rubs objects out.
+  pitch, and each line keeps its own lead sound. A blob is percussion: it fires when the playhead reaches it, its
+  height picks the drum, and its timing snaps to a chosen grid or plays free.
+- Hands have roles. The writing hand (right by default) draws: pinch and drag for a line, pinch and hold for a drum,
+  point at a line to change its sound, fist to erase. The effects hand plays pedals (filter, drive, crush, echo,
+  reverb): the gesture picks the pedal, height sets intensity, twist sets a second control. The roles can be swapped.
+- Robots walk the grid by themselves and change the music: a singer, a swapper, an eater, a dropper and a bumper.
 - Mouse and touch do the same jobs, so the instrument works without a camera.
 - The loop is two bars of sixteenth notes. Tempo, key, scale and lead sound can be changed while it plays.
 - All sound is synthesized in the browser. No samples, no server, no account, nothing is uploaded. Camera frames stay

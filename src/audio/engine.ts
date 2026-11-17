@@ -1,31 +1,98 @@
 import {
+  LEADS,
   STEPS,
   drumFromY,
+  drumTiming,
+  drumX,
   frequency,
+  lineNear,
   lineSteps,
   midiForRow,
-  paceWalker,
   rowFromY,
-  stepFromX,
-  walkerPoint,
+  touches,
   type Blob,
+  type BotType,
   type Drum,
+  type DrumGrid,
   type Item,
   type KeyName,
+  type LeadName,
+  type Line,
+  type Placement,
   type Point,
   type ScaleName,
-  type WalkerState,
 } from '@/model/score'
-
-export const LEADS = ['Supersaw', 'Rubber', 'Glass', 'Chip'] as const
-export type LeadName = (typeof LEADS)[number]
+import { STRIDE, startBody, walk, type BotBody } from '@/robots/bots'
 
 export interface Settings {
   bpm: number
   key: KeyName
   scale: ScaleName
+  /** The sound new lines get. Each line keeps its own. */
   lead: LeadName
+  drumGrid: DrumGrid
 }
+
+/** Something a robot did to the song, for the app to apply to the items. */
+export type BotEdit =
+  | { kind: 'bite'; by: number; at: Point; radius: number }
+  | { kind: 'swap'; by: number; lineId: number; lead: LeadName }
+  | { kind: 'drop'; by: number; item: Omit<Blob, 'id'> | Omit<Line, 'id'> }
+
+/** How a robot is standing at a moment, for drawing. */
+export interface BotPose {
+  x: number
+  y: number
+  facing: 1 | -1
+  frame: number
+}
+
+interface Bot {
+  type: BotType
+  body: BotBody
+  /** Recent bodies with the audio time of each, so drawing can ease between them. */
+  trail: { t: number; body: BotBody }[]
+  lastAct: number
+  drops: number
+  /** When each line was last swapped, so one pass does not flip it back and forth. */
+  swapped: Map<number, number>
+}
+
+/** The pedals the hand can play in effects mode. */
+export const EFFECTS = ['Filter', 'Drive', 'Crush', 'Echo', 'Reverb'] as const
+export type EffectName = (typeof EFFECTS)[number]
+
+/** A staircase curve: fewer levels is a harsher, more broken sound. */
+function crushCurve(levels: number): Float32Array<ArrayBuffer> {
+  const n = 2048
+  const curve = new Float32Array(new ArrayBuffer(n * 4))
+  for (let i = 0; i < n; i++) {
+    const x = (i / (n - 1)) * 2 - 1
+    curve[i] = Math.round(x * levels) / levels
+  }
+  return curve
+}
+
+interface Pedals {
+  filter: BiquadFilterNode
+  wobble: OscillatorNode
+  wobbleDepth: GainNode
+  driveDry: GainNode
+  drivePre: GainNode
+  driveWet: GainNode
+  crushDry: GainNode
+  crush: WaveShaperNode
+  crushWet: GainNode
+  crushLevels: number
+  echo: DelayNode
+  echoSend: GainNode
+  echoFeedback: GainNode
+  hallSend: GainNode
+  hallTone: BiquadFilterNode
+}
+
+/** How close a robot must come to something to act on it, as a fraction of grid height. */
+const REACH = 0.045
 
 interface LeadPreset {
   wave: OscillatorType
@@ -244,12 +311,19 @@ export class Engine {
   private drumBus!: GainNode
   private reverb!: GainNode
   private noise!: AudioBuffer
+  private fxIn!: GainNode
+  private pedals!: Pedals
+  /** Which pedals are pressed right now, for the screen and for tests. */
+  readonly effects: Partial<Record<EffectName, { x: number; y: number }>> = {}
 
   private settings: Settings
-  private lines = new Map<number, (number | null)[]>()
-  private voices = new Map<number, LeadVoice>()
-  private blobsAt: Blob[][] = Array.from({ length: STEPS }, () => [])
-  private walkers = new Map<number, WalkerState>()
+  private items: Item[] = []
+  private lines = new Map<number, { steps: (number | null)[]; lead: LeadName }>()
+  private voices = new Map<number, { voice: LeadVoice; lead: LeadName }>()
+  private blobsAt: { blob: Blob; offset: number }[][] = Array.from({ length: STEPS }, () => [])
+  private bots = new Map<number, Bot>()
+  private simTime = -1
+  private aspect = 1.6
 
   private timer: number | null = null
   private nextStep = 0
@@ -257,18 +331,50 @@ export class Engine {
   private queue: { step: number; time: number; length: number }[] = []
 
   /** Counts of what has been scheduled, for the status line and for tests. */
-  readonly stats = { notes: 0, drums: 0, chirps: 0 }
-  /** Called as a drum or a robot's chirp is scheduled, with the item that caused it. */
+  readonly stats = { notes: 0, drums: 0, robot: 0, edits: 0 }
+  /** Called as a drum fires or a robot acts, with the item and the audio time, so it can flash. */
   onDrum: ((itemId: number, time: number) => void) | null = null
+  /** Called when a robot changes the song. */
+  onEdit: ((edit: BotEdit) => void) | null = null
 
-  /** Where a robot is standing now. */
-  walker(id: number): WalkerState | undefined {
-    return this.walkers.get(id)
+  /** Where a robot is at audio time `t`, eased between the steps it was moved on. */
+  botPose(id: number, t = this.now): BotPose | undefined {
+    const bot = this.bots.get(id)
+    if (!bot) return undefined
+    const trail = bot.trail
+    let a = trail[0]
+    let b = trail[0]
+    for (const entry of trail) {
+      if (entry.t <= t) a = entry
+      if (entry.t >= t) {
+        b = entry
+        break
+      }
+      b = entry
+    }
+    const span = b.t - a.t
+    const k = span > 0 ? Math.min(1, Math.max(0, (t - a.t) / span)) : 1
+    const lerp = (u: number, v: number) => u + (v - u) * k
+    const walked = lerp(a.body.walked, b.body.walked)
+    return {
+      x: lerp(a.body.x, b.body.x),
+      y: lerp(a.body.y, b.body.y),
+      facing: Math.cos(b.body.heading) >= 0 ? 1 : -1,
+      frame: Math.floor(walked / STRIDE),
+    }
   }
 
-  walkerPoint(id: number): Point | undefined {
-    const state = this.walkers.get(id)
-    return state && walkerPoint(state)
+  botPoint(id: number): Point | undefined {
+    const pose = this.botPose(id)
+    return pose && { x: pose.x, y: pose.y }
+  }
+
+  /** Where blobs and robots are drawn now, for hit tests. */
+  readonly where: Placement = (item) =>
+    item.kind === 'walker' ? this.botPoint(item.id) : { x: drumX(item.x, this.settings.drumGrid), y: item.y }
+
+  setAspect(aspect: number): void {
+    this.aspect = aspect
   }
 
   constructor(settings: Settings) {
@@ -299,6 +405,8 @@ export class Engine {
     clip.curve = clipCurve(1.6)
     clip.oversample = '2x'
     clip.connect(limiter).connect(out).connect(ctx.destination)
+    this.fxIn = ctx.createGain()
+    this.pedals = this.buildPedals(ctx, this.fxIn, clip)
 
     // A short bright room, built from decaying noise.
     const seconds = 1.4
@@ -315,7 +423,7 @@ export class Engine {
     this.reverb.gain.value = 1
     const wet = ctx.createGain()
     wet.gain.value = 0.22
-    this.reverb.connect(convolver).connect(wet).connect(clip)
+    this.reverb.connect(convolver).connect(wet).connect(this.fxIn)
 
     // Leads run through a drive stage, then get pushed down by every kick.
     this.leadBus = ctx.createGain()
@@ -323,7 +431,7 @@ export class Engine {
     drive.curve = clipCurve(2.4)
     drive.oversample = '2x'
     this.duck = ctx.createGain()
-    this.leadBus.connect(drive).connect(this.duck).connect(clip)
+    this.leadBus.connect(drive).connect(this.duck).connect(this.fxIn)
     const leadSend = ctx.createGain()
     leadSend.gain.value = 0.5
     this.duck.connect(leadSend).connect(this.reverb)
@@ -333,7 +441,7 @@ export class Engine {
     const drumDrive = ctx.createWaveShaper()
     drumDrive.curve = clipCurve(3)
     drumDrive.oversample = '2x'
-    this.drumBus.connect(drumDrive).connect(clip)
+    this.drumBus.connect(drumDrive).connect(this.fxIn)
 
     this.noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate)
     const n = this.noise.getChannelData(0)
@@ -342,10 +450,150 @@ export class Engine {
     return ctx
   }
 
+  /** Filter, drive, crush and echo in a row across the whole mix, each at rest until pressed. */
+  private buildPedals(ctx: AudioContext, input: AudioNode, output: AudioNode): Pedals {
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.value = 20000
+    filter.Q.value = 0.7
+    const wobble = ctx.createOscillator()
+    wobble.frequency.value = 2
+    const wobbleDepth = ctx.createGain()
+    wobbleDepth.gain.value = 0
+    wobble.connect(wobbleDepth).connect(filter.frequency)
+    wobble.start()
+    input.connect(filter)
+
+    const afterDrive = ctx.createGain()
+    const driveDry = ctx.createGain()
+    const drivePre = ctx.createGain()
+    const driveShape = ctx.createWaveShaper()
+    driveShape.curve = clipCurve(3)
+    driveShape.oversample = '4x'
+    const driveWet = ctx.createGain()
+    driveWet.gain.value = 0
+    filter.connect(driveDry).connect(afterDrive)
+    filter.connect(drivePre).connect(driveShape).connect(driveWet).connect(afterDrive)
+
+    const afterCrush = ctx.createGain()
+    const crushDry = ctx.createGain()
+    const crush = ctx.createWaveShaper()
+    crush.curve = crushCurve(16)
+    const crushWet = ctx.createGain()
+    crushWet.gain.value = 0
+    afterDrive.connect(crushDry).connect(afterCrush)
+    afterDrive.connect(crush).connect(crushWet).connect(afterCrush)
+
+    const echo = ctx.createDelay(2)
+    echo.delayTime.value = 0.25
+    const echoSend = ctx.createGain()
+    echoSend.gain.value = 0
+    const echoFeedback = ctx.createGain()
+    echoFeedback.gain.value = 0
+    const echoReturn = ctx.createGain()
+    echoReturn.gain.value = 0.7
+    afterCrush.connect(output)
+    afterCrush.connect(echoSend).connect(echo)
+    echo.connect(echoFeedback).connect(echo)
+    echo.connect(echoReturn).connect(output)
+
+    // A long hall, separate from the short room the drums sit in, fed after the echo so repeats wash too.
+    const seconds = 4
+    const impulse = ctx.createBuffer(2, Math.floor(ctx.sampleRate * seconds), ctx.sampleRate)
+    for (let ch = 0; ch < 2; ch++) {
+      const data = impulse.getChannelData(ch)
+      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) ** 2.2
+    }
+    const hall = ctx.createConvolver()
+    hall.buffer = impulse
+    const hallSend = ctx.createGain()
+    hallSend.gain.value = 0
+    const hallTone = ctx.createBiquadFilter()
+    hallTone.type = 'lowpass'
+    hallTone.frequency.value = 6000
+    const hallReturn = ctx.createGain()
+    hallReturn.gain.value = 0.8
+    afterCrush.connect(hallSend)
+    echo.connect(hallSend)
+    hallSend.connect(hall).connect(hallTone).connect(hallReturn).connect(output)
+
+    return {
+      filter,
+      wobble,
+      wobbleDepth,
+      driveDry,
+      drivePre,
+      driveWet,
+      crushDry,
+      crush,
+      crushWet,
+      crushLevels: 16,
+      echo,
+      echoSend,
+      echoFeedback,
+      hallSend,
+      hallTone,
+    }
+  }
+
+  /**
+   * Press, move or release a pedal. `x` and `y` are grid fractions of the hand or pointer:
+   * higher is more intense, and left to right sets each pedal's second control.
+   */
+  setEffect(effect: EffectName, x: number, y: number, on: boolean): void {
+    if (on) this.effects[effect] = { x, y }
+    else delete this.effects[effect]
+    if (!this.ctx) return
+    const t = this.ctx.currentTime
+    const p = this.pedals
+    const ease = 0.03
+    const up = 1 - y
+    switch (effect) {
+      case 'Filter': {
+        // Height opens the filter; across, it wobbles faster and deeper.
+        const cutoff = on ? 70 * 2 ** (up * 7.8) : 20000
+        p.filter.frequency.setTargetAtTime(cutoff, t, ease)
+        p.filter.Q.setTargetAtTime(on ? 9 : 0.7, t, ease)
+        p.wobble.frequency.setTargetAtTime(0.25 * 2 ** (x * 5), t, ease)
+        p.wobbleDepth.gain.setTargetAtTime(on ? cutoff * 0.75 * x : 0, t, ease)
+        break
+      }
+      case 'Drive':
+        p.drivePre.gain.setTargetAtTime(1 + x * 28, t, ease)
+        p.driveWet.gain.setTargetAtTime(on ? 0.15 + up * 0.5 : 0, t, ease)
+        p.driveDry.gain.setTargetAtTime(on ? 1 - up * 0.8 : 1, t, ease)
+        break
+      case 'Crush': {
+        const levels = Math.round(2 ** (1 + (1 - up) * 4))
+        if (on && levels !== p.crushLevels) {
+          p.crush.curve = crushCurve(levels)
+          p.crushLevels = levels
+        }
+        const wet = on ? 0.4 + x * 0.6 : 0
+        p.crushWet.gain.setTargetAtTime(wet, t, ease)
+        p.crushDry.gain.setTargetAtTime(1 - wet, t, ease)
+        break
+      }
+      case 'Echo': {
+        // Across picks the echo time in steps (1, 2, 3 or 4 sixteenths); height feeds it back.
+        const steps = 1 + Math.min(3, Math.floor(x * 4))
+        p.echo.delayTime.setTargetAtTime((steps * 60) / this.settings.bpm / 4, t, ease)
+        p.echoFeedback.gain.setTargetAtTime(on ? up * 0.85 : 0, t, ease)
+        p.echoSend.gain.setTargetAtTime(on ? 0.65 : 0, t, ease)
+        break
+      }
+      case 'Reverb':
+        // Height is how much hall; across goes from dark to bright. Letting go leaves the tail ringing.
+        p.hallSend.gain.setTargetAtTime(on ? 0.2 + up * 1.1 : 0, t, ease)
+        p.hallTone.frequency.setTargetAtTime(1200 * 2 ** (x * 3.4), t, ease)
+        break
+    }
+  }
+
   async start(): Promise<void> {
     if (!this.ctx) {
       this.ctx = this.build()
-      this.rebuildVoices()
+      this.syncVoices()
     }
     await this.ctx.resume()
     if (this.timer !== null) return
@@ -361,7 +609,7 @@ export class Engine {
     this.timer = null
     this.queue = []
     const now = this.now
-    for (const voice of this.voices.values()) voice.stop(now)
+    for (const { voice } of this.voices.values()) voice.stop(now)
   }
 
   /** How far through the loop the playhead is, from 0 to 1. Null while stopped. */
@@ -375,51 +623,60 @@ export class Engine {
   }
 
   update(settings: Partial<Settings>): void {
-    const leadChanged = settings.lead !== undefined && settings.lead !== this.settings.lead
+    const gridChanged = settings.drumGrid !== undefined && settings.drumGrid !== this.settings.drumGrid
     this.settings = { ...this.settings, ...settings }
-    if (leadChanged) this.rebuildVoices()
+    if (gridChanged) this.indexDrums()
+  }
+
+  private indexDrums(): void {
+    this.blobsAt = Array.from({ length: STEPS }, () => [])
+    for (const item of this.items) {
+      if (item.kind !== 'blob') continue
+      const { step, offset } = drumTiming(item.x, this.settings.drumGrid)
+      this.blobsAt[step].push({ blob: item, offset })
+    }
   }
 
   setItems(items: Item[]): void {
+    this.items = items
     this.lines.clear()
-    this.blobsAt = Array.from({ length: STEPS }, () => [])
     const robots = new Set<number>()
     for (const item of items) {
-      if (item.kind === 'line') this.lines.set(item.id, lineSteps(item))
-      else if (item.kind === 'blob') this.blobsAt[stepFromX(item.x)].push(item)
-      else {
+      if (item.kind === 'line') this.lines.set(item.id, { steps: lineSteps(item), lead: item.lead })
+      else if (item.kind === 'walker') {
         robots.add(item.id)
-        if (!this.walkers.has(item.id)) {
-          this.walkers.set(item.id, {
-            step: stepFromX(item.x),
-            row: rowFromY(item.y),
-            dir: Math.random() < 0.5 ? 1 : -1,
-            moves: 0,
+        if (!this.bots.has(item.id)) {
+          const body = startBody(item.x, item.y)
+          this.bots.set(item.id, {
+            type: item.bot,
+            body,
+            trail: [{ t: this.simTime, body }],
+            lastAct: -Infinity,
+            drops: 0,
+            swapped: new Map(),
           })
         }
       }
     }
-    for (const id of this.walkers.keys()) if (!robots.has(id)) this.walkers.delete(id)
+    this.indexDrums()
+    for (const id of this.bots.keys()) if (!robots.has(id)) this.bots.delete(id)
+    this.syncVoices()
+  }
+
+  /** One voice per line, built with that line's sound. */
+  private syncVoices(): void {
     if (!this.ctx) return
-    for (const [id, voice] of this.voices) {
-      if (!this.lines.has(id)) {
-        voice.dispose()
+    for (const [id, entry] of this.voices) {
+      const line = this.lines.get(id)
+      if (!line || line.lead !== entry.lead) {
+        entry.voice.dispose()
         this.voices.delete(id)
       }
     }
-    for (const id of this.lines.keys()) {
+    for (const [id, line] of this.lines) {
       if (!this.voices.has(id)) {
-        this.voices.set(id, new LeadVoice(this.ctx, PRESETS[this.settings.lead], this.leadBus))
+        this.voices.set(id, { voice: new LeadVoice(this.ctx, PRESETS[line.lead], this.leadBus), lead: line.lead })
       }
-    }
-  }
-
-  private rebuildVoices(): void {
-    if (!this.ctx) return
-    for (const voice of this.voices.values()) voice.dispose()
-    this.voices.clear()
-    for (const id of this.lines.keys()) {
-      this.voices.set(id, new LeadVoice(this.ctx, PRESETS[this.settings.lead], this.leadBus))
     }
   }
 
@@ -436,10 +693,11 @@ export class Engine {
 
   private schedule(step: number, time: number): void {
     const { key, scale } = this.settings
-    for (const [id, steps] of this.lines) {
-      const voice = this.voices.get(id)
+    const length = 60 / this.settings.bpm / 4
+    for (const [id, line] of this.lines) {
+      const voice = this.voices.get(id)?.voice
       if (!voice) continue
-      const y = steps[step]
+      const y = line.steps[step]
       if (y === null) {
         voice.stop(time)
         continue
@@ -449,46 +707,210 @@ export class Engine {
       voice.play(time, frequency(midiForRow(row, key, scale)), row)
       this.stats.notes++
     }
-    for (const blob of this.blobsAt[step]) {
-      this.drum(drumFromY(blob.y), time, blob.size)
+    for (const { blob, offset } of this.blobsAt[step]) {
+      const at = time + offset * length
+      this.drum(drumFromY(blob.y), at, blob.size)
       this.stats.drums++
-      this.onDrum?.(blob.id, time)
+      this.onDrum?.(blob.id, at)
     }
-    // Robots take a pace on every other step, so each pass of the playhead finds them somewhere new.
-    for (const [id, state] of this.walkers) {
-      const next = step % 2 === 0 ? paceWalker(state) : state
-      this.walkers.set(id, next)
-      if (next.step === step) {
-        this.chirp(frequency(midiForRow(next.row, key, scale)), time)
-        this.stats.chirps++
-        this.onDrum?.(id, time)
+    this.moveBots(step, time)
+  }
+
+  /** Walk every robot up to `time` and let each do its job. */
+  private moveBots(step: number, time: number): void {
+    const dt = this.simTime < 0 ? 0 : Math.min(0.25, Math.max(0, time - this.simTime))
+    this.simTime = time
+    const { key, scale } = this.settings
+    for (const [id, bot] of this.bots) {
+      bot.body = walk(bot.body, dt, this.aspect)
+      bot.trail.push({ t: time, body: bot.body })
+      if (bot.trail.length > 8) bot.trail.shift()
+      const at: Point = { x: bot.body.x, y: bot.body.y }
+      const pitch = frequency(midiForRow(rowFromY(at.y), key, scale))
+
+      switch (bot.type) {
+        case 'singer':
+          // Sings on every other step at the pitch of the row it walks on.
+          if (step % 2 === 0) {
+            this.sing(pitch, time, at.x)
+            this.act(id, time)
+          }
+          break
+        case 'swapper': {
+          const line = lineNear(this.items, at, REACH, this.aspect)
+          if (line && time - (bot.swapped.get(line.id) ?? -Infinity) > 2.5) {
+            bot.swapped.set(line.id, time)
+            const lead = LEADS[(LEADS.indexOf(line.lead) + 1) % LEADS.length]
+            this.onEdit?.({ kind: 'swap', by: id, lineId: line.id, lead })
+            this.swoop(time)
+            this.act(id, time)
+          }
+          break
+        }
+        case 'eater':
+          if (time - bot.lastAct > 0.22 && touches(this.items, at, REACH, this.aspect, this.where)) {
+            bot.lastAct = time
+            this.onEdit?.({ kind: 'bite', by: id, at, radius: REACH })
+            this.crunch(time)
+            this.act(id, time)
+          }
+          break
+        case 'dropper':
+          // Leaves something behind twice a bar: a drum, then a short run of melody.
+          if (step % 8 === 4) {
+            bot.drops++
+            const item =
+              bot.drops % 2 === 1
+                ? { kind: 'blob' as const, x: at.x, y: at.y, size: 0.5, by: id }
+                : {
+                    kind: 'line' as const,
+                    lead: this.settings.lead,
+                    by: id,
+                    points: Array.from({ length: 7 }, (_, i) => ({ x: Math.min(1, at.x + (i * 2.2) / STEPS / 6), y: at.y })),
+                  }
+            this.onEdit?.({ kind: 'drop', by: id, item })
+            this.plip(time)
+            this.act(id, time)
+          }
+          break
+        case 'bumper':
+          break
       }
     }
   }
 
-  /** A robot's voice: a short, bright, metallic pluck at the pitch of the row it stands on. */
-  private chirp(hz: number, time: number): void {
+  private act(id: number, time: number): void {
+    this.stats.robot++
+    this.onDrum?.(id, time)
+  }
+
+  /** Hit a robot by hand or pointer. Bumpers shout; the others just flinch. */
+  hit(id: number): void {
+    const bot = this.bots.get(id)
+    if (!bot) return
+    bot.body = { ...bot.body, heading: bot.body.heading + Math.PI, turn: 0 }
+    if (!this.ctx || bot.type !== 'bumper') return
+    const time = this.ctx.currentTime + 0.005
+    const { key, scale } = this.settings
+    this.shout(frequency(midiForRow(rowFromY(bot.body.y), key, scale)), time)
+    this.act(id, time)
+  }
+
+  private voiceOut(time: number, x: number): AudioNode {
+    const pan = this.ctx!.createStereoPanner()
+    pan.pan.setValueAtTime((x * 2 - 1) * 0.7, time)
+    pan.connect(this.leadBus)
+    return pan
+  }
+
+  /** The singer: a bright, glassy FM pluck with a sub under it, panned to where it stands. */
+  private sing(hz: number, time: number, x: number): void {
     const ctx = this.ctx!
-    const f = hz * 2
+    const out = this.voiceOut(time, x)
     const carrier = ctx.createOscillator()
-    carrier.frequency.setValueAtTime(f * 1.5, time)
-    carrier.frequency.exponentialRampToValueAtTime(f, time + 0.02)
+    carrier.frequency.setValueAtTime(hz * 2.02, time)
+    carrier.frequency.exponentialRampToValueAtTime(hz * 2, time + 0.03)
     const mod = ctx.createOscillator()
-    mod.type = 'square'
-    mod.frequency.value = f * 2.01
+    mod.frequency.value = hz * 6
     const depth = ctx.createGain()
-    depth.gain.setValueAtTime(f * 5, time)
-    depth.gain.setTargetAtTime(f * 0.3, time, 0.03)
+    depth.gain.setValueAtTime(hz * 7, time)
+    depth.gain.setTargetAtTime(hz * 0.6, time, 0.05)
     mod.connect(depth).connect(carrier.frequency)
+    const sub = ctx.createOscillator()
+    sub.type = 'triangle'
+    sub.frequency.value = hz
     const amp = ctx.createGain()
     amp.gain.setValueAtTime(0, time)
-    amp.gain.linearRampToValueAtTime(0.2, time + 0.002)
-    amp.gain.setTargetAtTime(0, time + 0.002, 0.045)
-    carrier.connect(amp).connect(this.leadBus)
-    for (const osc of [carrier, mod]) {
+    amp.gain.linearRampToValueAtTime(0.32, time + 0.003)
+    amp.gain.setTargetAtTime(0, time + 0.003, 0.09)
+    carrier.connect(amp)
+    sub.connect(amp)
+    amp.connect(out)
+    for (const osc of [carrier, mod, sub]) {
       osc.start(time)
-      osc.stop(time + 0.4)
+      osc.stop(time + 0.6)
     }
+  }
+
+  /** The swapper: a quick rising swoop as a line changes sound. */
+  private swoop(time: number): void {
+    const ctx = this.ctx!
+    const osc = ctx.createOscillator()
+    osc.type = 'square'
+    osc.frequency.setValueAtTime(380, time)
+    osc.frequency.exponentialRampToValueAtTime(2400, time + 0.14)
+    const amp = ctx.createGain()
+    amp.gain.setValueAtTime(0.14, time)
+    amp.gain.setTargetAtTime(0, time + 0.1, 0.03)
+    osc.connect(amp).connect(this.leadBus)
+    osc.start(time)
+    osc.stop(time + 0.3)
+  }
+
+  /** The eater: a crunch, filtered noise over a low thud. */
+  private crunch(time: number): void {
+    const ctx = this.ctx!
+    const band = ctx.createBiquadFilter()
+    band.type = 'bandpass'
+    band.frequency.value = 1700
+    band.Q.value = 1.6
+    const amp = ctx.createGain()
+    amp.gain.setValueAtTime(0.5, time)
+    amp.gain.setTargetAtTime(0, time, 0.025)
+    this.burst(time, 0.1).connect(band).connect(amp).connect(this.drumBus)
+    const thud = ctx.createOscillator()
+    thud.frequency.setValueAtTime(140, time)
+    thud.frequency.exponentialRampToValueAtTime(55, time + 0.06)
+    const low = ctx.createGain()
+    low.gain.setValueAtTime(0.5, time)
+    low.gain.setTargetAtTime(0, time, 0.03)
+    thud.connect(low).connect(this.drumBus)
+    thud.start(time)
+    thud.stop(time + 0.2)
+  }
+
+  /** The dropper: a small falling plip as it leaves something. */
+  private plip(time: number): void {
+    const ctx = this.ctx!
+    const osc = ctx.createOscillator()
+    osc.frequency.setValueAtTime(1500, time)
+    osc.frequency.exponentialRampToValueAtTime(700, time + 0.06)
+    const amp = ctx.createGain()
+    amp.gain.setValueAtTime(0.18, time)
+    amp.gain.setTargetAtTime(0, time, 0.03)
+    osc.connect(amp).connect(this.leadBus)
+    osc.start(time)
+    osc.stop(time + 0.2)
+  }
+
+  /** The bumper: a pitched vocal chop, a sawtooth through two vowel formants, sliding up into the note. */
+  private shout(hz: number, time: number): void {
+    const ctx = this.ctx!
+    const src = ctx.createOscillator()
+    src.type = 'sawtooth'
+    src.frequency.setValueAtTime(hz * 0.75, time)
+    src.frequency.exponentialRampToValueAtTime(hz, time + 0.05)
+    const amp = ctx.createGain()
+    amp.gain.setValueAtTime(0, time)
+    amp.gain.linearRampToValueAtTime(0.55, time + 0.008)
+    amp.gain.setTargetAtTime(0, time + 0.12, 0.06)
+    for (const [f, q, level] of [
+      [800, 6, 1],
+      [1250, 7, 0.7],
+      [2600, 9, 0.3],
+    ]) {
+      const band = ctx.createBiquadFilter()
+      band.type = 'bandpass'
+      band.frequency.value = f
+      band.Q.value = q
+      const g = ctx.createGain()
+      g.gain.value = level
+      src.connect(band).connect(g).connect(amp)
+    }
+    amp.connect(this.leadBus)
+    amp.connect(this.reverb)
+    src.start(time)
+    src.stop(time + 0.6)
   }
 
   private burst(time: number, seconds: number): AudioBufferSourceNode {

@@ -1,10 +1,10 @@
 import type { Point } from '@/model/score'
 
-export type Pose = 'open' | 'pinch' | 'fist'
+export type Pose = 'open' | 'pinch' | 'fist' | 'point' | 'peace'
 
 /** Thumb tip to index tip, as a fraction of the hand's size. */
-const PINCH_ON = 0.3
-const PINCH_OFF = 0.45
+const PINCH_ON = 0.33
+const PINCH_OFF = 0.5
 
 const WRIST = 0
 const THUMB_TIP = 4
@@ -22,7 +22,17 @@ export interface HandReading {
   pose: Pose
   /** Where the hand points: midway between thumb tip and index tip, or the palm for a fist. */
   point: Point
+  /** The middle of the palm. */
+  palm: Point
+  /**
+   * How far the hand is twisted like a dial, from -1 (turned left on screen) to 1 (turned right).
+   * Measured on the mirrored picture the player sees.
+   */
+  twist: number
 }
+
+/** Twisting this far either way reads as fully turned. */
+const TWIST_RANGE = (55 * Math.PI) / 180
 
 /**
  * Read a pose from the 21 hand keypoints.
@@ -34,7 +44,19 @@ export function readHand(landmarks: Point[], aspect: number, previous: Pose = 'o
     Math.hypot((landmarks[a].x - landmarks[b].x) * aspect, landmarks[a].y - landmarks[b].y)
 
   const size = d(WRIST, MIDDLE_KNUCKLE) || 1e-6
-  const curled = FINGERS.every(([joint, tip]) => d(tip, WRIST) < d(joint, WRIST))
+  const isCurled = ([joint, tip]: readonly [number, number]) => d(tip, WRIST) < d(joint, WRIST)
+  const curled = FINGERS.every(isCurled)
+
+  const palmIds = [WRIST, 5, MIDDLE_KNUCKLE, 13, 17]
+  const palm = {
+    x: palmIds.reduce((sum, i) => sum + landmarks[i].x, 0) / palmIds.length,
+    y: palmIds.reduce((sum, i) => sum + landmarks[i].y, 0) / palmIds.length,
+  }
+  // The wrist-to-knuckle axis against straight up. The camera image is unmirrored, so flip x
+  // to measure the twist the player sees on screen.
+  const axisX = -(landmarks[MIDDLE_KNUCKLE].x - landmarks[WRIST].x) * aspect
+  const axisY = landmarks[MIDDLE_KNUCKLE].y - landmarks[WRIST].y
+  const twist = Math.max(-1, Math.min(1, Math.atan2(axisX, -axisY) / TWIST_RANGE))
 
   if (curled) {
     return {
@@ -43,18 +65,30 @@ export function readHand(landmarks: Point[], aspect: number, previous: Pose = 'o
         x: (landmarks[WRIST].x + landmarks[MIDDLE_KNUCKLE].x) / 2,
         y: (landmarks[WRIST].y + landmarks[MIDDLE_KNUCKLE].y) / 2,
       },
+      palm,
+      twist,
     }
   }
 
   const ratio = d(THUMB_TIP, INDEX_TIP) / size
   const pinched = ratio < (previous === 'pinch' ? PINCH_OFF : PINCH_ON)
-  return {
-    pose: pinched ? 'pinch' : 'open',
-    point: {
-      x: (landmarks[THUMB_TIP].x + landmarks[INDEX_TIP].x) / 2,
-      y: (landmarks[THUMB_TIP].y + landmarks[INDEX_TIP].y) / 2,
-    },
+  const pinchPoint = {
+    x: (landmarks[THUMB_TIP].x + landmarks[INDEX_TIP].x) / 2,
+    y: (landmarks[THUMB_TIP].y + landmarks[INDEX_TIP].y) / 2,
   }
+  if (pinched) return { pose: 'pinch', point: pinchPoint, palm, twist }
+
+  // Pointing: the index finger out well past its middle joint, the other three curled.
+  // Two fingers: index and middle out, ring and little curled.
+  const [index, middle, ...rest] = FINGERS
+  const isOut = ([joint, tip]: readonly [number, number]) => d(tip, WRIST) > d(joint, WRIST) * 1.15
+  if (isOut(index) && isOut(middle) && rest.every(isCurled)) {
+    return { pose: 'peace', point: landmarks[INDEX_TIP], palm, twist }
+  }
+  if (isOut(index) && isCurled(middle) && rest.every(isCurled)) {
+    return { pose: 'point', point: landmarks[INDEX_TIP], palm, twist }
+  }
+  return { pose: 'open', point: pinchPoint, palm, twist }
 }
 
 /** One Euro filter: steady when the hand is still, quick when it moves. */

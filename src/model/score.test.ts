@@ -7,17 +7,18 @@ import {
   lineSteps,
   midiForRow,
   noteName,
-  paceWalker,
   rowFromY,
+  biteAt,
+  drumTiming,
+  drumX,
   type Item,
   type Line,
-  type WalkerState,
 } from './score'
 
 const line = (points: [number, number][]): Line => ({
   kind: 'line',
   id: 1,
-  ink: 0,
+  lead: 'Supersaw',
   points: points.map(([x, y]) => ({ x, y })),
 })
 
@@ -56,7 +57,7 @@ describe('eraseAt', () => {
   const items: Item[] = [
     line([[0.1, 0.1], [0.3, 0.1]]),
     { kind: 'blob', id: 2, x: 0.8, y: 0.8, size: 0.5 },
-    { kind: 'walker', id: 3, x: 0.5, y: 0.5 },
+    { kind: 'walker', id: 3, bot: 'eater', x: 0.5, y: 0.5 },
   ]
   it('removes whatever the rubber touches and nothing else', () => {
     expect(eraseAt(items, { x: 0.2, y: 0.12 }, 0.05, 1.6).map((i) => i.id)).toEqual([2, 3])
@@ -64,29 +65,43 @@ describe('eraseAt', () => {
     expect(eraseAt(items, { x: 0.6, y: 0.3 }, 0.05, 1.6)).toHaveLength(3)
   })
   it('finds a robot where it has walked to, not where it was dropped', () => {
-    const moved = () => ({ x: 0.9, y: 0.2 })
+    const moved = (item: Item) => (item.kind === 'walker' ? { x: 0.9, y: 0.2 } : undefined)
     expect(eraseAt(items, { x: 0.5, y: 0.5 }, 0.05, 1.6, moved)).toHaveLength(3)
     expect(eraseAt(items, { x: 0.9, y: 0.2 }, 0.05, 1.6, moved).map((i) => i.id)).toEqual([1, 2])
   })
 })
 
-describe('paceWalker', () => {
-  it('stays on the grid and keeps moving over many paces', () => {
-    let seed = 7
-    const random = () => (seed = (seed * 16807) % 2147483647) / 2147483647
-    let w: WalkerState = { step: 0, row: 0, dir: -1, moves: 0 }
-    const seen = new Set<number>()
-    for (let i = 0; i < 500; i++) {
-      const next = paceWalker(w, random)
-      expect(Math.abs(next.step - w.step)).toBe(1)
-      expect(next.step).toBeGreaterThanOrEqual(0)
-      expect(next.step).toBeLessThan(STEPS)
-      expect(next.row).toBeGreaterThanOrEqual(0)
-      expect(next.row).toBeLessThan(ROWS)
-      seen.add(next.step)
-      w = next
-    }
-    expect(w.moves).toBe(500)
-    expect(seen.size).toBeGreaterThan(8)
+describe('drum timing', () => {
+  it('snaps to the nearest allowed step, and plays exactly where it sits when free', () => {
+    const x = 5.4 / STEPS
+    expect(drumTiming(x, '1/16')).toEqual({ step: 5, offset: 0 })
+    expect(drumTiming(x, '1/8')).toEqual({ step: 6, offset: 0 })
+    expect(drumTiming(x, '1/4')).toEqual({ step: 4, offset: 0 })
+    const free = drumTiming(x, 'Free')
+    expect(free.step).toBe(5)
+    expect(free.offset).toBeCloseTo(0.4)
+  })
+
+  it('draws a snapped drum on the grid line it plays on, and wraps the last one round', () => {
+    expect(drumX(5.4 / STEPS, '1/4')).toBeCloseTo(4 / STEPS)
+    expect(drumX(31.8 / STEPS, '1/4')).toBe(0)
+    expect(drumX(0.123, 'Free')).toBe(0.123)
+  })
+})
+
+describe('biteAt', () => {
+  it('splits a line where the bite lands and swallows drums, never robots', () => {
+    let next = 100
+    const points = Array.from({ length: 21 }, (_, i) => [0.1 + i * 0.02, 0.5] as [number, number])
+    const items: Item[] = [
+      line(points),
+      { kind: 'blob', id: 2, x: 0.3, y: 0.52, size: 0.5 },
+      { kind: 'walker', id: 3, bot: 'eater', x: 0.3, y: 0.5 },
+    ]
+    const out = biteAt(items, { x: 0.3, y: 0.5 }, 0.03, 1, () => next++)
+    const lines = out.filter((i) => i.kind === 'line')
+    expect(lines.map((l) => l.id)).toEqual([1, 100])
+    expect(out.some((i) => i.kind === 'blob')).toBe(false)
+    expect(out.some((i) => i.kind === 'walker')).toBe(true)
   })
 })

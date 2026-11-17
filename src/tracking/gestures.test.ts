@@ -45,6 +45,34 @@ describe('readHand', () => {
   })
 })
 
+describe('readHand, effects gestures', () => {
+  it('reads pointing when only the index finger is out', () => {
+    const pointing = hand({
+      12: { x: 0.5, y: 0.72 },
+      16: { x: 0.54, y: 0.73 },
+      20: { x: 0.58, y: 0.75 },
+      4: { x: 0.4, y: 0.75 },
+    })
+    expect(readHand(pointing, 1).pose).toBe('point')
+  })
+
+  it('reads two fingers when index and middle are out and the others curled', () => {
+    const peace = hand({
+      16: { x: 0.54, y: 0.73 },
+      20: { x: 0.58, y: 0.75 },
+      4: { x: 0.4, y: 0.75 },
+    })
+    expect(readHand(peace, 1).pose).toBe('peace')
+  })
+
+  it('reads twist as the hand turns like a dial, mirrored the way the player sees it', () => {
+    expect(Math.abs(readHand(hand(), 1).twist)).toBeLessThan(0.1)
+    // Middle knuckle moved to the right in the raw image is a turn to the left on screen.
+    const turned = hand({ 9: { x: 0.68, y: 0.75 } })
+    expect(readHand(turned, 1).twist).toBeLessThan(-0.5)
+  })
+})
+
 describe('Smoother', () => {
   it('settles on a steady value and removes most of a small jitter', () => {
     const s = new Smoother()

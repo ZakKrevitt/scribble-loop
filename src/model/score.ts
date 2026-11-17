@@ -16,6 +16,17 @@ export const SCALES = {
 } as const
 export type ScaleName = keyof typeof SCALES
 
+/** The lead sounds. Every line plays one; its colour on the grid says which. */
+export const LEADS = ['Supersaw', 'Rubber', 'Glass', 'Chip'] as const
+export type LeadName = (typeof LEADS)[number]
+
+/** Drum timing: how many sixteenth steps a drum snaps to. Free plays exactly where it sits. */
+export const DRUM_GRIDS = { Free: 0, '1/16': 1, '1/8': 2, '1/4': 4 } as const
+export type DrumGrid = keyof typeof DRUM_GRIDS
+
+export const BOTS = ['singer', 'swapper', 'eater', 'dropper', 'bumper'] as const
+export type BotType = (typeof BOTS)[number]
+
 export const KEYS = ['C', 'C#', 'D', 'D#', 'E', 'F', 'F#', 'G', 'G#', 'A', 'A#', 'B'] as const
 export type KeyName = (typeof KEYS)[number]
 
@@ -29,7 +40,9 @@ export interface Line {
   kind: 'line'
   id: number
   points: Point[]
-  ink: number
+  lead: LeadName
+  /** The robot that left it, if one did. */
+  by?: number
 }
 
 export interface Blob {
@@ -39,25 +52,46 @@ export interface Blob {
   y: number
   /** 0 to 1. Larger blobs hit harder and ring longer. */
   size: number
+  by?: number
 }
 
-/** A robot that walks the grid by itself and chirps when the playhead reaches it. */
+/** A robot that walks the grid by itself. What it does depends on its type. */
 export interface Walker {
   kind: 'walker'
   id: number
-  /** Where it was dropped. It wanders from here once the loop is playing. */
+  bot: BotType
+  /** Where it was dropped. It walks from here once the loop is playing. */
   x: number
   y: number
 }
 
 export type Item = Line | Blob | Walker
 
-export const MAX_WALKERS = 6
+export const MAX_WALKERS = 8
 
 const clamp = (v: number, lo: number, hi: number) => Math.min(hi, Math.max(lo, v))
 
 export function stepFromX(x: number): number {
   return clamp(Math.floor(x * STEPS), 0, STEPS - 1)
+}
+
+/**
+ * When a drum at `x` plays: the step it fires on, and how far into that step (0 to 1).
+ * Snapped drums fire at the start of the nearest allowed step; free drums fire exactly at `x`.
+ */
+export function drumTiming(x: number, grid: DrumGrid): { step: number; offset: number } {
+  const every = DRUM_GRIDS[grid]
+  if (every === 0) {
+    const step = stepFromX(x)
+    return { step, offset: clamp(x * STEPS - step, 0, 0.999) }
+  }
+  return { step: (Math.round((x * STEPS) / every) * every) % STEPS, offset: 0 }
+}
+
+/** Where a drum is drawn: on the grid line it snaps to, or where it was placed when free. */
+export function drumX(x: number, grid: DrumGrid): number {
+  if (DRUM_GRIDS[grid] === 0) return x
+  return drumTiming(x, grid).step / STEPS
 }
 
 export function rowFromY(y: number): number {
@@ -111,64 +145,91 @@ export function lineSteps(line: Line): (number | null)[] {
   return out
 }
 
+/** Where an item is on screen now, when that differs from where it was stored. */
+export type Placement = (item: Blob | Walker) => Point | undefined
+
+function nearLine(points: Point[], at: Point, radius: number, aspect: number): boolean {
+  if (points.length === 1) return Math.hypot((points[0].x - at.x) * aspect, points[0].y - at.y) <= radius
+  for (let i = 0; i < points.length - 1; i++) {
+    // Nearest point on this stretch of the line, measured in the same square space.
+    const ax = points[i].x * aspect
+    const dx = points[i + 1].x * aspect - ax
+    const dy = points[i + 1].y - points[i].y
+    const len = dx * dx + dy * dy || 1e-9
+    const t = clamp(((at.x * aspect - ax) * dx + (at.y - points[i].y) * dy) / len, 0, 1)
+    if (Math.hypot(at.x * aspect - (ax + t * dx), at.y - (points[i].y + t * dy)) <= radius) return true
+  }
+  return false
+}
+
 /** Remove every item that comes within `radius` of the point. `aspect` is grid width over height. */
 export function eraseAt(
   items: Item[],
   at: Point,
   radius: number,
   aspect: number,
-  /** Where a walker is now, if it has moved from where it was dropped. */
-  walkerAt: (id: number) => Point | undefined = () => undefined,
+  where: Placement = () => undefined,
 ): Item[] {
   const near = (p: Point) => Math.hypot((p.x - at.x) * aspect, p.y - at.y) <= radius
   return items.filter((item) => {
-    if (item.kind === 'blob') return !near(item)
-    if (item.kind === 'walker') return !near(walkerAt(item.id) ?? item)
-    const pts = item.points
-    if (pts.length === 1) return !near(pts[0])
-    for (let i = 0; i < pts.length - 1; i++) {
-      // Nearest point on this stretch of the line, measured in the same square space.
-      const ax = pts[i].x * aspect
-      const bx = pts[i + 1].x * aspect
-      const dx = bx - ax
-      const dy = pts[i + 1].y - pts[i].y
-      const len = dx * dx + dy * dy || 1e-9
-      const t = clamp(((at.x * aspect - ax) * dx + (at.y - pts[i].y) * dy) / len, 0, 1)
-      if (Math.hypot(at.x * aspect - (ax + t * dx), at.y - (pts[i].y + t * dy)) <= radius) return false
-    }
-    return true
+    if (item.kind === 'line') return !nearLine(item.points, at, radius, aspect)
+    return !near(where(item) ?? item)
   })
 }
 
-/** A walker's place on the grid, in whole columns and rows. */
-export interface WalkerState {
-  step: number
-  row: number
-  dir: 1 | -1
-  /** How many moves it has made. Drives the walk cycle. */
-  moves: number
-}
-
 /**
- * Move a walker one pace: a column in the direction it faces, sometimes a row up or down,
- * turning round at the edges and now and then for no reason.
+ * Take a bite out of the song: drums under the point go, and lines lose the stretch under it,
+ * splitting in two where the bite lands in the middle. Robots are never eaten.
  */
-export function paceWalker(w: WalkerState, random: () => number = Math.random): WalkerState {
-  let dir = w.dir
-  if (random() < 0.12) dir = dir === 1 ? -1 : 1
-  let step = w.step + dir
-  if (step < 0 || step >= STEPS) {
-    dir = dir === 1 ? -1 : 1
-    step = w.step + dir
+export function biteAt(
+  items: Item[],
+  at: Point,
+  radius: number,
+  aspect: number,
+  nextId: () => number,
+  where: Placement = () => undefined,
+): Item[] {
+  const near = (p: Point) => Math.hypot((p.x - at.x) * aspect, p.y - at.y) <= radius
+  const out: Item[] = []
+  for (const item of items) {
+    if (item.kind === 'walker') out.push(item)
+    else if (item.kind === 'blob') {
+      if (!near(where(item) ?? item)) out.push(item)
+    } else {
+      if (!item.points.some(near)) {
+        out.push(item)
+        continue
+      }
+      let run: Point[] = []
+      let first = true
+      const flush = () => {
+        if (run.length >= 2) {
+          out.push({ ...item, id: first ? item.id : nextId(), points: run })
+          first = false
+        }
+        run = []
+      }
+      for (const p of item.points) {
+        if (near(p)) flush()
+        else run.push(p)
+      }
+      flush()
+    }
   }
-  let row = w.row
-  const hop = random()
-  if (hop < 0.2) row += 1
-  else if (hop < 0.4) row -= 1
-  row = clamp(row, 0, ROWS - 1)
-  return { step, row, dir, moves: w.moves + 1 }
+  return out
 }
 
-export function walkerPoint(w: WalkerState): Point {
-  return { x: (w.step + 0.5) / STEPS, y: 1 - (w.row + 0.5) / ROWS }
+/** True when anything edible is within reach. */
+export function touches(items: Item[], at: Point, radius: number, aspect: number, where: Placement = () => undefined): boolean {
+  const near = (p: Point) => Math.hypot((p.x - at.x) * aspect, p.y - at.y) <= radius
+  return items.some((item) => {
+    if (item.kind === 'walker') return false
+    if (item.kind === 'blob') return near(where(item) ?? item)
+    return item.points.some(near)
+  })
+}
+
+/** The first line within reach of the point, if any. */
+export function lineNear(items: Item[], at: Point, radius: number, aspect: number): Line | undefined {
+  return items.find((i): i is Line => i.kind === 'line' && nearLine(i.points, at, radius, aspect))
 }

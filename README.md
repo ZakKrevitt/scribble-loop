@@ -10,13 +10,48 @@ grid from left to right on a loop and plays what it touches. Height is pitch, le
 
 ## Playing
 
-| | With a hand | With a mouse or finger |
+Each line plays its own sound, shown by its colour: pink Supersaw, mint Rubber, yellow Glass, lilac Chip. The Sound
+control sets the sound for the next line.
+
+| | Writing hand (right by default) | Mouse or finger |
 |---|---|---|
 | Melody line | Pinch thumb and index, drag | Drag |
 | Drum sticker | Pinch and hold still (longer is louder) | Press and hold still |
-| Rub out | Make a fist over it | Choose Rub out, or right-drag |
+| Change a line's sound | Point at it | Alt-click it |
+| Change the sound for new lines | Point at empty space and hold | Sound menu |
+| Erase | Make a fist over it | Erase mode, or right-drag |
 
-Space starts and stops. Cmd or Ctrl and Z undoes.
+Drums snap to the grid set by Drums: free, 1/16, 1/8 or 1/4.
+
+### Effects
+
+The other hand (left by default) plays pedals over the whole mix. The gesture picks the pedal, the height of the hand
+sets how strong it is, and twisting the hand like a dial sets its second control. Drop the hand out of view to let
+go. The Pedals menu swaps which hand does what, reassigns gestures, and can hold pedals on.
+
+| Gesture | Pedal | Height | Twist |
+|---|---|---|---|
+| Open palm | Filter | Cutoff | Wobble speed and depth |
+| Fist | Drive | Amount | Grit |
+| Pinch | Echo | Feedback | Time, 1/16 to 1/4 |
+| Point | Crush | Bit depth | Mix |
+| Two fingers | Reverb | Amount | Dark to bright |
+
+With the mouse, choose Effects and drag; the Pedals menu picks which pedal it plays.
+
+### Robots
+
+Robots walk the grid on their own, so no two passes of the loop are the same. Add them from the Robots menu.
+
+| Robot | Does |
+|---|---|
+| Singer | Sings a note on every other step at the height it walks |
+| Swapper | Changes the sound of any line it walks over |
+| Eater | Eats drums and bites chunks out of lines |
+| Dropper | Leaves drums and short runs of melody behind, at most twelve at a time |
+| Bumper | Shouts when you hit it with your hand or click it |
+
+Space starts and stops. Cmd or Ctrl and Z undoes; robots' own changes are not in the undo history.
 
 ## Running it
 

@@ -5,8 +5,12 @@ import {
   drumFromY,
   midiForRow,
   noteName,
+  drumX,
   type Blob,
+  type BotType,
   type Drum,
+  type DrumGrid,
+  type LeadName,
   type KeyName,
   type Point,
   type ScaleName,
@@ -23,13 +27,22 @@ const PLUM = 'oklch(0.27 0.09 340)'
 const WHITE = 'oklch(0.995 0.005 345)'
 const SHADOW = 'oklch(0.27 0.09 340 / 0.35)'
 
-/** Pen colours for melody lines, taken in turn. */
-export const INKS = [
-  'oklch(0.68 0.25 357)',
-  'oklch(0.8 0.15 185)',
-  'oklch(0.9 0.17 98)',
-  'oklch(0.66 0.21 305)',
-]
+/** Each lead sound has its own pen colour, so a line shows what it plays. */
+export const LEAD_INK: Record<LeadName, string> = {
+  Supersaw: 'oklch(0.68 0.25 357)',
+  Rubber: 'oklch(0.8 0.15 185)',
+  Glass: 'oklch(0.86 0.17 92)',
+  Chip: 'oklch(0.66 0.21 305)',
+}
+
+/** The tint laid over each robot's sticker, so the five kinds are told apart at a glance. */
+export const BOT_TINT: Record<BotType, string> = {
+  singer: 'oklch(0.5 0.13 185 / 0.7)',
+  swapper: 'oklch(0.62 0.16 70 / 0.72)',
+  eater: 'oklch(0.48 0.2 25 / 0.72)',
+  dropper: 'oklch(0.45 0.18 300 / 0.7)',
+  bumper: 'oklch(0.48 0.17 255 / 0.72)',
+}
 
 export const DRUM_INK: Record<Drum, string> = {
   kick: 'oklch(0.62 0.24 22)',
@@ -120,8 +133,8 @@ export function blobRadius(grid: Rect, size: number): number {
   return Math.max(9 + 5 * size, (0.016 + 0.026 * size) * Math.min(grid.h, grid.w * 0.7))
 }
 
-export function drawBlob(ctx: CanvasRenderingContext2D, grid: Rect, blob: Blob, scale: number): void {
-  const p = toPx(grid, blob)
+export function drawBlob(ctx: CanvasRenderingContext2D, grid: Rect, blob: Blob, scale: number, timing: DrumGrid): void {
+  const p = toPx(grid, { x: drumX(blob.x, timing), y: blob.y })
   drawSticker(ctx, drumFromY(blob.y), p.x, p.y, blobRadius(grid, blob.size) * scale)
 }
 
@@ -132,14 +145,18 @@ export const WALK_FRAMES = 12
  * Turn the rendered walk cycle into booth stickers: each frame tinted plum with a white cut edge.
  * The source is a strip of square frames, the AnyMachine Stilt walking in place, seen from the side.
  */
-export function stickerSheet(strip: HTMLImageElement, edge = 8): HTMLCanvasElement {
+export function stickerSheet(
+  strip: HTMLImageElement,
+  edge = 8,
+  tint = 'oklch(0.38 0.15 340 / 0.62)',
+): HTMLCanvasElement {
   const tinted = document.createElement('canvas')
   tinted.width = strip.naturalWidth
   tinted.height = strip.naturalHeight
   const t = tinted.getContext('2d')!
   t.drawImage(strip, 0, 0)
   t.globalCompositeOperation = 'source-atop'
-  t.fillStyle = 'oklch(0.38 0.15 340 / 0.62)'
+  t.fillStyle = tint
   t.fillRect(0, 0, tinted.width, tinted.height)
 
   const sheet = document.createElement('canvas')
@@ -359,7 +376,7 @@ export function drawPlayhead(ctx: CanvasRenderingContext2D, grid: Rect, position
   ctx.restore()
 }
 
-export type CursorKind = 'hover' | 'draw' | 'erase'
+export type CursorKind = 'hover' | 'draw' | 'erase' | 'point'
 
 export function drawCursor(
   ctx: CanvasRenderingContext2D,
@@ -367,6 +384,8 @@ export function drawCursor(
   y: number,
   kind: CursorKind,
   eraseRadius: number,
+  /** The pen colour, shown in the pointing cursor so the player sees which sound is loaded. */
+  ink = PLUM,
 ): void {
   ctx.save()
   ctx.shadowColor = SHADOW
@@ -386,6 +405,14 @@ export function drawCursor(
     ctx.lineWidth = 3
     ctx.strokeStyle = PLUM
     ctx.stroke()
+  } else if (kind === 'point') {
+    ring(14)
+    ctx.lineWidth = 6
+    ctx.strokeStyle = WHITE
+    ctx.stroke()
+    ctx.shadowColor = 'transparent'
+    ctx.fillStyle = ink
+    ctx.fill()
   } else if (kind === 'draw') {
     ring(11)
     ctx.lineWidth = 5
@@ -404,5 +431,56 @@ export function drawCursor(
     ctx.strokeStyle = PLUM
     ctx.stroke()
   }
+  ctx.restore()
+}
+
+/** The effects pad: full-height and full-width guides through the point, and a fat ring on it. */
+export function drawPad(
+  ctx: CanvasRenderingContext2D,
+  grid: Rect,
+  at: Point,
+  label: string,
+  /** The pedal's second control, 0 to 1, shown as an arc round the ring like a knob. */
+  amount: number,
+): void {
+  const p = toPx(grid, at)
+  ctx.save()
+  ctx.strokeStyle = 'oklch(0.995 0.005 345 / 0.85)'
+  ctx.lineWidth = 2
+  ctx.setLineDash([2, 8])
+  ctx.beginPath()
+  ctx.moveTo(grid.x, p.y)
+  ctx.lineTo(grid.x + grid.w, p.y)
+  ctx.moveTo(p.x, grid.y)
+  ctx.lineTo(p.x, grid.y + grid.h)
+  ctx.stroke()
+  ctx.setLineDash([])
+  ctx.shadowColor = SHADOW
+  ctx.shadowBlur = 8
+  ctx.shadowOffsetY = 3
+  ctx.beginPath()
+  ctx.arc(p.x, p.y, 26, 0, Math.PI * 2)
+  ctx.lineWidth = 12
+  ctx.strokeStyle = WHITE
+  ctx.stroke()
+  ctx.shadowColor = 'transparent'
+  ctx.lineWidth = 6
+  ctx.strokeStyle = PLUM
+  ctx.stroke()
+  ctx.beginPath()
+  ctx.arc(p.x, p.y, 26, -Math.PI / 2, -Math.PI / 2 + Math.max(0.04, amount) * Math.PI * 2)
+  ctx.lineWidth = 6
+  ctx.lineCap = 'round'
+  ctx.strokeStyle = 'oklch(0.8 0.15 185)'
+  ctx.stroke()
+  ctx.font = `700 15px ${FONT}`
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = 5
+  ctx.strokeStyle = WHITE
+  ctx.strokeText(label, p.x, p.y - 46)
+  ctx.fillStyle = PLUM
+  ctx.fillText(label, p.x, p.y - 46)
   ctx.restore()
 }
