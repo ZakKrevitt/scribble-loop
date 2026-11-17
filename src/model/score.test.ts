@@ -8,7 +8,9 @@ import {
   midiForRow,
   noteName,
   rowFromY,
+  arpOrder,
   biteAt,
+  chordRows,
   drumTiming,
   drumX,
   type Item,
@@ -105,3 +107,24 @@ describe('biteAt', () => {
     expect(out.some((i) => i.kind === 'walker')).toBe(true)
   })
 })
+
+describe('chords and arpeggios', () => {
+  it('stacks chords in steps of the scale, so every note stays in key', () => {
+    expect(chordRows('Triad', 7)).toEqual([0, 2, 4])
+    expect(chordRows('Seventh', 7)).toEqual([0, 2, 4, 6])
+    expect(chordRows('Power', 7)).toEqual([0, 4, 7])
+    expect(chordRows('Power', 5)).toEqual([0, 3, 5])
+    expect(chordRows('Octaves', 12)).toEqual([0, 12])
+    expect(chordRows('Off', 5)).toEqual([0])
+    // In A minor pentatonic, a power chord on A is A, E and the A above.
+    expect(chordRows('Power', 5).map((r) => noteName(midiForRow(r, 'A', 'Minor pentatonic')))).toEqual(['A3', 'E4', 'A4'])
+  })
+
+  it('orders arpeggios up, down, and up and down without repeating the ends', () => {
+    expect(arpOrder('Up', 3)).toEqual([0, 1, 2])
+    expect(arpOrder('Down', 3)).toEqual([2, 1, 0])
+    expect(arpOrder('Up and down', 4)).toEqual([0, 1, 2, 3, 2, 1])
+    expect(arpOrder('Random', 3, () => 0.99)).toEqual([2, 2, 2])
+  })
+})
+

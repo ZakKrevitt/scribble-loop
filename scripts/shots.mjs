@@ -32,7 +32,7 @@ async function play(page, start = 'Start with mouse') {
     await page.mouse.up()
   }
   for (const bot of ['Singer', 'Swapper', 'Eater', 'Dropper', 'Bumper']) {
-    await page.getByRole('button', { name: 'Add robot' }).click()
+    await page.getByRole('button', { name: 'Robots' }).click()
     await page.getByRole('menuitem', { name: new RegExp(`^${bot}`) }).click()
   }
   await page.mouse.move(5, 5)
@@ -66,10 +66,16 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['mob
     await page.screenshot({ path: `${out}/desktop-select.png` })
     await page.keyboard.press('Escape')
     await page.getByRole('listbox').waitFor({ state: 'hidden' })
-    await page.getByRole('button', { name: 'Add robot' }).click()
+    await page.getByRole('button', { name: 'Robots' }).click()
     await page.waitForTimeout(250)
     await page.screenshot({ path: `${out}/desktop-robots.png` })
     await page.keyboard.press('Escape')
+    await page.getByRole('button', { name: 'Settings' }).click()
+    await page.waitForTimeout(250)
+    await page.getByRole('menuitem', { name: /^Chord/ }).hover()
+    await page.waitForTimeout(350)
+    await page.screenshot({ path: `${out}/desktop-settings.png` })
+    while (await page.getByRole('menu').count()) await page.keyboard.press('Escape')
     await page.getByRole('button', { name: 'Pedals' }).click()
     await page.waitForTimeout(250)
     await page.getByRole('menuitem', { name: /^Open palm/ }).hover()

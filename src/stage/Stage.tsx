@@ -29,6 +29,7 @@ import {
   drawPad,
   drawPlayhead,
   drawSticker,
+  drawTrail,
   drawWalker,
   stickerSheet,
   walkerHeight,
@@ -449,6 +450,31 @@ export function Stage(props: StageProps) {
       const rest = position === null ? 1 : 0.84
       const glints: Point[] = []
 
+      // Robots walk under what the player placed, so placed ink always stays readable.
+      const tall = walkerHeight(grid)
+      // The singers' trails go under every robot, so a robot never hides behind another's ribbon.
+      for (const item of items) {
+        if (item.kind === 'walker' && item.bot === 'singer') {
+          drawTrail(ctx, grid, engine.botPath(item.id), 'oklch(0.8 0.15 185)')
+        }
+      }
+      for (const item of items) {
+        if (item.kind !== 'walker') continue
+        const sheet = sheets.get(item.bot)
+        if (!sheet) continue
+        const pose = engine.botPose(item.id)
+        drawWalker(
+          ctx,
+          sheet,
+          grid.x + (pose?.x ?? item.x) * grid.w,
+          grid.y + (pose?.y ?? item.y) * grid.h,
+          // A small lift when a robot does something, not a jump.
+          tall * (flashing(item.id) ? 1.08 : 1),
+          pose?.frame ?? 0,
+          pose?.facing ?? 1,
+        )
+      }
+
       for (const item of items) {
         if (item.kind !== 'line') continue
         const y = step >= 0 ? stepsOf(item)[step] : null
@@ -462,23 +488,6 @@ export function Stage(props: StageProps) {
         if (item.kind !== 'blob') continue
         drawBlob(ctx, grid, item, flashing(item.id) ? 1.35 : 1, settings.drumGrid)
       }
-      const tall = walkerHeight(grid)
-      for (const item of items) {
-        if (item.kind !== 'walker') continue
-        const sheet = sheets.get(item.bot)
-        if (!sheet) continue
-        const pose = engine.botPose(item.id)
-        drawWalker(
-          ctx,
-          sheet,
-          grid.x + (pose?.x ?? item.x) * grid.w,
-          grid.y + (pose?.y ?? item.y) * grid.h,
-          tall * (flashing(item.id) ? 1.25 : 1),
-          pose?.frame ?? 0,
-          pose?.facing ?? 1,
-        )
-      }
-
       drawNoteNames(ctx, grid, settings.key, settings.scale, 15)
 
       const drafts: (Draft | null)[] = [mouse.pen.draft(now), ...slots.map((s) => s.pen.draft(now))]
@@ -558,8 +567,9 @@ export function Stage(props: StageProps) {
           return
         }
       }
-      // Clicking a robot bumps it instead of drawing on top of it.
-      const bumped = mode === 'draw' ? robotAt(p) : undefined
+      // Clicking a robot bumps it, unless there is placed ink right there to draw against.
+      const onInk = lineNear(live.current.items, p, POINT_REACH, aspect())
+      const bumped = mode === 'draw' && !onInk ? robotAt(p) : undefined
       if (bumped !== undefined) {
         engine.hit(bumped)
         return

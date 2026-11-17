@@ -21,7 +21,12 @@ control sets the sound for the next line.
 | Change the sound for new lines | Point at empty space and hold | Sound menu |
 | Erase | Make a fist over it | Erase mode, or right-drag |
 
-Drums snap to the grid set by Drums: free, 1/16, 1/8 or 1/4.
+The Settings menu holds:
+
+- Chord: Off, Power, Triad, Seventh or Octaves, stacked in steps of the current scale so every note stays in key.
+- Arpeggiator: Off, Up, Down, Up and down or Random, plucking the chord's notes one at a time (it climbs octaves
+  when no chord is set), at 1/16, 1/32 or triplets.
+- Drum timing: free, 1/16, 1/8 or 1/4.
 
 ### Effects
 
@@ -37,7 +42,7 @@ go. The Pedals menu swaps which hand does what, reassigns gestures, and can hold
 | Point | Crush | Bit depth | Mix |
 | Two fingers | Reverb | Amount | Dark to bright |
 
-With the mouse, choose Effects and drag; the Pedals menu picks which pedal it plays.
+With the mouse, choose Effects and drag; Mouse plays, at the top of the Pedals menu, picks the pedal.
 
 ### Robots
 
@@ -45,7 +50,7 @@ Robots walk the grid on their own, so no two passes of the loop are the same. Ad
 
 | Robot | Does |
 |---|---|
-| Singer | Sings a note on every other step at the height it walks |
+| Singer | Holds one note that glides with the height it walks, and leaves a fading trail |
 | Swapper | Changes the sound of any line it walks over |
 | Eater | Eats drums and bites chunks out of lines |
 | Dropper | Leaves drums and short runs of melody behind, at most twelve at a time |

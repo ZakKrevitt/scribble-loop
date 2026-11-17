@@ -9,10 +9,12 @@ export interface BotBody {
   turn: number
   /** Distance walked, in grid widths. Drives the walk cycle. */
   walked: number
+  /** Which way the robot faces. It only turns round once it is clearly walking the other way. */
+  facing: 1 | -1
 }
 
 /** Grid widths per second. */
-export const WALK_SPEED = 0.055
+export const WALK_SPEED = 0.034
 /** Grid widths per frame of the twelve-frame walk cycle, so the feet keep pace with the ground. */
 export const STRIDE = 0.011
 
@@ -27,11 +29,12 @@ const BOTTOM = 0.9
  */
 export function walk(body: BotBody, dt: number, aspect: number, random: () => number = Math.random): BotBody {
   let { heading, turn } = body
-  turn += (random() - 0.5) * 2.4 * Math.sqrt(dt)
+  // Long, lazy curves: small nudges to the turn, slowly damped, never a sharp change.
+  turn += (random() - 0.5) * 0.9 * Math.sqrt(dt)
   // A gentle pull back toward walking sideways, the way the robot is drawn.
-  turn -= Math.sin(2 * heading) * 0.35 * dt
-  turn *= Math.exp(-1.2 * dt)
-  turn = Math.max(-1.4, Math.min(1.4, turn))
+  turn -= Math.sin(2 * heading) * 0.25 * dt
+  turn *= Math.exp(-0.6 * dt)
+  turn = Math.max(-0.7, Math.min(0.7, turn))
   heading += turn * dt
 
   let x = body.x + Math.cos(heading) * WALK_SPEED * dt
@@ -46,16 +49,19 @@ export function walk(body: BotBody, dt: number, aspect: number, random: () => nu
   }
   x = Math.max(0, Math.min(1, x))
   y = Math.max(0, Math.min(1, y))
-  return { x, y, heading, turn, walked: body.walked + WALK_SPEED * dt }
+  const c = Math.cos(heading)
+  const facing = c > 0.3 ? 1 : c < -0.3 ? -1 : body.facing
+  return { x, y, heading, turn, walked: body.walked + WALK_SPEED * dt, facing }
 }
 
 export function startBody(x: number, y: number, random: () => number = Math.random): BotBody {
-  return { x, y, heading: random() < 0.5 ? 0 : Math.PI, turn: 0, walked: 0 }
+  const right = random() < 0.5
+  return { x, y, heading: right ? 0 : Math.PI, turn: 0, walked: 0, facing: right ? 1 : -1 }
 }
 
 /** What each robot does, in a few words, for its menu entry. */
 export const BOT_INFO: Record<BotType, { name: string; does: string }> = {
-  singer: { name: 'Singer', does: 'Sings where it walks' },
+  singer: { name: 'Singer', does: 'Glides a held note as it walks' },
   swapper: { name: 'Swapper', does: 'Swaps a line’s sound' },
   eater: { name: 'Eater', does: 'Eats what it walks over' },
   dropper: { name: 'Dropper', does: 'Leaves notes and drums' },

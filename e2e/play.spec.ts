@@ -48,7 +48,7 @@ test('a drawn line and a held blob become a playing loop', async ({ page }) => {
 
   // A robot walks by itself and chirps when the playhead finds it.
   for (const bot of ['Singer', 'Dropper']) {
-    await page.getByRole('button', { name: 'Add robot' }).click()
+    await page.getByRole('button', { name: 'Robots' }).click()
     await page.getByRole('menuitem', { name: new RegExp(`^${bot}`) }).click()
   }
   await expect(page.getByRole('status')).toHaveText('1 line, 3 drums, 2 robots')

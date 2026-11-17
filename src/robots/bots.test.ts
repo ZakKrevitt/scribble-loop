@@ -29,7 +29,7 @@ describe('walk', () => {
     let body = startBody(0.5, 0.5, random)
     let left = 1
     let right = 0
-    for (let i = 0; i < 6000; i++) {
+    for (let i = 0; i < 9000; i++) {
       body = walk(body, 0.094, 1.6, random)
       left = Math.min(left, body.x)
       right = Math.max(right, body.x)
@@ -48,7 +48,20 @@ describe('walk', () => {
       if (!nearEdge) sharpest = Math.max(sharpest, Math.abs(next.heading - body.heading))
       body = next
     }
-    expect(sharpest).toBeLessThan(0.2)
+    expect(sharpest).toBeLessThan(0.1)
     expect(STRIDE).toBeGreaterThan(0)
+  })
+
+  it('does not flip to face the other way while drifting up or down', () => {
+    const random = seeded(9)
+    let body = startBody(0.5, 0.5, random)
+    let flips = 0
+    for (let i = 0; i < 3000; i++) {
+      const next = walk(body, 0.094, 1.6, random)
+      if (next.facing !== body.facing) flips++
+      body = next
+    }
+    // Over about ten loops at walking pace, a handful of real turns, not a twitch on every step.
+    expect(flips).toBeLessThan(12)
   })
 })

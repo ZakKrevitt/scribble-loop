@@ -24,6 +24,16 @@ export type LeadName = (typeof LEADS)[number]
 export const DRUM_GRIDS = { Free: 0, '1/16': 1, '1/8': 2, '1/4': 4 } as const
 export type DrumGrid = keyof typeof DRUM_GRIDS
 
+export const CHORDS = ['Off', 'Power', 'Triad', 'Seventh', 'Octaves'] as const
+export type ChordName = (typeof CHORDS)[number]
+
+export const ARPS = ['Off', 'Up', 'Down', 'Up and down', 'Random'] as const
+export type ArpName = (typeof ARPS)[number]
+
+/** Arpeggio speed: notes per sixteenth step. */
+export const ARP_RATES = { '1/16': 1, '1/32': 2, Triplets: 3 } as const
+export type ArpRate = keyof typeof ARP_RATES
+
 export const BOTS = ['singer', 'swapper', 'eater', 'dropper', 'bumper'] as const
 export type BotType = (typeof BOTS)[number]
 
@@ -232,4 +242,41 @@ export function touches(items: Item[], at: Point, radius: number, aspect: number
 /** The first line within reach of the point, if any. */
 export function lineNear(items: Item[], at: Point, radius: number, aspect: number): Line | undefined {
   return items.find((i): i is Line => i.kind === 'line' && nearLine(i.points, at, radius, aspect))
+}
+
+/**
+ * The rows a chord stacks on its root, counted in steps of the current scale so every note stays
+ * in key. `scaleSize` is how many notes the scale has in an octave.
+ */
+export function chordRows(chord: ChordName, scaleSize: number): number[] {
+  const octave = scaleSize
+  const fifth = Math.round((scaleSize * 4) / 7)
+  switch (chord) {
+    case 'Off':
+      return [0]
+    case 'Power':
+      return [0, fifth, octave]
+    case 'Triad':
+      return [0, 2, 4].map((d) => Math.round((d * scaleSize) / 7))
+    case 'Seventh':
+      return [0, 2, 4, 6].map((d) => Math.round((d * scaleSize) / 7))
+    case 'Octaves':
+      return [0, octave]
+  }
+}
+
+/** The order an arpeggio plays a chord's notes in, as indexes into the chord. One full cycle. */
+export function arpOrder(arp: ArpName, size: number, random: () => number = Math.random): number[] {
+  const up = Array.from({ length: size }, (_, i) => i)
+  switch (arp) {
+    case 'Off':
+    case 'Up':
+      return up
+    case 'Down':
+      return [...up].reverse()
+    case 'Up and down':
+      return size < 3 ? up : [...up, ...up.slice(1, -1).reverse()]
+    case 'Random':
+      return up.map(() => Math.floor(random() * size))
+  }
 }

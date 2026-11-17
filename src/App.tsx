@@ -23,7 +23,10 @@ import { Toggle } from '@/components/ui/toggle'
 import { ToggleGroup, ToggleGroupItem } from '@/components/ui/toggle-group'
 import type { Draft } from '@/input/pen'
 import {
+  ARP_RATES,
+  ARPS,
   BOTS,
+  CHORDS,
   DRUM_GRIDS,
   KEYS,
   LEADS,
@@ -31,7 +34,10 @@ import {
   SCALES,
   biteAt,
   eraseAt,
+  type ArpName,
+  type ArpRate,
   type BotType,
+  type ChordName,
   type DrumGrid,
   type Item,
   type KeyName,
@@ -52,7 +58,16 @@ const SHORT_SCALE: Partial<Record<ScaleName, string>> = {
   'Minor pentatonic': 'Minor pent.',
 }
 
-const START: Settings = { bpm: 160, key: 'A', scale: 'Minor pentatonic', lead: 'Supersaw', drumGrid: '1/16' }
+const START: Settings = {
+  bpm: 160,
+  key: 'A',
+  scale: 'Minor pentatonic',
+  lead: 'Supersaw',
+  drumGrid: '1/16',
+  chord: 'Off',
+  arp: 'Off',
+  arpRate: '1/16',
+}
 
 const GESTURE_NAME: Record<FxGesture, string> = {
   open: 'Open palm',
@@ -274,9 +289,9 @@ export default function App() {
   const withCamera = camera === 'on'
   const writingHand = effectsHand === 'left' ? 'right' : 'left'
   const hint = withCamera
-    ? `${writingHand === 'right' ? 'Right' : 'Left'} hand: pinch and drag for a melody, pinch and hold for a drum, point at a line to change its sound, fist to erase. ${effectsHand === 'left' ? 'Left' : 'Right'} hand plays effects.`
+    ? `${writingHand === 'right' ? 'Right' : 'Left'} hand: pinch and drag for a melody, pinch and hold for a drum, point at a line to change its sound, fist to erase. ${effectsHand === 'left' ? 'Left' : 'Right'} hand plays the pedals.`
     : mode === 'effects'
-      ? `Drag to play the ${mousePedal} pedal. Higher is stronger.`
+      ? `Drag to play the ${mousePedal} pedal. Higher is stronger. Change it in Pedals.`
       : 'Drag for a melody. Press and hold for a drum. Alt-click a line to change its sound.'
   const swatch = 'size-3.5 shrink-0 rounded-full ring-2 ring-white'
 
@@ -358,21 +373,42 @@ export default function App() {
           </SelectContent>
         </Select>
 
-        <Select
-          value={settings.drumGrid}
-          onValueChange={(v) => setSettings((s) => ({ ...s, drumGrid: v as DrumGrid }))}
-        >
-          <SelectTrigger aria-label="Drum timing" className={`${control} ${light} data-[size=default]:h-10`}>
-            Drums {settings.drumGrid === 'Free' ? 'free' : settings.drumGrid}
-          </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false} className={popup}>
-            {(Object.keys(DRUM_GRIDS) as DrumGrid[]).map((name) => (
-              <SelectItem key={name} value={name} className={option}>
-                {name}
-              </SelectItem>
+        <DropdownMenu>
+          <DropdownMenuTrigger render={<Button variant="secondary" className={`${control} ${light}`} />}>
+            Settings
+          </DropdownMenuTrigger>
+          <DropdownMenuContent className={`${popup} w-auto`}>
+            {(
+              [
+                ['Chord', 'chord', CHORDS],
+                ['Arpeggiator', 'arp', ARPS],
+                ['Arpeggio speed', 'arpRate', Object.keys(ARP_RATES)],
+                ['Drum timing', 'drumGrid', Object.keys(DRUM_GRIDS)],
+              ] as const
+            ).map(([label, field, options]) => (
+              <DropdownMenuSub key={field}>
+                <DropdownMenuSubTrigger className={`${menuItem} gap-6`}>
+                  {label}
+                  <span className="ml-auto font-medium text-muted-foreground">{settings[field]}</span>
+                </DropdownMenuSubTrigger>
+                <DropdownMenuSubContent className={popup}>
+                  <DropdownMenuRadioGroup
+                    value={settings[field]}
+                    onValueChange={(v) =>
+                      setSettings((s) => ({ ...s, [field]: v as ChordName & ArpName & ArpRate & DrumGrid }))
+                    }
+                  >
+                    {options.map((name) => (
+                      <DropdownMenuRadioItem key={name} value={name} className={checkItem}>
+                        {name}
+                      </DropdownMenuRadioItem>
+                    ))}
+                  </DropdownMenuRadioGroup>
+                </DropdownMenuSubContent>
+              </DropdownMenuSub>
             ))}
-          </SelectContent>
-        </Select>
+          </DropdownMenuContent>
+        </DropdownMenu>
 
         <ToggleGroup
           aria-label="What the mouse does"
@@ -396,7 +432,6 @@ export default function App() {
           <DropdownMenuTrigger
             render={<Button variant="secondary" className={`${control} ${light} max-sm:order-2`} />}
             disabled={robots >= MAX_WALKERS}
-            aria-label="Add robot"
           >
             Robots
           </DropdownMenuTrigger>
@@ -417,7 +452,18 @@ export default function App() {
           </DropdownMenuTrigger>
           <DropdownMenuContent className={`${popup} w-auto`}>
             <DropdownMenuGroup>
-              <DropdownMenuLabel className="px-3 text-[15px] font-bold text-muted-foreground">Effects hand</DropdownMenuLabel>
+              <DropdownMenuLabel className="px-3 text-[15px] font-bold text-muted-foreground">Mouse plays</DropdownMenuLabel>
+              <DropdownMenuRadioGroup value={mousePedal} onValueChange={(v) => setMousePedal(v as EffectName)}>
+                {EFFECTS.map((name) => (
+                  <DropdownMenuRadioItem key={name} value={name} className={checkItem}>
+                    {name}
+                  </DropdownMenuRadioItem>
+                ))}
+              </DropdownMenuRadioGroup>
+            </DropdownMenuGroup>
+            <DropdownMenuSeparator />
+            <DropdownMenuGroup>
+              <DropdownMenuLabel className="px-3 text-[15px] font-bold text-muted-foreground">Pedal hand</DropdownMenuLabel>
               <DropdownMenuRadioGroup value={effectsHand} onValueChange={(v) => setEffectsHand(v as Side)}>
                 <DropdownMenuRadioItem value="left" className={checkItem}>
                   Left
@@ -453,21 +499,6 @@ export default function App() {
                   </DropdownMenuSubContent>
                 </DropdownMenuSub>
               ))}
-              <DropdownMenuSub>
-                <DropdownMenuSubTrigger className={`${menuItem} gap-6`}>
-                  Mouse
-                  <span className="ml-auto font-medium text-muted-foreground">{mousePedal}</span>
-                </DropdownMenuSubTrigger>
-                <DropdownMenuSubContent className={popup}>
-                  <DropdownMenuRadioGroup value={mousePedal} onValueChange={(v) => setMousePedal(v as EffectName)}>
-                    {EFFECTS.map((name) => (
-                      <DropdownMenuRadioItem key={name} value={name} className={checkItem}>
-                        {name}
-                      </DropdownMenuRadioItem>
-                    ))}
-                  </DropdownMenuRadioGroup>
-                </DropdownMenuSubContent>
-              </DropdownMenuSub>
             </DropdownMenuGroup>
             <DropdownMenuSeparator />
             <DropdownMenuCheckboxItem

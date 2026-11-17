@@ -37,11 +37,11 @@ export const LEAD_INK: Record<LeadName, string> = {
 
 /** The tint laid over each robot's sticker, so the five kinds are told apart at a glance. */
 export const BOT_TINT: Record<BotType, string> = {
-  singer: 'oklch(0.5 0.13 185 / 0.7)',
-  swapper: 'oklch(0.62 0.16 70 / 0.72)',
-  eater: 'oklch(0.48 0.2 25 / 0.72)',
-  dropper: 'oklch(0.45 0.18 300 / 0.7)',
-  bumper: 'oklch(0.48 0.17 255 / 0.72)',
+  singer: 'oklch(0.8 0.15 185 / 0.82)',
+  swapper: 'oklch(0.78 0.17 62 / 0.82)',
+  eater: 'oklch(0.62 0.24 22 / 0.82)',
+  dropper: 'oklch(0.66 0.21 305 / 0.82)',
+  bumper: 'oklch(0.68 0.18 255 / 0.82)',
 }
 
 export const DRUM_INK: Record<Drum, string> = {
@@ -482,5 +482,39 @@ export function drawPad(
   ctx.strokeText(label, p.x, p.y - 46)
   ctx.fillStyle = PLUM
   ctx.fillText(label, p.x, p.y - 46)
+  ctx.restore()
+}
+
+/** The singer's trail: one continuous ribbon of booth pen that fades out toward its tail. */
+export function drawTrail(ctx: CanvasRenderingContext2D, grid: Rect, path: Point[], ink: string): void {
+  if (path.length < 2) return
+  const width = Math.max(4, Math.min(7, grid.h / 95))
+  const pts = path.map((p) => toPx(grid, p))
+  const tail = pts[0]
+  const head = pts[pts.length - 1]
+  const fade = (color: string) => {
+    const g = ctx.createLinearGradient(tail.x, tail.y, head.x, head.y)
+    // Fade to the same colour at zero alpha; plain 'transparent' is black and would grey the ribbon.
+    g.addColorStop(0, color.replace(')', ' / 0)'))
+    g.addColorStop(1, color)
+    return g
+  }
+  ctx.save()
+  ctx.lineCap = 'round'
+  ctx.lineJoin = 'round'
+  ctx.beginPath()
+  ctx.moveTo(tail.x, tail.y)
+  // Smooth through the midpoints so the ribbon curves instead of kinking at each sample.
+  for (let i = 1; i < pts.length - 1; i++) {
+    const mid = { x: (pts[i].x + pts[i + 1].x) / 2, y: (pts[i].y + pts[i + 1].y) / 2 }
+    ctx.quadraticCurveTo(pts[i].x, pts[i].y, mid.x, mid.y)
+  }
+  ctx.lineTo(head.x, head.y)
+  ctx.strokeStyle = fade(WHITE)
+  ctx.lineWidth = width * 2.1
+  ctx.stroke()
+  ctx.strokeStyle = fade(ink)
+  ctx.lineWidth = width
+  ctx.stroke()
   ctx.restore()
 }

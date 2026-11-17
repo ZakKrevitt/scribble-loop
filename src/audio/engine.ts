@@ -1,6 +1,10 @@
 import {
+  ARP_RATES,
   LEADS,
+  SCALES,
   STEPS,
+  arpOrder,
+  chordRows,
   drumFromY,
   drumTiming,
   drumX,
@@ -10,8 +14,11 @@ import {
   midiForRow,
   rowFromY,
   touches,
+  type ArpName,
+  type ArpRate,
   type Blob,
   type BotType,
+  type ChordName,
   type Drum,
   type DrumGrid,
   type Item,
@@ -31,6 +38,11 @@ export interface Settings {
   /** The sound new lines get. Each line keeps its own. */
   lead: LeadName
   drumGrid: DrumGrid
+  /** Stack every line note into a chord. */
+  chord: ChordName
+  /** Play the chord's notes one at a time instead. With no chord, it climbs octaves. */
+  arp: ArpName
+  arpRate: ArpRate
 }
 
 /** Something a robot did to the song, for the app to apply to the items. */
@@ -47,6 +59,84 @@ export interface BotPose {
   frame: number
 }
 
+/**
+ * The singer's voice: one held note that slides wherever the robot walks. Two detuned saws and a
+ * sine sub through a soft filter, with a slow vibrato, panned to where the robot stands.
+ */
+class GlideVoice {
+  private oscs: OscillatorNode[] = []
+  private pitch: ConstantSourceNode
+  private pan: StereoPannerNode
+  private amp: GainNode
+  private ctx: AudioContext
+
+  constructor(ctx: AudioContext, out: AudioNode) {
+    this.ctx = ctx
+    this.pitch = ctx.createConstantSource()
+    this.pitch.offset.value = 220
+    const filter = ctx.createBiquadFilter()
+    filter.type = 'lowpass'
+    filter.frequency.value = 2200
+    filter.Q.value = 2
+    const sweep = ctx.createOscillator()
+    sweep.frequency.value = 0.13
+    const sweepDepth = ctx.createGain()
+    sweepDepth.gain.value = 900
+    sweep.connect(sweepDepth).connect(filter.frequency)
+    const vibrato = ctx.createOscillator()
+    vibrato.frequency.value = 5.2
+    const vibratoDepth = ctx.createGain()
+    vibratoDepth.gain.value = 9
+    vibrato.connect(vibratoDepth)
+    this.amp = ctx.createGain()
+    this.amp.gain.value = 0
+    this.pan = ctx.createStereoPanner()
+    filter.connect(this.amp).connect(this.pan).connect(out)
+    for (const [type, cents, level] of [
+      ['sawtooth', -9, 0.5],
+      ['sawtooth', 9, 0.5],
+      ['sine', -1200, 0.8],
+    ] as const) {
+      const osc = ctx.createOscillator()
+      osc.type = type
+      osc.frequency.value = 0
+      osc.detune.value = cents
+      this.pitch.connect(osc.frequency)
+      vibratoDepth.connect(osc.detune)
+      const g = ctx.createGain()
+      g.gain.value = level
+      osc.connect(g).connect(filter)
+      osc.start()
+      this.oscs.push(osc)
+    }
+    for (const lfo of [sweep, vibrato]) {
+      lfo.start()
+      this.oscs.push(lfo)
+    }
+    this.pitch.start()
+  }
+
+  /** Slide toward a pitch and a place in the stereo field. */
+  glide(time: number, hz: number, x: number): void {
+    this.pitch.offset.setTargetAtTime(hz, time, 0.16)
+    this.pan.pan.setTargetAtTime((x * 2 - 1) * 0.7, time, 0.2)
+    this.amp.gain.setTargetAtTime(0.11, time, 0.3)
+  }
+
+  hush(time: number): void {
+    this.amp.gain.setTargetAtTime(0, time, 0.25)
+  }
+
+  dispose(): void {
+    const now = this.ctx.currentTime
+    this.amp.gain.cancelScheduledValues(now)
+    this.amp.gain.setTargetAtTime(0, now, 0.1)
+    for (const osc of this.oscs) osc.stop(now + 0.8)
+    this.pitch.stop(now + 0.8)
+    setTimeout(() => this.amp.disconnect(), 1000)
+  }
+}
+
 interface Bot {
   type: BotType
   body: BotBody
@@ -54,6 +144,9 @@ interface Bot {
   trail: { t: number; body: BotBody }[]
   lastAct: number
   drops: number
+  /** Where it has been lately, oldest first, for the singer's trail. */
+  path: Point[]
+  voice: GlideVoice | null
   /** When each line was last swapped, so one pass does not flip it back and forth. */
   swapped: Map<number, number>
 }
@@ -255,17 +348,26 @@ class LeadVoice {
   }
 
   /** Start a note, or move to a new pitch if one is already sounding. */
-  play(time: number, hz: number, row: number): void {
+  /**
+   * Start a note, or move to a new pitch if one is already sounding.
+   * `share` scales the level so a stacked chord is no louder than one note; `pluck` re-strikes it.
+   */
+  play(time: number, hz: number, row: number, share = 1, pluck = false): void {
     const p = this.preset
     const f = hz * 2 ** p.octave
-    if (!this.on) {
+    const level = p.level * share
+    if (pluck && this.on) {
+      this.pitch.offset.setValueAtTime(f, time)
+      this.amp.gain.setValueAtTime(level * 0.3, time)
+      this.amp.gain.setTargetAtTime(level, time, 0.004)
+    } else if (!this.on) {
       if (p.bend) {
         this.pitch.offset.setValueAtTime(f * 2 ** (p.bend / 12), time)
         this.pitch.offset.exponentialRampToValueAtTime(f, time + 0.045)
       } else {
         this.pitch.offset.setValueAtTime(f, time)
       }
-      this.amp.gain.setTargetAtTime(p.level, time, p.attack)
+      this.amp.gain.setTargetAtTime(level, time, p.attack)
     } else {
       this.pitch.offset.setTargetAtTime(f, time, p.glide)
     }
@@ -319,7 +421,9 @@ export class Engine {
   private settings: Settings
   private items: Item[] = []
   private lines = new Map<number, { steps: (number | null)[]; lead: LeadName }>()
-  private voices = new Map<number, { voice: LeadVoice; lead: LeadName }>()
+  /** Each line's voices: one per chord note, built with that line's sound. */
+  private voices = new Map<number, { voices: LeadVoice[]; lead: LeadName }>()
+  private arpStep = new Map<number, number>()
   private blobsAt: { blob: Blob; offset: number }[][] = Array.from({ length: STEPS }, () => [])
   private bots = new Map<number, Bot>()
   private simTime = -1
@@ -359,9 +463,17 @@ export class Engine {
     return {
       x: lerp(a.body.x, b.body.x),
       y: lerp(a.body.y, b.body.y),
-      facing: Math.cos(b.body.heading) >= 0 ? 1 : -1,
+      facing: (k < 0.5 ? a : b).body.facing,
       frame: Math.floor(walked / STRIDE),
     }
+  }
+
+  /** The trail a robot leaves, oldest point first, ending where it stands now. */
+  botPath(id: number): Point[] {
+    const bot = this.bots.get(id)
+    const here = this.botPoint(id)
+    if (!bot || !here) return []
+    return [...bot.path, here]
   }
 
   botPoint(id: number): Point | undefined {
@@ -609,7 +721,8 @@ export class Engine {
     this.timer = null
     this.queue = []
     const now = this.now
-    for (const { voice } of this.voices.values()) voice.stop(now)
+    for (const { voices } of this.voices.values()) for (const voice of voices) voice.stop(now)
+    for (const bot of this.bots.values()) bot.voice?.hush(now)
   }
 
   /** How far through the loop the playhead is, from 0 to 1. Null while stopped. */
@@ -623,9 +736,19 @@ export class Engine {
   }
 
   update(settings: Partial<Settings>): void {
-    const gridChanged = settings.drumGrid !== undefined && settings.drumGrid !== this.settings.drumGrid
+    const before = this.settings
     this.settings = { ...this.settings, ...settings }
-    if (gridChanged) this.indexDrums()
+    if (this.settings.drumGrid !== before.drumGrid) this.indexDrums()
+    if (this.settings.chord !== before.chord || this.settings.arp !== before.arp || this.settings.scale !== before.scale) {
+      this.syncVoices()
+    }
+  }
+
+  /** The rows the current chord stacks on a line's note. An arpeggio with no chord climbs octaves. */
+  private chordShape(): number[] {
+    const size = SCALES[this.settings.scale].length
+    const chord = this.settings.arp !== 'Off' && this.settings.chord === 'Off' ? 'Octaves' : this.settings.chord
+    return chordRows(chord, size)
   }
 
   private indexDrums(): void {
@@ -654,29 +777,40 @@ export class Engine {
             lastAct: -Infinity,
             drops: 0,
             swapped: new Map(),
+            path: [],
+            voice: null,
           })
         }
       }
     }
     this.indexDrums()
-    for (const id of this.bots.keys()) if (!robots.has(id)) this.bots.delete(id)
+    for (const [id, bot] of this.bots) {
+      if (robots.has(id)) continue
+      bot.voice?.dispose()
+      this.bots.delete(id)
+    }
     this.syncVoices()
   }
 
   /** One voice per line, built with that line's sound. */
   private syncVoices(): void {
     if (!this.ctx) return
+    const size = this.settings.arp === 'Off' ? this.chordShape().length : 1
     for (const [id, entry] of this.voices) {
       const line = this.lines.get(id)
       if (!line || line.lead !== entry.lead) {
-        entry.voice.dispose()
+        for (const voice of entry.voices) voice.dispose()
         this.voices.delete(id)
       }
     }
     for (const [id, line] of this.lines) {
-      if (!this.voices.has(id)) {
-        this.voices.set(id, { voice: new LeadVoice(this.ctx, PRESETS[line.lead], this.leadBus), lead: line.lead })
+      let entry = this.voices.get(id)
+      if (!entry) {
+        entry = { voices: [], lead: line.lead }
+        this.voices.set(id, entry)
       }
+      while (entry.voices.length < size) entry.voices.push(new LeadVoice(this.ctx, PRESETS[line.lead], this.leadBus))
+      while (entry.voices.length > size) entry.voices.pop()!.dispose()
     }
   }
 
@@ -694,18 +828,42 @@ export class Engine {
   private schedule(step: number, time: number): void {
     const { key, scale } = this.settings
     const length = 60 / this.settings.bpm / 4
+    const shape = this.chordShape()
+    const { arp } = this.settings
     for (const [id, line] of this.lines) {
-      const voice = this.voices.get(id)?.voice
-      if (!voice) continue
+      const voices = this.voices.get(id)?.voices
+      if (!voices || voices.length === 0) continue
       const y = line.steps[step]
       if (y === null) {
-        voice.stop(time)
+        for (const voice of voices) voice.stop(time)
+        this.arpStep.delete(id)
         continue
       }
       const row = rowFromY(y)
-      if (voice.on && voice.row === row) continue
-      voice.play(time, frequency(midiForRow(row, key, scale)), row)
-      this.stats.notes++
+      if (arp === 'Off') {
+        // Every chord note held together, each voice gliding to its own note.
+        const share = 1 / Math.sqrt(shape.length)
+        shape.forEach((offset, i) => {
+          const voice = voices[i]
+          if (!voice) return
+          const r = row + offset
+          if (voice.on && voice.row === r) return
+          voice.play(time, frequency(midiForRow(r, key, scale)), r, share)
+          this.stats.notes++
+        })
+      } else {
+        // One voice plucks the chord's notes in turn, several times a step when the rate is fast.
+        const per = ARP_RATES[this.settings.arpRate]
+        const order = arpOrder(arp, shape.length)
+        let n = this.arpStep.get(id) ?? 0
+        for (let k = 0; k < per; k++) {
+          const r = row + shape[order[n % order.length]]
+          voices[0].play(time + (k * length) / per, frequency(midiForRow(r, key, scale)), r, 1, true)
+          n++
+          this.stats.notes++
+        }
+        this.arpStep.set(id, n)
+      }
     }
     for (const { blob, offset } of this.blobsAt[step]) {
       const at = time + offset * length
@@ -725,15 +883,21 @@ export class Engine {
       bot.body = walk(bot.body, dt, this.aspect)
       bot.trail.push({ t: time, body: bot.body })
       if (bot.trail.length > 8) bot.trail.shift()
+      // Keep about four seconds of where it has been, one point every other step.
+      if (step % 2 === 0) {
+        bot.path.push({ x: bot.body.x, y: bot.body.y })
+        if (bot.path.length > 22) bot.path.shift()
+      }
       const at: Point = { x: bot.body.x, y: bot.body.y }
       const pitch = frequency(midiForRow(rowFromY(at.y), key, scale))
 
       switch (bot.type) {
         case 'singer':
-          // Sings on every other step at the pitch of the row it walks on.
-          if (step % 2 === 0) {
-            this.sing(pitch, time, at.x)
-            this.act(id, time)
+          // One held note that glides to the pitch of the row it is walking on.
+          if (this.ctx) {
+            bot.voice ??= new GlideVoice(this.ctx, this.leadBus)
+            bot.voice.glide(time, pitch, at.x)
+            if (step === 0) this.stats.robot++
           }
           break
         case 'swapper': {
@@ -794,42 +958,6 @@ export class Engine {
     const { key, scale } = this.settings
     this.shout(frequency(midiForRow(rowFromY(bot.body.y), key, scale)), time)
     this.act(id, time)
-  }
-
-  private voiceOut(time: number, x: number): AudioNode {
-    const pan = this.ctx!.createStereoPanner()
-    pan.pan.setValueAtTime((x * 2 - 1) * 0.7, time)
-    pan.connect(this.leadBus)
-    return pan
-  }
-
-  /** The singer: a bright, glassy FM pluck with a sub under it, panned to where it stands. */
-  private sing(hz: number, time: number, x: number): void {
-    const ctx = this.ctx!
-    const out = this.voiceOut(time, x)
-    const carrier = ctx.createOscillator()
-    carrier.frequency.setValueAtTime(hz * 2.02, time)
-    carrier.frequency.exponentialRampToValueAtTime(hz * 2, time + 0.03)
-    const mod = ctx.createOscillator()
-    mod.frequency.value = hz * 6
-    const depth = ctx.createGain()
-    depth.gain.setValueAtTime(hz * 7, time)
-    depth.gain.setTargetAtTime(hz * 0.6, time, 0.05)
-    mod.connect(depth).connect(carrier.frequency)
-    const sub = ctx.createOscillator()
-    sub.type = 'triangle'
-    sub.frequency.value = hz
-    const amp = ctx.createGain()
-    amp.gain.setValueAtTime(0, time)
-    amp.gain.linearRampToValueAtTime(0.32, time + 0.003)
-    amp.gain.setTargetAtTime(0, time + 0.003, 0.09)
-    carrier.connect(amp)
-    sub.connect(amp)
-    amp.connect(out)
-    for (const osc of [carrier, mod, sub]) {
-      osc.start(time)
-      osc.stop(time + 0.6)
-    }
   }
 
   /** The swapper: a quick rising swoop as a line changes sound. */
