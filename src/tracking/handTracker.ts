@@ -37,11 +37,11 @@ export async function createHandTracker(): Promise<HandTracker> {
   return {
     detect(video, timeMs) {
       const result = landmarker.detectForVideo(video, timeMs)
-      // MediaPipe names hands as if the picture were mirrored. Ours is the raw camera image,
-      // so its "Left" is the player's right hand.
+      // Checked by the owner with a live camera: MediaPipe's label already names the player's own
+      // hand for this raw (unmirrored) camera image, so it is used as is.
       return result.landmarks.map((landmarks, i) => {
         const label = result.handedness?.[i]?.[0]?.categoryName
-        const side = label === 'Left' ? 'right' : label === 'Right' ? 'left' : null
+        const side = label === 'Left' ? 'left' : label === 'Right' ? 'right' : null
         return { landmarks, side }
       })
     },

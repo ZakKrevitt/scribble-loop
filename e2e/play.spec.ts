@@ -73,5 +73,5 @@ test('a drawn line and a held blob become a playing loop', async ({ page }) => {
   await page.getByRole('button', { name: 'Clear' }).click()
   await expect(page.getByRole('status')).toHaveText('0 lines, 0 drums, 0 robots')
   await page.getByRole('button', { name: 'Stop' }).click()
-  await expect(page.getByRole('button', { name: 'Play' })).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Play', exact: true })).toBeVisible()
 })

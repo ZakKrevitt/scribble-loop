@@ -1,82 +1,140 @@
 @import "tailwindcss";
-@import "tw-animate-css";
-@import "shadcn/tailwind.css";
+@import "./components/arc/foundation.css";
 @import "@fontsource/m-plus-rounded-1c/latin-500.css";
 @import "@fontsource/m-plus-rounded-1c/latin-700.css";
 @import "@fontsource/m-plus-rounded-1c/latin-800.css";
 
 @theme inline {
-  --font-heading: var(--font-sans);
   --font-sans: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
   --color-bar: var(--bar);
-  --color-ring: var(--ring);
-  --color-input: var(--input);
-  --color-border: var(--border);
-  --color-destructive: var(--destructive);
-  --color-accent-foreground: var(--accent-foreground);
-  --color-accent: var(--accent);
-  --color-muted-foreground: var(--muted-foreground);
-  --color-muted: var(--muted);
-  --color-secondary-foreground: var(--secondary-foreground);
-  --color-secondary: var(--secondary);
-  --color-primary-foreground: var(--primary-foreground);
-  --color-primary: var(--primary);
-  --color-popover-foreground: var(--popover-foreground);
-  --color-popover: var(--popover);
-  --color-card-foreground: var(--card-foreground);
-  --color-card: var(--card);
-  --color-foreground: var(--foreground);
   --color-background: var(--background);
-  --radius-sm: calc(var(--radius) * 0.6);
-  --radius-md: calc(var(--radius) * 0.8);
-  --radius-lg: var(--radius);
-  --radius-xl: calc(var(--radius) * 1.4);
+  --color-foreground: var(--foreground);
+  --color-primary: var(--accent);
+  --color-primary-foreground: var(--accent-foreground);
+  --color-secondary: var(--surface);
+  --color-muted-foreground: var(--text-secondary);
 }
 
-/* A photo sticker booth: candy pink bar, pale pink-lilac backdrop, plum ink. */
+/*
+ * A photo sticker booth on Arc UI's foundation: candy pink bar, pale pink-lilac backdrop, plum ink.
+ * Arc's own semantic tokens are retuned here; the components themselves are untouched.
+ */
 :root {
   --bar: oklch(0.8 0.15 352);
   --background: oklch(0.93 0.045 326);
+  --surface: oklch(0.985 0.012 345);
+  --surface-raised: oklch(0.985 0.012 345);
+  --surface-muted: oklch(0.94 0.04 345);
   --foreground: oklch(0.27 0.09 340);
-  --card: oklch(0.985 0.012 345);
-  --card-foreground: oklch(0.27 0.09 340);
-  --popover: oklch(0.985 0.012 345);
-  --popover-foreground: oklch(0.27 0.09 340);
-  --primary: oklch(0.27 0.09 340);
-  --primary-foreground: oklch(0.985 0.012 345);
-  --secondary: oklch(0.985 0.012 345);
-  --secondary-foreground: oklch(0.27 0.09 340);
-  --muted: oklch(0.9 0.06 348);
-  --muted-foreground: oklch(0.4 0.09 340);
-  --accent: oklch(0.88 0.1 185);
-  --accent-foreground: oklch(0.27 0.09 340);
-  --destructive: oklch(0.52 0.22 25);
-  --border: oklch(0.27 0.09 340 / 18%);
-  --input: oklch(0.27 0.09 340 / 28%);
-  --ring: oklch(0.27 0.09 340);
-  --radius: 0.875rem;
+  --text-secondary: oklch(0.4 0.09 340);
+  --text-muted: oklch(0.47 0.08 340);
+  --border: oklch(0.27 0.09 340 / 0.16);
+  --border-subtle: oklch(0.27 0.09 340 / 0.09);
+  --border-strong: oklch(0.27 0.09 340 / 0.32);
+  --accent: oklch(0.27 0.09 340);
+  --accent-strong: oklch(0.2 0.07 340);
+  --accent-subtle: oklch(0.27 0.09 340 / 0.1);
+  --accent-foreground: oklch(0.985 0.012 345);
+  --control-on: oklch(0.27 0.09 340);
+  --control-track: oklch(0.9 0.06 348);
+  --control-track-hover: oklch(0.86 0.07 348);
+  --focus-ring: oklch(0.27 0.09 340);
+  --shadow-floating: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08);
+  --font-display: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
+  --font-body: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
+  --tracking-body: 0em;
+  --text-sm: 0.9375rem;
+  --text-field: 0.9375rem;
 }
 
 @layer base {
-  * {
-    @apply border-border outline-ring/50;
-  }
   html {
-    @apply font-sans;
+    font-family: var(--font-body);
     font-synthesis: none;
   }
   body {
-    @apply bg-background text-foreground;
+    background: var(--background);
+    color: var(--foreground);
     overscroll-behavior: none;
   }
+  button,
+  [role='combobox'],
+  [role='menuitem'],
+  [role='option'] {
+    font-weight: 700;
+  }
   ::selection {
-    background: var(--accent);
-    color: var(--accent-foreground);
+    background: oklch(0.88 0.1 185);
+    color: var(--foreground);
   }
 }
 
-/* Outside the layers so it outranks each component's own focus styling. */
+/* Keyboard focus, outside the layers so it outranks every component's own focus styling. */
 :focus-visible {
-  outline: 3px solid var(--ring);
+  outline: 3px solid var(--foreground);
   outline-offset: 2px;
+}
+
+/*
+ * In the bar each field names itself by its value ("Key A", "Quantize 1/16"), so the field labels
+ * are for screen readers only. The tempo shows its value beside the slider instead of above it.
+ */
+.bar label,
+.bar [class*='_header_'] > [class*='_label_'] {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  overflow: hidden;
+  clip: rect(0 0 0 0);
+  white-space: nowrap;
+}
+
+.pill {
+  width: fit-content;
+  max-width: calc(100% - 2rem);
+  border-radius: 1.5rem;
+  background: var(--surface);
+  padding: 0.5rem 1rem;
+  text-align: center;
+  font-size: 15px;
+  font-weight: 700;
+  text-wrap: pretty;
+  box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25);
+}
+
+.howto h3 {
+  font-size: 15px;
+  font-weight: 800;
+}
+.howto ul {
+  display: grid;
+  gap: 0.25rem;
+  padding-left: 1.1rem;
+  list-style: disc;
+}
+.howto table {
+  width: 100%;
+  border-collapse: collapse;
+  font-size: 15px;
+}
+.howto th,
+.howto td {
+  border-bottom: 1px solid var(--border);
+  padding: 0.35rem 0.5rem 0.35rem 0;
+  text-align: left;
+  vertical-align: top;
+}
+.howto th {
+  font-weight: 700;
+  color: var(--text-secondary);
+}
+
+.bar [class*='_header_'] {
+  height: 0;
+  overflow: hidden;
+}
+
+/* Arc's menu trigger matches the height of the other controls in the bar. */
+.bar button[aria-haspopup='menu'] {
+  min-height: var(--control-height-md);
 }

@@ -1,6 +1,6 @@
 import type { Point } from '@/model/score'
 
-export type Pose = 'open' | 'pinch' | 'fist' | 'point' | 'peace'
+export type Pose = 'open' | 'pinch' | 'fist' | 'point'
 
 /** Thumb tip to index tip, as a fraction of the hand's size. */
 const PINCH_ON = 0.33
@@ -18,8 +18,22 @@ const FINGERS = [
   [18, 20],
 ] as const
 
+/** A fingertip pressed to the thumb tip. */
+export type Touch = 'index' | 'middle' | 'ring' | 'pinky'
+
+const TIPS: Record<Touch, number> = { index: 8, middle: 12, ring: 16, pinky: 20 }
+/** Fingertip to thumb tip, as a fraction of the hand's size, to count as pressed and to let go. */
+const TOUCH_ON = 0.3
+const TOUCH_OFF = 0.42
+
 export interface HandReading {
   pose: Pose
+  /** Which fingertip is pressed to the thumb, if any. The closest one wins. */
+  touch: Touch | null
+  /** Each fingertip, for labelling the hand. */
+  tips: Record<Touch, Point>
+  /** The thumb tip. A pinch lands midway between it and the pressed fingertip. */
+  thumb: Point
   /** Where the hand points: midway between thumb tip and index tip, or the palm for a fist. */
   point: Point
   /** The middle of the palm. */
@@ -39,11 +53,32 @@ const TWIST_RANGE = (55 * Math.PI) / 180
  * `aspect` is the image width over height, so distances are measured in a square space.
  * `previous` gives the pinch some stickiness so it does not flicker at the threshold.
  */
-export function readHand(landmarks: Point[], aspect: number, previous: Pose = 'open'): HandReading {
+export function readHand(
+  landmarks: Point[],
+  aspect: number,
+  previous: Pose = 'open',
+  previousTouch: Touch | null = null,
+): HandReading {
   const d = (a: number, b: number) =>
     Math.hypot((landmarks[a].x - landmarks[b].x) * aspect, landmarks[a].y - landmarks[b].y)
 
   const size = d(WRIST, MIDDLE_KNUCKLE) || 1e-6
+  let touch: Touch | null = null
+  let nearest = Infinity
+  for (const finger of Object.keys(TIPS) as Touch[]) {
+    const ratio = d(THUMB_TIP, TIPS[finger]) / size
+    const limit = finger === previousTouch ? TOUCH_OFF : TOUCH_ON
+    if (ratio < limit && ratio < nearest) {
+      nearest = ratio
+      touch = finger
+    }
+  }
+  const tips = {
+    index: landmarks[TIPS.index],
+    middle: landmarks[TIPS.middle],
+    ring: landmarks[TIPS.ring],
+    pinky: landmarks[TIPS.pinky],
+  }
   const isCurled = ([joint, tip]: readonly [number, number]) => d(tip, WRIST) < d(joint, WRIST)
   const curled = FINGERS.every(isCurled)
 
@@ -67,6 +102,9 @@ export function readHand(landmarks: Point[], aspect: number, previous: Pose = 'o
       },
       palm,
       twist,
+      touch: null,
+      tips,
+      thumb: landmarks[THUMB_TIP],
     }
   }
 
@@ -76,19 +114,14 @@ export function readHand(landmarks: Point[], aspect: number, previous: Pose = 'o
     x: (landmarks[THUMB_TIP].x + landmarks[INDEX_TIP].x) / 2,
     y: (landmarks[THUMB_TIP].y + landmarks[INDEX_TIP].y) / 2,
   }
-  if (pinched) return { pose: 'pinch', point: pinchPoint, palm, twist }
+  if (pinched) return { pose: 'pinch', point: pinchPoint, palm, twist, touch, tips, thumb: landmarks[THUMB_TIP] }
 
   // Pointing: the index finger out well past its middle joint, the other three curled.
-  // Two fingers: index and middle out, ring and little curled.
-  const [index, middle, ...rest] = FINGERS
-  const isOut = ([joint, tip]: readonly [number, number]) => d(tip, WRIST) > d(joint, WRIST) * 1.15
-  if (isOut(index) && isOut(middle) && rest.every(isCurled)) {
-    return { pose: 'peace', point: landmarks[INDEX_TIP], palm, twist }
+  const [index, ...rest] = FINGERS
+  if (d(index[1], WRIST) > d(index[0], WRIST) * 1.15 && rest.every(isCurled)) {
+    return { pose: 'point', point: landmarks[INDEX_TIP], palm, twist, touch, tips, thumb: landmarks[THUMB_TIP] }
   }
-  if (isOut(index) && isCurled(middle) && rest.every(isCurled)) {
-    return { pose: 'point', point: landmarks[INDEX_TIP], palm, twist }
-  }
-  return { pose: 'open', point: pinchPoint, palm, twist }
+  return { pose: 'open', point: pinchPoint, palm, twist, touch, tips, thumb: landmarks[THUMB_TIP] }
 }
 
 /** One Euro filter: steady when the hand is still, quick when it moves. */

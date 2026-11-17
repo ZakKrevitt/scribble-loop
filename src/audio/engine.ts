@@ -152,8 +152,38 @@ interface Bot {
 }
 
 /** The pedals the hand can play in effects mode. */
-export const EFFECTS = ['Filter', 'Drive', 'Crush', 'Echo', 'Reverb'] as const
+export const EFFECTS = ['Filter', 'Echo', 'Reverb', 'Drive', 'Crush'] as const
 export type EffectName = (typeof EFFECTS)[number]
+
+/**
+ * Each pedal's four variants, one per finger (index, middle, ring, little). Pressing that finger to
+ * the thumb plays the pedal in that variant.
+ */
+export const PEDAL_OPTIONS: Record<EffectName, readonly [string, string, string, string]> = {
+  Filter: ['Low-pass', 'High-pass', 'Band-pass', 'Notch'],
+  Echo: ['Straight', 'Dotted', 'Triplet', 'Free'],
+  Reverb: ['Room', 'Hall', 'Cathedral', 'Endless'],
+  Drive: ['Warm', 'Hard', 'Fuzz', 'Fold'],
+  Crush: ['Light', 'Heavy', 'Broken', 'Shattered'],
+}
+
+/** The four drive characters: soft saturation, hard clipping, a heavy asymmetric fuzz and a wavefolder. */
+function driveCurve(kind: number): Float32Array<ArrayBuffer> {
+  const n = 2048
+  const curve = new Float32Array(new ArrayBuffer(n * 4))
+  for (let i = 0; i < n; i++) {
+    const x = (i / (n - 1)) * 2 - 1
+    curve[i] =
+      kind === 0
+        ? Math.tanh(x * 2) / Math.tanh(2)
+        : kind === 1
+          ? Math.max(-0.6, Math.min(0.6, x * 1.5)) / 0.6
+          : kind === 2
+            ? Math.tanh(x * 10 + 0.4) / Math.tanh(10.4)
+            : Math.sin(x * Math.PI * 2.5)
+  }
+  return curve
+}
 
 /** A staircase curve: fewer levels is a harsher, more broken sound. */
 function crushCurve(levels: number): Float32Array<ArrayBuffer> {
@@ -172,6 +202,8 @@ interface Pedals {
   wobbleDepth: GainNode
   driveDry: GainNode
   drivePre: GainNode
+  driveShape: WaveShaperNode
+  driveKind: number
   driveWet: GainNode
   crushDry: GainNode
   crush: WaveShaperNode
@@ -180,7 +212,8 @@ interface Pedals {
   echo: DelayNode
   echoSend: GainNode
   echoFeedback: GainNode
-  hallSend: GainNode
+  /** One send per reverb size, so changing size never swaps a buffer under a playing signal. */
+  hallSends: GainNode[]
   hallTone: BiquadFilterNode
 }
 
@@ -415,8 +448,8 @@ export class Engine {
   private noise!: AudioBuffer
   private fxIn!: GainNode
   private pedals!: Pedals
-  /** Which pedals are pressed right now, for the screen and for tests. */
-  readonly effects: Partial<Record<EffectName, { x: number; y: number }>> = {}
+  /** Which pedals are pressed right now, with their amount, height and variant, for the screen and for tests. */
+  readonly effects: Partial<Record<EffectName, { x: number; y: number; option: number; detail: string }>> = {}
 
   private settings: Settings
   private items: Item[] = []
@@ -580,7 +613,7 @@ export class Engine {
     const driveDry = ctx.createGain()
     const drivePre = ctx.createGain()
     const driveShape = ctx.createWaveShaper()
-    driveShape.curve = clipCurve(3)
+    driveShape.curve = driveCurve(0)
     driveShape.oversample = '4x'
     const driveWet = ctx.createGain()
     driveWet.gain.value = 0
@@ -609,25 +642,29 @@ export class Engine {
     echo.connect(echoFeedback).connect(echo)
     echo.connect(echoReturn).connect(output)
 
-    // A long hall, separate from the short room the drums sit in, fed after the echo so repeats wash too.
-    const seconds = 4
-    const impulse = ctx.createBuffer(2, Math.floor(ctx.sampleRate * seconds), ctx.sampleRate)
-    for (let ch = 0; ch < 2; ch++) {
-      const data = impulse.getChannelData(ch)
-      for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) ** 2.2
-    }
-    const hall = ctx.createConvolver()
-    hall.buffer = impulse
-    const hallSend = ctx.createGain()
-    hallSend.gain.value = 0
+    // Four rooms, from a small room to an endless wash, separate from the short room the drums sit in.
+    // They are fed after the echo so repeats wash too.
     const hallTone = ctx.createBiquadFilter()
     hallTone.type = 'lowpass'
     hallTone.frequency.value = 6000
     const hallReturn = ctx.createGain()
     hallReturn.gain.value = 0.8
-    afterCrush.connect(hallSend)
-    echo.connect(hallSend)
-    hallSend.connect(hall).connect(hallTone).connect(hallReturn).connect(output)
+    hallTone.connect(hallReturn).connect(output)
+    const hallSends = [0.8, 2.2, 4.5, 9].map((seconds) => {
+      const impulse = ctx.createBuffer(2, Math.floor(ctx.sampleRate * seconds), ctx.sampleRate)
+      for (let ch = 0; ch < 2; ch++) {
+        const data = impulse.getChannelData(ch)
+        for (let i = 0; i < data.length; i++) data[i] = (Math.random() * 2 - 1) * (1 - i / data.length) ** 2.2
+      }
+      const hall = ctx.createConvolver()
+      hall.buffer = impulse
+      const send = ctx.createGain()
+      send.gain.value = 0
+      afterCrush.connect(send)
+      echo.connect(send)
+      send.connect(hall).connect(hallTone)
+      return send
+    })
 
     return {
       filter,
@@ -635,6 +672,8 @@ export class Engine {
       wobbleDepth,
       driveDry,
       drivePre,
+      driveShape,
+      driveKind: 0,
       driveWet,
       crushDry,
       crush,
@@ -643,62 +682,99 @@ export class Engine {
       echo,
       echoSend,
       echoFeedback,
-      hallSend,
+      hallSends,
       hallTone,
     }
   }
 
   /**
-   * Press, move or release a pedal. `x` and `y` are grid fractions of the hand or pointer:
-   * higher is more intense, and left to right sets each pedal's second control.
+   * Press, move or release a pedal, played like an XY pad.
+   * `amount` (0 to 1, left to right) is how much of the pedal you hear. `y` is the height on the grid
+   * (0 at the top): moving up is the pedal's main move, faster, brighter, more open or harder. `option`
+   * is the variant, one per finger, and `twist` (0 to 1) is one extra control.
    */
-  setEffect(effect: EffectName, x: number, y: number, on: boolean): void {
-    if (on) this.effects[effect] = { x, y }
+  setEffect(effect: EffectName, amount: number, y: number, on: boolean, option = 0, twist = 0.5): void {
+    const detail = this.applyEffect(effect, amount, y, on, option, twist)
+    if (on) this.effects[effect] = { x: amount, y, option, detail }
     else delete this.effects[effect]
-    if (!this.ctx) return
+  }
+
+  /** Sets the pedal's nodes and returns a short readout of what it is doing, for the screen. */
+  private applyEffect(effect: EffectName, amount: number, y: number, on: boolean, option: number, twist: number): string {
+    const up = 1 - Math.min(1, Math.max(0, y))
+    const step = 60 / this.settings.bpm / 4
+    const name = PEDAL_OPTIONS[effect][option] ?? ''
+    if (!this.ctx) return name
     const t = this.ctx.currentTime
     const p = this.pedals
     const ease = 0.03
-    const up = 1 - y
     switch (effect) {
       case 'Filter': {
-        // Height opens the filter; across, it wobbles faster and deeper.
-        const cutoff = on ? 70 * 2 ** (up * 7.8) : 20000
+        // Up opens it; across is how strongly it rings and wobbles; twist is how fast it wobbles.
+        const types: BiquadFilterType[] = ['lowpass', 'highpass', 'bandpass', 'notch']
+        if (on && p.filter.type !== types[option]) p.filter.type = types[option] ?? 'lowpass'
+        if (!on && p.filter.type !== 'lowpass') p.filter.type = 'lowpass'
+        const cutoff = on ? 60 * 2 ** (up * 8.2) : 20000
         p.filter.frequency.setTargetAtTime(cutoff, t, ease)
-        p.filter.Q.setTargetAtTime(on ? 9 : 0.7, t, ease)
-        p.wobble.frequency.setTargetAtTime(0.25 * 2 ** (x * 5), t, ease)
-        p.wobbleDepth.gain.setTargetAtTime(on ? cutoff * 0.75 * x : 0, t, ease)
-        break
+        p.filter.Q.setTargetAtTime(on ? 1 + amount * 12 : 0.7, t, ease)
+        p.wobble.frequency.setTargetAtTime(0.25 * 2 ** (twist * 5), t, ease)
+        p.wobbleDepth.gain.setTargetAtTime(on ? cutoff * 0.7 * amount : 0, t, ease)
+        return `${name} ${cutoff < 1000 ? `${Math.round(cutoff)} Hz` : `${(cutoff / 1000).toFixed(1)} kHz`}`
       }
+      case 'Echo': {
+        // Up is faster repeats, down is slower, snapped to the beat unless the variant is Free.
+        // Across is how loud they are; twist is how long they keep ringing.
+        const divisions = [
+          ['1/32', 0.5],
+          ['1/16', 1],
+          ['1/8', 2],
+          ['1/4', 4],
+          ['1/2', 8],
+        ] as const
+        let time: number
+        let label: string
+        if (option === 3) {
+          time = 0.03 * 2 ** ((1 - up) * 5)
+          label = `${Math.round(time * 1000)} ms`
+        } else {
+          const [division, steps] = divisions[Math.min(4, Math.floor((1 - up) * 5))]
+          const feel = option === 1 ? 1.5 : option === 2 ? 2 / 3 : 1
+          time = Math.min(1.9, steps * feel * step)
+          label = option === 1 ? `${division} dotted` : option === 2 ? `${division} triplet` : division
+        }
+        p.echo.delayTime.setTargetAtTime(time, t, 0.06)
+        p.echoFeedback.gain.setTargetAtTime(on ? 0.2 + twist * 0.7 : 0, t, ease)
+        p.echoSend.gain.setTargetAtTime(on ? amount * 0.9 : 0, t, ease)
+        return label
+      }
+      case 'Reverb':
+        // The variant is the size of the room; across is how much of it; up is brighter.
+        p.hallSends.forEach((send, i) => send.gain.setTargetAtTime(on && i === option ? 0.05 + amount * 1.3 : 0, t, ease))
+        p.hallTone.frequency.setTargetAtTime(900 * 2 ** (up * 4), t, ease)
+        return name
       case 'Drive':
-        p.drivePre.gain.setTargetAtTime(1 + x * 28, t, ease)
-        p.driveWet.gain.setTargetAtTime(on ? 0.15 + up * 0.5 : 0, t, ease)
-        p.driveDry.gain.setTargetAtTime(on ? 1 - up * 0.8 : 1, t, ease)
-        break
+        // The variant is the character; across is the mix; up pushes it harder.
+        if (on && option !== p.driveKind) {
+          p.driveShape.curve = driveCurve(option)
+          p.driveKind = option
+        }
+        p.drivePre.gain.setTargetAtTime(1 + up * 30, t, ease)
+        p.driveWet.gain.setTargetAtTime(on ? amount * 0.85 : 0, t, ease)
+        p.driveDry.gain.setTargetAtTime(on ? 1 - amount * 0.85 : 1, t, ease)
+        return name
       case 'Crush': {
-        const levels = Math.round(2 ** (1 + (1 - up) * 4))
+        // The variant sets how broken it starts; up breaks it further; across is the mix.
+        const base = [12, 6, 3, 2][option] ?? 6
+        const levels = Math.max(2, Math.round(base / (1 + up * 3)))
         if (on && levels !== p.crushLevels) {
           p.crush.curve = crushCurve(levels)
           p.crushLevels = levels
         }
-        const wet = on ? 0.4 + x * 0.6 : 0
+        const wet = on ? amount : 0
         p.crushWet.gain.setTargetAtTime(wet, t, ease)
         p.crushDry.gain.setTargetAtTime(1 - wet, t, ease)
-        break
+        return `${name} ${levels} steps`
       }
-      case 'Echo': {
-        // Across picks the echo time in steps (1, 2, 3 or 4 sixteenths); height feeds it back.
-        const steps = 1 + Math.min(3, Math.floor(x * 4))
-        p.echo.delayTime.setTargetAtTime((steps * 60) / this.settings.bpm / 4, t, ease)
-        p.echoFeedback.gain.setTargetAtTime(on ? up * 0.85 : 0, t, ease)
-        p.echoSend.gain.setTargetAtTime(on ? 0.65 : 0, t, ease)
-        break
-      }
-      case 'Reverb':
-        // Height is how much hall; across goes from dark to bright. Letting go leaves the tail ringing.
-        p.hallSend.gain.setTargetAtTime(on ? 0.2 + up * 1.1 : 0, t, ease)
-        p.hallTone.frequency.setTargetAtTime(1200 * 2 ** (x * 3.4), t, ease)
-        break
     }
   }
 

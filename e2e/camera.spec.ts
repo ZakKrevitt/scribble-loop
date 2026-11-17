@@ -6,7 +6,7 @@ test('the camera finds a hand and draws over it', async ({ page }) => {
   page.on('pageerror', (e) => errors.push(e.message))
   await page.goto('/?debug')
   await page.getByRole('button', { name: 'Start with camera' }).click()
-  await expect(page.getByRole('button', { name: 'Camera', pressed: true })).toBeVisible({ timeout: 30_000 })
+  await expect(page.getByRole('switch', { name: 'Camera' })).toBeChecked({ timeout: 30_000 })
   await expect(page.locator('canvas')).not.toHaveAttribute('data-hands', '0', { timeout: 20_000 })
   await page.waitForTimeout(600)
   await page.screenshot({ path: '.impeccable/review/camera.png' })

@@ -56,13 +56,12 @@ describe('readHand, effects gestures', () => {
     expect(readHand(pointing, 1).pose).toBe('point')
   })
 
-  it('reads two fingers when index and middle are out and the others curled', () => {
-    const peace = hand({
-      16: { x: 0.54, y: 0.73 },
-      20: { x: 0.58, y: 0.75 },
-      4: { x: 0.4, y: 0.75 },
-    })
-    expect(readHand(peace, 1).pose).toBe('peace')
+  it('reads which fingertip is pressed to the thumb, for the pedals', () => {
+    const middleToThumb = hand({ 4: { x: 0.49, y: 0.44 }, 12: { x: 0.5, y: 0.43 } })
+    expect(readHand(middleToThumb, 1).touch).toBe('middle')
+    const littleToThumb = hand({ 4: { x: 0.62, y: 0.54 }, 20: { x: 0.63, y: 0.53 } })
+    expect(readHand(littleToThumb, 1).touch).toBe('pinky')
+    expect(readHand(hand(), 1).touch).toBe(null)
   })
 
   it('reads twist as the hand turns like a dial, mirrored the way the player sees it', () => {

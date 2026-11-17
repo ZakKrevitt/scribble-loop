@@ -518,3 +518,48 @@ export function drawTrail(ctx: CanvasRenderingContext2D, grid: Rect, path: Point
   ctx.stroke()
   ctx.restore()
 }
+
+/**
+ * Each fingertip carries what pressing it to the thumb will do: a pedal's variant on the effects
+ * hand, a sound on the writing hand. The pressed one goes solid plum. On the effects hand the
+ * pedal's name sits above the palm.
+ */
+export function drawTipLabels(
+  ctx: CanvasRenderingContext2D,
+  grid: Rect,
+  tips: Record<'index' | 'middle' | 'ring' | 'pinky', Point>,
+  labels: readonly string[],
+  active: string | null,
+  palm: Point | null,
+  title: string | null,
+  inks?: readonly string[],
+): void {
+  ctx.save()
+  ctx.textAlign = 'center'
+  ctx.textBaseline = 'middle'
+  const pill = (x: number, y: number, text: string, fill: string, ink: string, size: number) => {
+    ctx.font = `700 ${size}px ${FONT}`
+    const w = ctx.measureText(text).width + size * 1.2
+    const h = size * 1.75
+    ctx.beginPath()
+    ctx.roundRect(x - w / 2, y - h / 2, w, h, h / 2)
+    ctx.shadowColor = SHADOW
+    ctx.shadowBlur = 6
+    ctx.shadowOffsetY = 2
+    ctx.fillStyle = fill
+    ctx.fill()
+    ctx.shadowColor = 'transparent'
+    ctx.fillStyle = ink
+    ctx.fillText(text, x, y + 1)
+  }
+  ;(['index', 'middle', 'ring', 'pinky'] as const).forEach((finger, i) => {
+    const p = toPx(grid, tips[finger])
+    const on = active === finger
+    pill(p.x, p.y - 24, labels[i], on ? PLUM : (inks?.[i] ?? WHITE), on ? WHITE : PLUM, 15)
+  })
+  if (palm && title) {
+    const p = toPx(grid, palm)
+    pill(p.x, p.y + 6, title, PLUM, WHITE, 18)
+  }
+  ctx.restore()
+}
