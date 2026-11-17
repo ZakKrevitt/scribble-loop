@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-17T23:30:00+00:00",
+  "generatedAt": "2026-11-17T23:59:00+00:00",
   "title": "Design System: Scribble Loop",
   "extensions": {
     "colorMeta": {
@@ -18,7 +18,8 @@
           "oklch(0.87 0.15 352)",
           "oklch(0.95 0.15 352)"
         ],
-        "hexApproximation": "#f58fbf"
+        "hexApproximation": "#f58fbf",
+        "purpose": "The control bar only (--bar)."
       },
       "plum-ink": {
         "role": "primary",
@@ -34,7 +35,8 @@
           "oklch(0.87 0.09 340)",
           "oklch(0.95 0.09 340)"
         ],
-        "hexApproximation": "#3b1230"
+        "hexApproximation": "#3b1230",
+        "purpose": "Arc --foreground, --accent, --control-on, --focus-ring."
       },
       "pen-pink": {
         "role": "secondary",
@@ -145,7 +147,8 @@
           "oklch(0.76 0.2 352)",
           "oklch(0.87 0.2 352)",
           "oklch(0.95 0.2 352)"
-        ]
+        ],
+        "purpose": "The clap sticker."
       },
       "drum-zap-blue": {
         "role": "secondary",
@@ -192,7 +195,8 @@
           "oklch(0.76 0.1 185)",
           "oklch(0.87 0.1 185)",
           "oklch(0.95 0.1 185)"
-        ]
+        ],
+        "purpose": "Text selection only."
       },
       "booth-backdrop": {
         "role": "neutral",
@@ -207,7 +211,8 @@
           "oklch(0.76 0.045 326)",
           "oklch(0.87 0.045 326)",
           "oklch(0.95 0.045 326)"
-        ]
+        ],
+        "purpose": "Arc --background; page, stage, and text on primary buttons."
       },
       "sticker-paper": {
         "role": "neutral",
@@ -222,7 +227,8 @@
           "oklch(0.76 0.012 345)",
           "oklch(0.87 0.012 345)",
           "oklch(0.95 0.012 345)"
-        ]
+        ],
+        "purpose": "Arc --surface, --surface-raised, --accent-foreground."
       },
       "pen-white": {
         "role": "neutral",
@@ -237,7 +243,8 @@
           "oklch(0.76 0.005 345)",
           "oklch(0.87 0.005 345)",
           "oklch(0.95 0.005 345)"
-        ]
+        ],
+        "purpose": "Canvas cut edges, playhead core, effects-hand fingertip pills, halos."
       },
       "blush-muted": {
         "role": "neutral",
@@ -252,7 +259,8 @@
           "oklch(0.76 0.06 348)",
           "oklch(0.87 0.06 348)",
           "oklch(0.95 0.06 348)"
-        ]
+        ],
+        "purpose": "Arc --control-track; switch and slider tracks."
       },
       "plum-soft": {
         "role": "neutral",
@@ -267,12 +275,13 @@
           "oklch(0.76 0.09 340)",
           "oklch(0.87 0.09 340)",
           "oklch(0.95 0.09 340)"
-        ]
+        ],
+        "purpose": "Arc --text-secondary; ghost buttons, table headers."
       },
       "plum-hairline": {
         "role": "neutral",
         "displayName": "Plum hairline",
-        "canonical": "oklch(0.27 0.09 340 / 18%)",
+        "canonical": "oklch(0.27 0.09 340 / 0.16)",
         "tonalRamp": [
           "oklch(0.15 0.09 340)",
           "oklch(0.27 0.09 340)",
@@ -282,22 +291,8 @@
           "oklch(0.76 0.09 340)",
           "oklch(0.87 0.09 340)",
           "oklch(0.95 0.09 340)"
-        ]
-      },
-      "plum-field": {
-        "role": "neutral",
-        "displayName": "Plum field",
-        "canonical": "oklch(0.27 0.09 340 / 28%)",
-        "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
-        ]
+        ],
+        "purpose": "Arc --border."
       },
       "booth-wash": {
         "role": "neutral",
@@ -314,34 +309,163 @@
           "oklch(0.95 0.11 335)"
         ]
       },
-      "alarm-red": {
-        "role": "neutral",
-        "displayName": "Alarm red",
-        "canonical": "oklch(0.52 0.22 25)",
+      "plum-deep": {
+        "role": "primary",
+        "displayName": "Plum deep",
+        "canonical": "oklch(0.2 0.07 340)",
         "tonalRamp": [
-          "oklch(0.15 0.2 25)",
-          "oklch(0.27 0.2 25)",
-          "oklch(0.4 0.2 25)",
-          "oklch(0.52 0.2 25)",
-          "oklch(0.64 0.2 25)",
-          "oklch(0.76 0.2 25)",
-          "oklch(0.87 0.2 25)",
-          "oklch(0.95 0.2 25)"
-        ]
+          "oklch(0.15 0.07 340)",
+          "oklch(0.27 0.07 340)",
+          "oklch(0.4 0.07 340)",
+          "oklch(0.52 0.07 340)",
+          "oklch(0.64 0.07 340)",
+          "oklch(0.76 0.07 340)",
+          "oklch(0.87 0.07 340)",
+          "oklch(0.95 0.07 340)"
+        ],
+        "purpose": "Arc --accent-strong; keyboard focus outline at 72%."
+      },
+      "blush-wash": {
+        "role": "neutral",
+        "displayName": "Blush wash",
+        "canonical": "oklch(0.94 0.04 345)",
+        "tonalRamp": [
+          "oklch(0.15 0.04 345)",
+          "oklch(0.27 0.04 345)",
+          "oklch(0.4 0.04 345)",
+          "oklch(0.52 0.04 345)",
+          "oklch(0.64 0.04 345)",
+          "oklch(0.76 0.04 345)",
+          "oklch(0.87 0.04 345)",
+          "oklch(0.95 0.04 345)"
+        ],
+        "purpose": "Arc --surface-muted; segmented well, hover and highlight fills."
+      },
+      "blush-track-hover": {
+        "role": "neutral",
+        "displayName": "Blush track hover",
+        "canonical": "oklch(0.86 0.07 348)",
+        "tonalRamp": [
+          "oklch(0.15 0.07 348)",
+          "oklch(0.27 0.07 348)",
+          "oklch(0.4 0.07 348)",
+          "oklch(0.52 0.07 348)",
+          "oklch(0.64 0.07 348)",
+          "oklch(0.76 0.07 348)",
+          "oklch(0.87 0.07 348)",
+          "oklch(0.95 0.07 348)"
+        ],
+        "purpose": "Arc --control-track-hover."
+      },
+      "plum-muted": {
+        "role": "neutral",
+        "displayName": "Muted plum",
+        "canonical": "oklch(0.47 0.08 340)",
+        "tonalRamp": [
+          "oklch(0.15 0.08 340)",
+          "oklch(0.27 0.08 340)",
+          "oklch(0.4 0.08 340)",
+          "oklch(0.52 0.08 340)",
+          "oklch(0.64 0.08 340)",
+          "oklch(0.76 0.08 340)",
+          "oklch(0.87 0.08 340)",
+          "oklch(0.95 0.08 340)"
+        ],
+        "purpose": "Arc --text-muted; unselected segments, chevrons."
+      },
+      "plum-hairline-subtle": {
+        "role": "neutral",
+        "displayName": "Plum hairline subtle",
+        "canonical": "oklch(0.27 0.09 340 / 0.09)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 340)",
+          "oklch(0.27 0.09 340)",
+          "oklch(0.4 0.09 340)",
+          "oklch(0.52 0.09 340)",
+          "oklch(0.64 0.09 340)",
+          "oklch(0.76 0.09 340)",
+          "oklch(0.87 0.09 340)",
+          "oklch(0.95 0.09 340)"
+        ],
+        "purpose": "Arc --border-subtle."
+      },
+      "plum-rule-strong": {
+        "role": "neutral",
+        "displayName": "Plum rule strong",
+        "canonical": "oklch(0.27 0.09 340 / 0.32)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 340)",
+          "oklch(0.27 0.09 340)",
+          "oklch(0.4 0.09 340)",
+          "oklch(0.52 0.09 340)",
+          "oklch(0.64 0.09 340)",
+          "oklch(0.76 0.09 340)",
+          "oklch(0.87 0.09 340)",
+          "oklch(0.95 0.09 340)"
+        ],
+        "purpose": "Arc --border-strong."
+      },
+      "plum-tint": {
+        "role": "neutral",
+        "displayName": "Plum tint",
+        "canonical": "oklch(0.27 0.09 340 / 0.1)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 340)",
+          "oklch(0.27 0.09 340)",
+          "oklch(0.4 0.09 340)",
+          "oklch(0.52 0.09 340)",
+          "oklch(0.64 0.09 340)",
+          "oklch(0.76 0.09 340)",
+          "oklch(0.87 0.09 340)",
+          "oklch(0.95 0.09 340)"
+        ],
+        "purpose": "Arc --accent-subtle."
+      },
+      "thumb-white": {
+        "role": "neutral",
+        "displayName": "Thumb white",
+        "canonical": "oklch(100% 0 0)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.4 0 0)",
+          "oklch(0.52 0 0)",
+          "oklch(0.64 0 0)",
+          "oklch(0.76 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ],
+        "purpose": "Arc --control-thumb; switch and slider thumbs."
+      },
+      "dialog-scrim": {
+        "role": "neutral",
+        "displayName": "Dialog scrim",
+        "canonical": "oklch(10% 0 0 / .46)",
+        "tonalRamp": [
+          "oklch(0.15 0 0)",
+          "oklch(0.27 0 0)",
+          "oklch(0.4 0 0)",
+          "oklch(0.52 0 0)",
+          "oklch(0.64 0 0)",
+          "oklch(0.76 0 0)",
+          "oklch(0.87 0 0)",
+          "oklch(0.95 0 0)"
+        ],
+        "purpose": "Arc's dim layer behind the How to play dialog, with a 7px backdrop blur."
       }
     },
     "typographyMeta": {
       "wordmark": {
         "displayName": "Wordmark",
-        "purpose": "Product name at the left of the bar from 1700px wide, 800 weight."
+        "purpose": "Product name from 1700px wide and the How to play section headings, 800 weight."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Every control, menu item, menu group label, message bubble, canvas note name and pedal name, 700 weight."
+        "purpose": "Tempo readout, Pedal hand heading, message bubbles, fingertip pills, canvas note names and pedal readout, 700 weight."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Camera alert band and the soft plum second column in menus, 500 weight."
+        "purpose": "Every Arc control, option and menu item, panel field labels, dialog body and table, alert band, 500 weight."
       }
     },
     "shadows": [
@@ -353,22 +477,22 @@
       {
         "name": "sticker-tight",
         "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 5 (hand) or 6 (cursor), shadowOffsetY 2",
-        "purpose": "Robot hand overlay and hand cursor."
+        "purpose": "Robot hand overlay, hand cursor and fingertip pills."
       },
       {
         "name": "lift",
         "value": "0 3px 10px oklch(0.27 0.09 340 / 0.25)",
-        "purpose": "Message bubbles and the secondary start button over the stage."
+        "purpose": "Message bubbles over the stage."
       },
       {
-        "name": "menu",
-        "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1)",
-        "purpose": "Open select and dropdown menus."
+        "name": "floating",
+        "value": "0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08)",
+        "purpose": "Arc --shadow-floating retuned to plum: select lists, dropdown menus, popovers, the dialog."
       },
       {
-        "name": "submenu",
-        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1)",
-        "purpose": "Open dropdown submenus."
+        "name": "resting",
+        "value": "0 1px 2px oklch(0% 0 0 / .035)",
+        "purpose": "Arc --shadow-resting: hover on secondary buttons and the dropdown trigger, the selected segment."
       }
     ],
     "motion": [
@@ -383,14 +507,34 @@
         "purpose": "A sounding melody line swells on the beat, with a white sparkle glint at the playhead."
       },
       {
-        "name": "menu",
-        "value": "none",
-        "purpose": "Select and dropdown menus open and close without animation."
-      },
-      {
         "name": "reduced-motion",
         "value": "prefers-reduced-motion: reduce",
-        "purpose": "Flash and swell stop; the playhead keeps moving."
+        "purpose": "Flash and swell stop; the playhead keeps moving. Arc components drop their transitions."
+      },
+      {
+        "name": "duration-instant / fast / standard / considered / spring",
+        "value": "100ms / 150ms / 200ms / 360ms / 440ms",
+        "purpose": "Arc duration tokens for chrome state changes and panel entrances."
+      },
+      {
+        "name": "ease-standard",
+        "value": "cubic-bezier(.22,1,.36,1)",
+        "purpose": "Arc default easing for chrome state changes."
+      },
+      {
+        "name": "ease-enter",
+        "value": "cubic-bezier(.16,1,.3,1)",
+        "purpose": "Select lists and the dialog rising in."
+      },
+      {
+        "name": "ease-spring",
+        "value": "linear() spring curve from 0 to 1 with no overshoot",
+        "purpose": "Dropdown menus, popovers and the dialog settling; never overshoots."
+      },
+      {
+        "name": "spring snappy / smooth / morph",
+        "value": "visualDuration 0.2s / 0.3s / 0.3s, bounce 0",
+        "purpose": "motion-tokens.ts springs for presses, panels and the segmented selection tile."
       }
     ],
     "breakpoints": [
@@ -400,85 +544,148 @@
         "note": "Below this the wordmark is screen-reader only."
       },
       {
-        "name": "compact",
-        "value": "1600px",
-        "note": "Below this bar gaps tighten to 6px, control side padding to 12px, the tempo slider to 96px, and pentatonic scale names shorten. The bar is one row at 1440px and wider and two rows from about 1024 to 1366px."
+        "name": "bar-two-rows",
+        "value": "1280px",
+        "note": "The bar is two rows, 104px tall, at 1280 to 1440px and wider; each row wraps on its own below that, seven rows at 390px."
       },
       {
         "name": "sm",
         "value": "640px",
-        "note": "Below this the bar reorders (settings first, then Camera, then tools and actions) and a 390px phone shows five rows, accepted because the instrument is laptop-first. Stage gutters narrow to 34px and 42px."
+        "note": "Stage gutters narrow to 34px and 42px; Arc raises typed text to 16px."
       }
     ],
     "focus": {
-      "value": "outline: 3px solid oklch(0.27 0.09 340); outline-offset: 2px",
-      "purpose": "Global :focus-visible ring, outside cascade layers so it outranks component focus styles."
-    }
+      "value": "outline: 2px solid color-mix(in oklab, oklch(0.2 0.07 340) 72%, transparent); outline-offset: 2px",
+      "purpose": "Arc's keyboard :focus-visible outline on the retuned accent; pointer focus draws no ring."
+    },
+    "radii": [
+      {
+        "name": "control-inner",
+        "value": "10px",
+        "token": "calc(var(--radius-control) - 4px)",
+        "purpose": "Segments and select options."
+      },
+      {
+        "name": "control",
+        "value": "14px",
+        "token": "--radius-control",
+        "purpose": "Buttons, select triggers, segmented well, dropdown items."
+      },
+      {
+        "name": "control-lg",
+        "value": "16px",
+        "token": "calc(var(--radius-control) + 2px)",
+        "purpose": "Large buttons and select lists."
+      },
+      {
+        "name": "panel",
+        "value": "20px",
+        "token": "--radius-panel",
+        "purpose": "Dropdown menus and popovers."
+      },
+      {
+        "name": "surface",
+        "value": "24px",
+        "token": "--radius-surface",
+        "purpose": "The dialog and message bubbles."
+      },
+      {
+        "name": "pill",
+        "value": "9999px",
+        "token": "--radius-pill",
+        "purpose": "Tracks, thumbs, fingertip pills, dots."
+      }
+    ],
+    "controlHeights": [
+      {
+        "name": "sm",
+        "value": "32px",
+        "purpose": "Segments, dialog close."
+      },
+      {
+        "name": "md",
+        "value": "40px",
+        "purpose": "Every bar control."
+      },
+      {
+        "name": "lg",
+        "value": "44px",
+        "purpose": "Start buttons."
+      }
+    ]
   },
   "components": [
     {
       "name": "Primary button",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Plum pill for Play and Stop, with a leading icon.",
-      "html": "<button class=\"ds-btn-primary\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><polygon points=\"6 3 20 12 6 21 6 3\"/></svg>Play</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9999px; cursor: pointer; transition: background 0.15s; background: var(--primary, oklch(0.27 0.09 340)); color: var(--primary-foreground, oklch(0.985 0.012 345)); } .ds-btn-primary:hover { background: color-mix(in oklch, var(--primary, oklch(0.27 0.09 340)) 80%, transparent); } .ds-btn-primary:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; } .ds-btn-primary:active { transform: translateY(1px); }"
+      "description": "Plum fill with backdrop text; Play and Stop.",
+      "html": "<button class=\"ds-btn-primary\">Play</button>",
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control, 14px); cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms cubic-bezier(.22,1,.36,1), opacity 150ms cubic-bezier(.22,1,.36,1); min-width: 80px; background: var(--foreground, oklch(0.27 0.09 340)); border-color: var(--foreground, oklch(0.27 0.09 340)); color: var(--background, oklch(0.93 0.045 326)); } .ds-btn-primary:hover { opacity: .91; box-shadow: 0 1px 2px oklch(0% 0 0 / .035); } .ds-btn-primary:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
     },
     {
-      "name": "Light button",
+      "name": "Secondary button",
       "kind": "button",
-      "refersTo": "button-light",
-      "description": "Sticker paper pill for Settings, Robots, Pedals, Undo and Clear.",
-      "html": "<button class=\"ds-btn-light\">Undo</button>",
-      "css": ".ds-btn-light { font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9999px; cursor: pointer; transition: background 0.15s; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--secondary-foreground, oklch(0.27 0.09 340)); } .ds-btn-light:hover { background: color-mix(in oklch, var(--secondary, oklch(0.985 0.012 345)) 80%, transparent); } .ds-btn-light:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; } .ds-btn-light:disabled { opacity: 0.5; cursor: default; }"
+      "refersTo": "button-secondary",
+      "description": "Paper with a plum hairline; Chords and arp, Pedals, How to play.",
+      "html": "<button class=\"ds-btn-secondary\">Chords and arp</button>",
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control, 14px); cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms cubic-bezier(.22,1,.36,1), opacity 150ms cubic-bezier(.22,1,.36,1); background: var(--surface, oklch(0.985 0.012 345)); border-color: var(--border, oklch(0.27 0.09 340 / 0.16)); color: var(--foreground, oklch(0.27 0.09 340)); } .ds-btn-secondary:hover { background: var(--surface-muted, oklch(0.94 0.04 345)); box-shadow: 0 1px 2px oklch(0% 0 0 / .035); } .ds-btn-secondary:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
     },
     {
-      "name": "Segmented tool",
+      "name": "Ghost button",
+      "kind": "button",
+      "refersTo": "button-ghost",
+      "description": "Soft plum text, no fill; Undo and Clear.",
+      "html": "<button class=\"ds-btn-ghost\">Undo</button>",
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control, 14px); cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms cubic-bezier(.22,1,.36,1), opacity 150ms cubic-bezier(.22,1,.36,1); background: transparent; color: var(--text-secondary, oklch(0.4 0.09 340)); } .ds-btn-ghost:hover { background: var(--surface-muted, oklch(0.94 0.04 345)); color: var(--foreground, oklch(0.27 0.09 340)); } .ds-btn-ghost:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; } .ds-btn-ghost:disabled { color: var(--text-muted, oklch(0.47 0.08 340)); cursor: default; }"
+    },
+    {
+      "name": "Segmented control",
       "kind": "chip",
-      "refersTo": "segmented-tool",
-      "description": "Draw, Erase or Effects, pressed item filled plum.",
-      "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"What the mouse does\"><button class=\"ds-seg-item\" aria-pressed=\"true\">Draw</button><button class=\"ds-seg-item\" aria-pressed=\"false\">Erase</button><button class=\"ds-seg-item\" aria-pressed=\"false\">Effects</button></div>",
-      "css": ".ds-seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 9999px; background: var(--secondary, oklch(0.985 0.012 345)); } .ds-seg-item { font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 32px; padding: 0 12px; border: 0; border-radius: 9999px; background: transparent; color: var(--foreground, oklch(0.27 0.09 340)); cursor: pointer; } .ds-seg-item:hover { background: var(--muted, oklch(0.9 0.06 348)); } .ds-seg-item[aria-pressed=\"true\"] { background: var(--primary, oklch(0.27 0.09 340)); color: var(--primary-foreground, oklch(0.985 0.012 345)); } .ds-seg-item:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; }"
+      "refersTo": "segmented-control",
+      "description": "Draw, Erase or Effects; the selected item sits on a paper tile.",
+      "html": "<div class=\"ds-seg\" role=\"radiogroup\" aria-label=\"What the mouse does\"><button class=\"ds-seg-item\" role=\"radio\" aria-checked=\"true\">Draw</button><button class=\"ds-seg-item\" role=\"radio\" aria-checked=\"false\">Erase</button><button class=\"ds-seg-item\" role=\"radio\" aria-checked=\"false\">Effects</button></div>",
+      "css": ".ds-seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: var(--radius-control, 14px); background: var(--surface-muted, oklch(0.94 0.04 345)); } .ds-seg-item { font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--text-muted, oklch(0.47 0.08 340)); cursor: pointer; transition: color 150ms cubic-bezier(.22,1,.36,1); } .ds-seg-item[aria-checked=\"true\"] { background: var(--surface, oklch(0.985 0.012 345)); border-color: var(--border, oklch(0.27 0.09 340 / 0.16)); color: var(--foreground, oklch(0.27 0.09 340)); box-shadow: 0 1px 2px oklch(0% 0 0 / .035); } .ds-seg-item:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
     },
     {
-      "name": "Select trigger",
+      "name": "Select",
       "kind": "input",
-      "refersTo": "button-light",
-      "description": "Light pill showing the current value in words with a chevron; the Sound trigger leads with its pen swatch.",
-      "html": "<button class=\"ds-select\" aria-label=\"Sound for new lines\"><span class=\"ds-swatch\" aria-hidden=\"true\"></span>Supersaw<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
-      "css": ".ds-select { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9999px; cursor: pointer; transition: background 0.15s; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--secondary-foreground, oklch(0.27 0.09 340)); } .ds-select svg { color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-select:hover { background: color-mix(in oklch, var(--secondary, oklch(0.985 0.012 345)) 80%, transparent); } .ds-select:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; } .ds-swatch { width: 14px; height: 14px; flex-shrink: 0; border-radius: 9999px; background: oklch(0.68 0.25 357); box-shadow: 0 0 0 2px #fff; }"
+      "refersTo": "select-trigger",
+      "description": "Paper trigger naming its own value, with its list open.",
+      "html": "<div class=\"ds-select-wrap\"><button class=\"ds-select\" aria-label=\"Key\">Key A<span class=\"ds-chev\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></span></button><div class=\"ds-list\" role=\"listbox\"><div class=\"ds-opt\" role=\"option\">Key G</div><div class=\"ds-opt ds-opt-hl\" role=\"option\" aria-selected=\"true\">Key A</div><div class=\"ds-opt\" role=\"option\">Key B</div></div></div>",
+      "css": ".ds-select-wrap { display: grid; gap: 6px; width: 160px; } .ds-select { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 12px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: var(--radius-control, 14px); background: var(--surface, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); cursor: pointer; } .ds-select:hover { border-color: var(--border-strong, oklch(0.27 0.09 340 / 0.32)); background: var(--surface-muted, oklch(0.94 0.04 345)); } .ds-select:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; } .ds-chev { display: inline-flex; color: var(--text-muted, oklch(0.47 0.08 340)); } .ds-list { padding: 6px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: 16px; background: var(--surface-raised, oklch(0.985 0.012 345)); box-shadow: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; color: var(--foreground, oklch(0.27 0.09 340)); } .ds-opt { display: flex; align-items: center; min-height: 36px; padding: 0 34px 0 11px; border-radius: 10px; } .ds-opt:hover, .ds-opt-hl { background: var(--surface-muted, oklch(0.94 0.04 345)); }"
     },
     {
-      "name": "Select menu",
-      "kind": "custom",
-      "refersTo": "select-menu",
-      "description": "Paper menu for select options; the focused option fills mint.",
-      "html": "<div class=\"ds-menu\" role=\"listbox\"><div class=\"ds-opt\" role=\"option\">Major pentatonic</div><div class=\"ds-opt ds-opt-focus\" role=\"option\" aria-selected=\"true\">Minor pentatonic</div><div class=\"ds-opt\" role=\"option\">Major</div></div>",
-      "css": ".ds-menu { min-width: 176px; padding: 4px; border-radius: 14px; background: var(--popover, oklch(0.985 0.012 345)); color: var(--popover-foreground, oklch(0.27 0.09 340)); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; } .ds-opt { padding: 6px 36px 6px 12px; border-radius: 14px; cursor: default; } .ds-opt:hover, .ds-opt-focus { background: var(--accent, oklch(0.88 0.1 185)); color: var(--accent-foreground, oklch(0.27 0.09 340)); }"
-    },
-    {
-      "name": "Dropdown menu",
+      "name": "Robots menu",
       "kind": "custom",
       "refersTo": "dropdown-menu",
-      "description": "Paper menu with a sentence case group label, radio items with a check, and a submenu trigger whose soft plum second column shows the current value.",
-      "html": "<div class=\"ds-dd\" role=\"menu\"><div class=\"ds-dd-label\">Mouse plays</div><div class=\"ds-dd-check\" role=\"menuitemradio\" aria-checked=\"true\">Filter<svg class=\"ds-dd-tick\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg></div><div class=\"ds-dd-check\" role=\"menuitemradio\" aria-checked=\"false\">Drive</div><div class=\"ds-dd-sep\" role=\"separator\"></div><div class=\"ds-dd-label\">Gestures</div><div class=\"ds-dd-item ds-dd-open\" role=\"menuitem\" aria-haspopup=\"menu\">Open palm<span class=\"ds-dd-value\">Filter</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></div><div class=\"ds-dd-item\" role=\"menuitem\" aria-haspopup=\"menu\">Fist<span class=\"ds-dd-value\">Drive</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></div></div>",
-      "css": ".ds-dd { min-width: 176px; width: max-content; padding: 4px; border-radius: 14px; background: var(--popover, oklch(0.985 0.012 345)); color: var(--popover-foreground, oklch(0.27 0.09 340)); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; } .ds-dd-label { padding: 4px 12px; color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-dd-item, .ds-dd-check { position: relative; display: flex; align-items: center; gap: 24px; padding: 6px 12px; border-radius: 14px; cursor: default; } .ds-dd-check { padding-right: 36px; } .ds-dd-tick { position: absolute; right: 8px; } .ds-dd-item svg { margin-left: -16px; } .ds-dd-value { margin-left: auto; font-weight: 500; color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-dd-item:hover, .ds-dd-check:hover, .ds-dd-open { background: var(--accent, oklch(0.88 0.1 185)); color: var(--accent-foreground, oklch(0.27 0.09 340)); } .ds-dd-item:hover .ds-dd-value, .ds-dd-open .ds-dd-value { color: var(--accent-foreground, oklch(0.27 0.09 340)); } .ds-dd-sep { height: 1px; margin: 4px -4px; background: var(--border, oklch(0.27 0.09 340 / 18%)); }"
+      "description": "Arc dropdown menu; each robot leads with a dot in its tint.",
+      "html": "<div class=\"ds-dd\" role=\"menu\"><div class=\"ds-dd-item ds-dd-hl\" role=\"menuitem\"><span class=\"ds-dot\" style=\"background: oklch(0.8 0.15 185)\"></span>Singer</div><div class=\"ds-dd-item\" role=\"menuitem\"><span class=\"ds-dot\" style=\"background: oklch(0.78 0.17 62)\"></span>Swapper</div><div class=\"ds-dd-item\" role=\"menuitem\"><span class=\"ds-dot\" style=\"background: oklch(0.62 0.24 22)\"></span>Eater</div></div>",
+      "css": ".ds-dd { min-width: 192px; width: max-content; padding: 5px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: var(--radius-panel, 20px); background: var(--surface-raised, oklch(0.985 0.012 345)); box-shadow: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; color: var(--foreground, oklch(0.27 0.09 340)); } .ds-dd-item { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 11px; border-radius: 14px; cursor: pointer; } .ds-dd-item:hover, .ds-dd-hl { background: var(--surface-muted, oklch(0.94 0.04 345)); } .ds-dot { width: 14px; height: 14px; border-radius: 9999px; flex: none; }"
+    },
+    {
+      "name": "Switch",
+      "kind": "input",
+      "refersTo": "switch-track",
+      "description": "Blush track, plum when on, white thumb; Camera and Hold pedals on.",
+      "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\"><span class=\"ds-track\"><span class=\"ds-thumb\"></span></span>Camera</button>",
+      "css": ".ds-switch { display: inline-flex; align-items: center; gap: 12px; min-height: 40px; padding: 0; border: 0; background: transparent; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; color: var(--foreground, oklch(0.27 0.09 340)); cursor: pointer; } .ds-track { display: flex; width: 42px; height: 24px; box-sizing: border-box; padding: 3px; border-radius: 9999px; background: var(--control-track, oklch(0.9 0.06 348)); transition: background-color 150ms cubic-bezier(.22,1,.36,1); } .ds-switch:hover .ds-track { background: var(--control-track-hover, oklch(0.86 0.07 348)); } .ds-switch[aria-checked=\"true\"] .ds-track { background: var(--control-on, oklch(0.27 0.09 340)); justify-content: flex-end; } .ds-thumb { width: 18px; height: 18px; border-radius: 9999px; background: oklch(100% 0 0); box-shadow: 0 0 0 .5px oklch(0% 0 0 / .07), 0 1px 2px oklch(0% 0 0 / .14); } .ds-switch:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
     },
     {
       "name": "Tempo slider",
       "kind": "input",
       "refersTo": "slider-track",
-      "description": "Blush track, plum fill, paper thumb with a plum ring.",
-      "html": "<div class=\"ds-slider\"><input type=\"range\" min=\"90\" max=\"200\" value=\"160\" aria-label=\"Tempo\"><span>160 bpm</span></div>",
-      "css": ".ds-slider { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; color: var(--foreground, oklch(0.27 0.09 340)); font-variant-numeric: tabular-nums; } .ds-slider input { width: 112px; accent-color: var(--primary, oklch(0.27 0.09 340)); } .ds-slider input:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; }"
+      "description": "Blush track, plum fill, white thumb, value beside it in tabular figures.",
+      "html": "<div class=\"ds-slider\"><div class=\"ds-rail\" role=\"slider\" tabindex=\"0\" aria-label=\"Tempo\" aria-valuemin=\"90\" aria-valuemax=\"200\" aria-valuenow=\"160\"><span class=\"ds-fill\"><span class=\"ds-knob\"></span></span></div><span class=\"ds-val\">160 bpm</span></div>",
+      "css": ".ds-slider { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--foreground, oklch(0.27 0.09 340)); } .ds-rail { position: relative; width: 112px; height: 6px; border-radius: 9999px; background: var(--control-track, oklch(0.9 0.06 348)); } .ds-fill { position: absolute; inset: 0 35% 0 0; border-radius: inherit; background: var(--control-fill, oklch(0.27 0.09 340)); } .ds-knob { position: absolute; right: -11px; top: 50%; width: 22px; height: 22px; translate: 0 -50%; border-radius: 9999px; background: oklch(100% 0 0); box-shadow: 0 0 0 .5px oklch(0% 0 0 / .07), 0 1px 2px oklch(0% 0 0 / .14), 0 2px 6px oklch(0% 0 0 / .06); } .ds-rail:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; } .ds-val { width: 72px; }"
     },
     {
       "name": "Control bar",
       "kind": "nav",
       "refersTo": "bar",
-      "description": "The candy pink bar holding every control; one 56px row at 1440px and wider.",
-      "html": "<header class=\"ds-bar\"><h1>Scribble Loop</h1><button class=\"ds-bar-play\">Play</button><button class=\"ds-bar-light\">Undo</button><button class=\"ds-bar-light ds-bar-end\">Camera</button></header>",
-      "css": ".ds-bar { display: flex; align-items: center; gap: 8px; height: 56px; box-sizing: border-box; padding: 8px 16px; background: var(--bar, oklch(0.8 0.15 352)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; } .ds-bar h1 { margin: 0 8px 0 0; font-size: 15px; font-weight: 800; } .ds-bar button { height: 40px; padding: 0 14px; border: 0; border-radius: 9999px; font: inherit; cursor: pointer; } .ds-bar-play { background: var(--primary, oklch(0.27 0.09 340)); color: var(--primary-foreground, oklch(0.985 0.012 345)); } .ds-bar-light { background: var(--secondary, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); } .ds-bar-end { margin-left: auto; } .ds-bar button:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; }"
+      "description": "Candy pink bar of two deliberate rows, 104px tall on laptops.",
+      "html": "<header class=\"ds-bar\"><div class=\"ds-row\"><button class=\"ds-b ds-b-p\">Play</button><button class=\"ds-b ds-b-s\">Key A</button><button class=\"ds-b ds-b-s\">Chords and arp</button></div><div class=\"ds-row\"><button class=\"ds-b ds-b-s\">Pedals</button><button class=\"ds-b ds-b-g\">Undo</button><button class=\"ds-b ds-b-s ds-end\">How to play</button></div></header>",
+      "css": ".ds-bar { display: grid; gap: 8px; padding: 8px 16px; background: var(--bar, oklch(0.8 0.15 352)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; } .ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .ds-b { min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 14px; font: inherit; font-weight: 500; cursor: pointer; } .ds-b-p { background: oklch(0.27 0.09 340); color: oklch(0.93 0.045 326); } .ds-b-s { background: oklch(0.985 0.012 345); border-color: oklch(0.27 0.09 340 / 0.16); color: inherit; } .ds-b-g { background: transparent; color: oklch(0.4 0.09 340); } .ds-end { margin-left: auto; } .ds-b:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
     },
     {
       "name": "Message bubble",
@@ -486,7 +693,15 @@
       "refersTo": "message-bubble",
       "description": "Lifted paper bubble for the one-sentence intro and the gesture or pedal hint.",
       "html": "<p class=\"ds-bubble\">Lines are melody, stickers are drums. The moving bar plays what it touches.</p>",
-      "css": ".ds-bubble { width: fit-content; max-width: 420px; margin: 0; padding: 8px 16px; border-radius: 24px; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; text-align: center; text-wrap: pretty; box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25); }"
+      "css": ".ds-bubble { width: fit-content; max-width: 420px; margin: 0; padding: 8px 16px; border-radius: 24px; background: var(--surface, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; text-align: center; text-wrap: pretty; box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25); }"
+    },
+    {
+      "name": "Fingertip pills",
+      "kind": "custom",
+      "refersTo": "fingertip-pill",
+      "description": "Writing-hand pills in each sound's pen; the pressed finger goes solid plum.",
+      "html": "<div class=\"ds-tips\"><span class=\"ds-tip\" style=\"background: oklch(0.68 0.25 357)\">Supersaw</span><span class=\"ds-tip\" style=\"background: oklch(0.8 0.15 185)\">Rubber</span><span class=\"ds-tip ds-tip-on\">Glass</span><span class=\"ds-tip\">Chip</span></div>",
+      "css": ".ds-tips { display: flex; gap: 8px; } .ds-tip { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border-radius: 9999px; background: oklch(0.995 0.005 345); color: oklch(0.27 0.09 340); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; box-shadow: 0 2px 6px oklch(0.27 0.09 340 / 0.35); } .ds-tip-on { background: oklch(0.27 0.09 340); color: oklch(0.995 0.005 345); }"
     },
     {
       "name": "Booth pen sticker",
@@ -499,25 +714,25 @@
   ],
   "narrative": {
     "northStar": "The sticker booth pen",
-    "overview": "The screen is a bright photo sticker booth. You stand in front of the camera, your own picture fills the stage under a pink exposure, and everything you place on it is drawn with booth pen: a saturated colour core, a thick white cut edge, a soft plum drop shadow. The scribble is the instrument. A candy pink bar holds every control at the top; the rest of the viewport belongs to the grid.\n\nThe shell is quiet and the ink is loud. Chrome stays in two colours (candy pink and plum, with off-white sticker paper for light controls), so the saturated pens, stickers and robots on the stage carry all of the colour. Rank in the controls comes from weight, never from size or case. Motion is tied to the beat and stepped: things under the playhead jump to full size for a fraction of a beat and jump back, with no easing.\n\nThe world refuses the dark studio-plugin look: no knobs, meters, black panels or a piano-roll grid with one neon accent.",
+    "overview": "The screen is a bright photo sticker booth. You stand in front of the camera, your own picture fills the stage under a pink exposure, and everything you place on it is drawn with booth pen: a saturated colour core, a thick white cut edge, a soft plum drop shadow. The scribble is the instrument. A candy pink bar holds every control at the top in two deliberate rows; the rest of the viewport belongs to the grid.\n\nThe shell is quiet and the ink is loud. The controls are Arc UI components with Arc's semantic tokens retuned to the booth: candy pink bar, sticker paper surfaces, plum text and hairlines, so the saturated pens, stickers and robots on the stage carry all of the colour. Rank in the controls comes from weight and plum depth, never from size or case. Stage motion is tied to the beat and stepped; chrome motion is Arc's short, non-overshooting springs.\n\nThe world refuses the dark studio-plugin look: no knobs, meters, black panels or a piano-roll grid with one neon accent.",
     "keyCharacteristics": [
       "Bright pink-lilac booth backdrop, plum ink for every word.",
       "Booth pen treatment on everything placed: colour core, white edge, soft plum shadow.",
       "A line's pen colour is its sound.",
       "One rounded gothic face at one size, rank by weight.",
-      "Fully round controls on a single candy pink bar.",
+      "Softly rounded Arc controls (14px) on a single candy pink bar of two rows.",
       "Registration ticks instead of ruled grid lines.",
-      "Beat-locked, stepped motion with no easing."
+      "Beat-locked, stepped motion on the stage; quick settling springs in the chrome."
     ],
     "rules": [
       {
         "name": "The Two Colour Shell Rule",
-        "body": "Chrome uses only candy pink, plum and sticker paper. Saturated colour belongs to things on the stage. The one exception is a 14px round swatch in a control or menu item that names the stage ink it stands for (a sound's pen, a robot's tint).",
+        "body": "Chrome uses only candy pink, plum and its alpha hairlines, sticker paper and the blush steps. Saturated colour belongs to things on the stage. The one exception is a 14px round dot in a menu item that names the stage ink it stands for (a robot's tint).",
         "section": "colors"
       },
       {
         "name": "The Plum Only Rule",
-        "body": "All text is plum ink, soft plum for a secondary value, or sticker paper on plum. No grey text, no coloured text.",
+        "body": "All text is plum: plum ink, soft plum, muted plum, or paper on plum. No grey text, no coloured text.",
         "section": "colors"
       },
       {
@@ -527,7 +742,7 @@
       },
       {
         "name": "The One Size Rule",
-        "body": "Every piece of text is 15px. Rank comes from weight (500, 700, 800), from soft plum versus plum, and from plum fill versus paper fill, never from a larger size or uppercase.",
+        "body": "Every piece of text is 15px. Rank comes from weight (500, 700, 800), from plum depth, and from plum fill versus paper fill, never from a larger size or uppercase.",
         "section": "typography"
       },
       {
@@ -537,12 +752,12 @@
       },
       {
         "name": "The Edges Rule",
-        "body": "Controls live in the bar and the gutters. The grid itself carries no chrome; the pedal ring and its guides are instrument readouts that exist only while a pedal is pressed or held.",
+        "body": "Controls live in the bar and the gutters. The grid itself carries no chrome; the pedal ring, its guides and the fingertip pills are instrument readouts that exist only while a hand or pedal is in play.",
         "section": "layout"
       },
       {
         "name": "The Stuck On Rule",
-        "body": "A shadow is always soft and plum, always falls straight down, and only marks something sitting over the stage. No hard offset shadows, no glow.",
+        "body": "A shadow is always soft, falls straight down, and only marks something sitting over the stage or floating over it. No hard offset shadows, no glow.",
         "section": "elevation"
       },
       {
@@ -553,26 +768,27 @@
     ],
     "dos": [
       "Do set every word at 15px in M PLUS Rounded 1c and rank it by weight (500, 700, 800).",
-      "Do keep chrome to candy pink, plum and sticker paper, and give the saturated pen, drum and robot inks to the stage; a swatch that names a stage ink is the only colour allowed in a control.",
+      "Do keep chrome to candy pink, plum, sticker paper and the blush steps, and give the saturated pen, drum and robot inks to the stage; a dot that names a stage ink is the only colour allowed in a control.",
       "Do colour a melody line by its sound, and give any new robot kind an ink already in the pen or drum sets.",
       "Do give anything placed on the stage a white cut edge and the soft plum sticker shadow.",
       "Do keep robots under placed ink so the player's marks stay readable.",
       "Do tell drums apart by sticker shape as well as colour.",
       "Do step beat motion in a single jump with no easing, and remove it under reduced motion while keeping the playhead.",
-      "Do keep controls as full pills labelled in plain words, using the existing shadcn components, and put further settings in a dropdown menu with sentence case group labels and the current value in a soft plum second column.",
-      "Do keep UI text to the minimum: one sentence before the first play, one hint while the stage is nearly empty or the mouse plays a pedal, the pedal's name over its ring, and a short description per robot in the Robots menu."
+      "Do build controls from the Arc UI components in `src/components/arc`, styled only by retuning Arc's tokens in `src/index.css`, and use Arc's radius, control height and motion tokens rather than new values.",
+      "Do let bar fields name themselves by their value and keep their labels for screen readers; show labels inside panels.",
+      "Do keep UI text to the minimum: one sentence before the first play, one hint while the stage is nearly empty or the mouse plays a pedal, fingertip pills and the pedal readout while a hand or pedal is in play."
     ],
     "donts": [
       "Don't use italic or oblique text anywhere, including canvas text, wordmarks and labels.",
-      "Don't put all-caps eyebrows, kickers or decorative labels above anything, including menu group labels.",
+      "Don't put all-caps eyebrows, kickers or decorative labels above anything, including panel field labels.",
       "Don't use JetBrains Mono (or any alias of it) anywhere, including fallback stacks.",
       "Don't use em dashes in any copy, label or generated text.",
       "Don't put an accent stripe on one side of a container, by border, pseudo-element, background or shadow.",
-      "Don't use gradient text, glass panels, glows or neon effects.",
+      "Don't use gradient text, glass panels, glows or neon effects, including Arc's unused brand gradient tokens.",
       "Don't add text sizes beyond 15px or uppercase labels to create hierarchy.",
       "Don't draw ruled grid lines; mark intersections with registration ticks and dots. The pedal pad's dotted guides are the only full-length lines, and only while a pedal is down.",
       "Don't drift toward the dark studio-plugin look: knobs, meters, black panels, a piano roll with one neon accent.",
-      "Don't add hard offset shadows; the only shadow is the soft, downward plum one."
+      "Don't add hard offset shadows; every shadow is soft and falls straight down."
     ]
   }
 }
