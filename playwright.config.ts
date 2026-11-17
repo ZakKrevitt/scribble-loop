@@ -14,7 +14,7 @@ export default defineConfig({
   testDir: 'e2e',
   timeout: 60_000,
   use: {
-    baseURL: `http://localhost:${PORT}`,
+    baseURL: process.env.BASE_URL ?? `http://localhost:${PORT}`,
     viewport: { width: 1440, height: 900 },
   },
   projects: [
@@ -29,7 +29,7 @@ export default defineConfig({
         ]
       : []),
   ],
-  webServer: {
+  webServer: process.env.BASE_URL ? undefined : {
     command: `pnpm build && pnpm preview --port ${PORT} --strictPort`,
     port: PORT,
     reuseExistingServer: true,
