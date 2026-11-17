@@ -14,7 +14,7 @@ change either.
 
 Audience and job: one player at a laptop or a projector, hand raised to a webcam, building a two-bar hyperpop loop.
 They need to see where their hand is, what they have placed, and where the playhead is. Controls: play and stop,
-tempo, key, scale, lead sound, draw or rub out, undo, clear, camera.
+tempo, key, scale, sound, settings (chord, arpeggiator, arpeggio speed, drum timing), draw, erase or effects, robots, pedals, undo, clear, camera.
 
 Constraints: all controls are standard shadcn components. Works with mouse and touch when there is no camera. No
 claims, numbers or testimonials anywhere.

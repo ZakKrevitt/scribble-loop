@@ -1,6 +1,6 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-17T21:37:45+00:00",
+  "generatedAt": "2026-11-17T23:30:00+00:00",
   "title": "Design System: Scribble Loop",
   "extensions": {
     "colorMeta": {
@@ -49,7 +49,8 @@
           "oklch(0.76 0.2 357)",
           "oklch(0.87 0.2 357)",
           "oklch(0.95 0.2 357)"
-        ]
+        ],
+        "purpose": "Supersaw lines."
       },
       "pen-mint": {
         "role": "secondary",
@@ -64,11 +65,28 @@
           "oklch(0.76 0.12 185)",
           "oklch(0.87 0.12 185)",
           "oklch(0.95 0.12 185)"
-        ]
+        ],
+        "purpose": "Rubber lines, the pop drum, the Singer robot and its ribbon, the pedal ring's second-control arc."
+      },
+      "pen-glass": {
+        "role": "secondary",
+        "displayName": "Pen gold",
+        "canonical": "oklch(0.86 0.17 92)",
+        "tonalRamp": [
+          "oklch(0.15 0.15 92)",
+          "oklch(0.27 0.15 92)",
+          "oklch(0.4 0.15 92)",
+          "oklch(0.52 0.15 92)",
+          "oklch(0.64 0.15 92)",
+          "oklch(0.76 0.15 92)",
+          "oklch(0.87 0.15 92)",
+          "oklch(0.95 0.15 92)"
+        ],
+        "purpose": "Glass lines."
       },
       "pen-yellow": {
         "role": "secondary",
-        "displayName": "Pen yellow",
+        "displayName": "Snare yellow",
         "canonical": "oklch(0.9 0.17 98)",
         "tonalRamp": [
           "oklch(0.15 0.15 98)",
@@ -79,7 +97,8 @@
           "oklch(0.76 0.15 98)",
           "oklch(0.87 0.15 98)",
           "oklch(0.95 0.15 98)"
-        ]
+        ],
+        "purpose": "The snare sticker."
       },
       "pen-lilac": {
         "role": "secondary",
@@ -94,7 +113,8 @@
           "oklch(0.76 0.18 305)",
           "oklch(0.87 0.18 305)",
           "oklch(0.95 0.18 305)"
-        ]
+        ],
+        "purpose": "Chip lines and the Dropper robot."
       },
       "drum-kick-red": {
         "role": "secondary",
@@ -109,7 +129,8 @@
           "oklch(0.76 0.2 22)",
           "oklch(0.87 0.2 22)",
           "oklch(0.95 0.2 22)"
-        ]
+        ],
+        "purpose": "The kick sticker and the Eater robot."
       },
       "drum-clap-pink": {
         "role": "secondary",
@@ -139,7 +160,8 @@
           "oklch(0.76 0.15 255)",
           "oklch(0.87 0.15 255)",
           "oklch(0.95 0.15 255)"
-        ]
+        ],
+        "purpose": "The zap sticker and the Bumper robot."
       },
       "drum-hat-orange": {
         "role": "secondary",
@@ -154,7 +176,8 @@
           "oklch(0.76 0.15 62)",
           "oklch(0.87 0.15 62)",
           "oklch(0.95 0.15 62)"
-        ]
+        ],
+        "purpose": "The hat sticker and the Swapper robot."
       },
       "mint-highlight": {
         "role": "tertiary",
@@ -310,26 +333,26 @@
     "typographyMeta": {
       "wordmark": {
         "displayName": "Wordmark",
-        "purpose": "Product name at the left of the bar, 800 weight."
+        "purpose": "Product name at the left of the bar from 1700px wide, 800 weight."
       },
       "label": {
         "displayName": "Label",
-        "purpose": "Every control, menu option, message bubble and canvas note name, 700 weight."
+        "purpose": "Every control, menu item, menu group label, message bubble, canvas note name and pedal name, 700 weight."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Camera alert band, 500 weight."
+        "purpose": "Camera alert band and the soft plum second column in menus, 500 weight."
       }
     },
     "shadows": [
       {
         "name": "sticker",
         "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 8, shadowOffsetY 3",
-        "purpose": "Under lines, drum stickers and walking robots on the stage."
+        "purpose": "Under lines, drum stickers, walking robots and the pedal ring on the stage."
       },
       {
         "name": "sticker-tight",
-        "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 5 to 6, shadowOffsetY 2",
+        "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 5 (hand) or 6 (cursor), shadowOffsetY 2",
         "purpose": "Robot hand overlay and hand cursor."
       },
       {
@@ -340,14 +363,19 @@
       {
         "name": "menu",
         "value": "0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1)",
-        "purpose": "Open select menus."
+        "purpose": "Open select and dropdown menus."
+      },
+      {
+        "name": "submenu",
+        "value": "0 10px 15px -3px rgb(0 0 0 / 0.1), 0 4px 6px -4px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1)",
+        "purpose": "Open dropdown submenus."
       }
     ],
     "motion": [
       {
         "name": "beat-flash",
-        "value": "90ms, scale 1.35 stickers and 1.25 robots, no easing",
-        "purpose": "A drum sticker or robot jumps when the playhead fires it."
+        "value": "90ms, scale 1.35 drum stickers, 1.08 lift for a robot that acts, no easing",
+        "purpose": "A drum sticker jumps when the playhead fires it; a robot lifts when it does something."
       },
       {
         "name": "beat-swell",
@@ -357,7 +385,7 @@
       {
         "name": "menu",
         "value": "none",
-        "purpose": "Select menus open and close without animation."
+        "purpose": "Select and dropdown menus open and close without animation."
       },
       {
         "name": "reduced-motion",
@@ -367,9 +395,19 @@
     ],
     "breakpoints": [
       {
+        "name": "wordmark",
+        "value": "1700px",
+        "note": "Below this the wordmark is screen-reader only."
+      },
+      {
+        "name": "compact",
+        "value": "1600px",
+        "note": "Below this bar gaps tighten to 6px, control side padding to 12px, the tempo slider to 96px, and pentatonic scale names shorten. The bar is one row at 1440px and wider and two rows from about 1024 to 1366px."
+      },
+      {
         "name": "sm",
         "value": "640px",
-        "note": "Below this the bar wraps to three rows, the wordmark becomes screen-reader only, and stage gutters narrow to 34px and 42px."
+        "note": "Below this the bar reorders (settings first, then Camera, then tools and actions) and a 390px phone shows five rows, accepted because the instrument is laptop-first. Stage gutters narrow to 34px and 42px."
       }
     ],
     "focus": {
@@ -390,7 +428,7 @@
       "name": "Light button",
       "kind": "button",
       "refersTo": "button-light",
-      "description": "Sticker paper pill for Robot, Undo and Clear.",
+      "description": "Sticker paper pill for Settings, Robots, Pedals, Undo and Clear.",
       "html": "<button class=\"ds-btn-light\">Undo</button>",
       "css": ".ds-btn-light { font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9999px; cursor: pointer; transition: background 0.15s; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--secondary-foreground, oklch(0.27 0.09 340)); } .ds-btn-light:hover { background: color-mix(in oklch, var(--secondary, oklch(0.985 0.012 345)) 80%, transparent); } .ds-btn-light:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; } .ds-btn-light:disabled { opacity: 0.5; cursor: default; }"
     },
@@ -398,25 +436,33 @@
       "name": "Segmented tool",
       "kind": "chip",
       "refersTo": "segmented-tool",
-      "description": "Draw or Rub out, pressed item filled plum.",
-      "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"Mouse tool\"><button class=\"ds-seg-item\" aria-pressed=\"true\">Draw</button><button class=\"ds-seg-item\" aria-pressed=\"false\">Rub out</button></div>",
+      "description": "Draw, Erase or Effects, pressed item filled plum.",
+      "html": "<div class=\"ds-seg\" role=\"group\" aria-label=\"What the mouse does\"><button class=\"ds-seg-item\" aria-pressed=\"true\">Draw</button><button class=\"ds-seg-item\" aria-pressed=\"false\">Erase</button><button class=\"ds-seg-item\" aria-pressed=\"false\">Effects</button></div>",
       "css": ".ds-seg { display: inline-flex; gap: 4px; padding: 4px; border-radius: 9999px; background: var(--secondary, oklch(0.985 0.012 345)); } .ds-seg-item { font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 32px; padding: 0 12px; border: 0; border-radius: 9999px; background: transparent; color: var(--foreground, oklch(0.27 0.09 340)); cursor: pointer; } .ds-seg-item:hover { background: var(--muted, oklch(0.9 0.06 348)); } .ds-seg-item[aria-pressed=\"true\"] { background: var(--primary, oklch(0.27 0.09 340)); color: var(--primary-foreground, oklch(0.985 0.012 345)); } .ds-seg-item:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; }"
     },
     {
       "name": "Select trigger",
       "kind": "input",
       "refersTo": "button-light",
-      "description": "Light pill showing the current value in words with a chevron.",
-      "html": "<button class=\"ds-select\" aria-label=\"Scale\">Minor pentatonic<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
-      "css": ".ds-select { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9999px; cursor: pointer; transition: background 0.15s; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--secondary-foreground, oklch(0.27 0.09 340)); } .ds-select svg { color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-select:hover { background: color-mix(in oklch, var(--secondary, oklch(0.985 0.012 345)) 80%, transparent); } .ds-select:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; }"
+      "description": "Light pill showing the current value in words with a chevron; the Sound trigger leads with its pen swatch.",
+      "html": "<button class=\"ds-select\" aria-label=\"Sound for new lines\"><span class=\"ds-swatch\" aria-hidden=\"true\"></span>Supersaw<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
+      "css": ".ds-select { display: inline-flex; align-items: center; gap: 6px; font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; height: 40px; padding: 0 14px; border: 1px solid transparent; border-radius: 9999px; cursor: pointer; transition: background 0.15s; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--secondary-foreground, oklch(0.27 0.09 340)); } .ds-select svg { color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-select:hover { background: color-mix(in oklch, var(--secondary, oklch(0.985 0.012 345)) 80%, transparent); } .ds-select:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; } .ds-swatch { width: 14px; height: 14px; flex-shrink: 0; border-radius: 9999px; background: oklch(0.68 0.25 357); box-shadow: 0 0 0 2px #fff; }"
     },
     {
       "name": "Select menu",
       "kind": "custom",
       "refersTo": "select-menu",
-      "description": "Paper menu; the focused option fills mint.",
+      "description": "Paper menu for select options; the focused option fills mint.",
       "html": "<div class=\"ds-menu\" role=\"listbox\"><div class=\"ds-opt\" role=\"option\">Major pentatonic</div><div class=\"ds-opt ds-opt-focus\" role=\"option\" aria-selected=\"true\">Minor pentatonic</div><div class=\"ds-opt\" role=\"option\">Major</div></div>",
       "css": ".ds-menu { min-width: 176px; padding: 4px; border-radius: 14px; background: var(--popover, oklch(0.985 0.012 345)); color: var(--popover-foreground, oklch(0.27 0.09 340)); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; } .ds-opt { padding: 6px 36px 6px 12px; border-radius: 14px; cursor: default; } .ds-opt:hover, .ds-opt-focus { background: var(--accent, oklch(0.88 0.1 185)); color: var(--accent-foreground, oklch(0.27 0.09 340)); }"
+    },
+    {
+      "name": "Dropdown menu",
+      "kind": "custom",
+      "refersTo": "dropdown-menu",
+      "description": "Paper menu with a sentence case group label, radio items with a check, and a submenu trigger whose soft plum second column shows the current value.",
+      "html": "<div class=\"ds-dd\" role=\"menu\"><div class=\"ds-dd-label\">Mouse plays</div><div class=\"ds-dd-check\" role=\"menuitemradio\" aria-checked=\"true\">Filter<svg class=\"ds-dd-tick\" width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"M20 6 9 17l-5-5\"/></svg></div><div class=\"ds-dd-check\" role=\"menuitemradio\" aria-checked=\"false\">Drive</div><div class=\"ds-dd-sep\" role=\"separator\"></div><div class=\"ds-dd-label\">Gestures</div><div class=\"ds-dd-item ds-dd-open\" role=\"menuitem\" aria-haspopup=\"menu\">Open palm<span class=\"ds-dd-value\">Filter</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></div><div class=\"ds-dd-item\" role=\"menuitem\" aria-haspopup=\"menu\">Fist<span class=\"ds-dd-value\">Drive</span><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m9 18 6-6-6-6\"/></svg></div></div>",
+      "css": ".ds-dd { min-width: 176px; width: max-content; padding: 4px; border-radius: 14px; background: var(--popover, oklch(0.985 0.012 345)); color: var(--popover-foreground, oklch(0.27 0.09 340)); box-shadow: 0 4px 6px -1px rgb(0 0 0 / 0.1), 0 2px 4px -2px rgb(0 0 0 / 0.1), 0 0 0 1px oklch(0.27 0.09 340 / 0.1); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; } .ds-dd-label { padding: 4px 12px; color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-dd-item, .ds-dd-check { position: relative; display: flex; align-items: center; gap: 24px; padding: 6px 12px; border-radius: 14px; cursor: default; } .ds-dd-check { padding-right: 36px; } .ds-dd-tick { position: absolute; right: 8px; } .ds-dd-item svg { margin-left: -16px; } .ds-dd-value { margin-left: auto; font-weight: 500; color: var(--muted-foreground, oklch(0.4 0.09 340)); } .ds-dd-item:hover, .ds-dd-check:hover, .ds-dd-open { background: var(--accent, oklch(0.88 0.1 185)); color: var(--accent-foreground, oklch(0.27 0.09 340)); } .ds-dd-item:hover .ds-dd-value, .ds-dd-open .ds-dd-value { color: var(--accent-foreground, oklch(0.27 0.09 340)); } .ds-dd-sep { height: 1px; margin: 4px -4px; background: var(--border, oklch(0.27 0.09 340 / 18%)); }"
     },
     {
       "name": "Tempo slider",
@@ -430,7 +476,7 @@
       "name": "Control bar",
       "kind": "nav",
       "refersTo": "bar",
-      "description": "The 56px candy pink bar holding every control in one row.",
+      "description": "The candy pink bar holding every control; one 56px row at 1440px and wider.",
       "html": "<header class=\"ds-bar\"><h1>Scribble Loop</h1><button class=\"ds-bar-play\">Play</button><button class=\"ds-bar-light\">Undo</button><button class=\"ds-bar-light ds-bar-end\">Camera</button></header>",
       "css": ".ds-bar { display: flex; align-items: center; gap: 8px; height: 56px; box-sizing: border-box; padding: 8px 16px; background: var(--bar, oklch(0.8 0.15 352)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; } .ds-bar h1 { margin: 0 8px 0 0; font-size: 15px; font-weight: 800; } .ds-bar button { height: 40px; padding: 0 14px; border: 0; border-radius: 9999px; font: inherit; cursor: pointer; } .ds-bar-play { background: var(--primary, oklch(0.27 0.09 340)); color: var(--primary-foreground, oklch(0.985 0.012 345)); } .ds-bar-light { background: var(--secondary, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); } .ds-bar-end { margin-left: auto; } .ds-bar button:focus-visible { outline: 3px solid var(--ring, oklch(0.27 0.09 340)); outline-offset: 2px; }"
     },
@@ -438,7 +484,7 @@
       "name": "Message bubble",
       "kind": "card",
       "refersTo": "message-bubble",
-      "description": "Lifted paper bubble for the one-sentence intro and the gesture hint.",
+      "description": "Lifted paper bubble for the one-sentence intro and the gesture or pedal hint.",
       "html": "<p class=\"ds-bubble\">Lines are melody, stickers are drums. The moving bar plays what it touches.</p>",
       "css": ".ds-bubble { width: fit-content; max-width: 420px; margin: 0; padding: 8px 16px; border-radius: 24px; background: var(--secondary, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-sans, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; text-align: center; text-wrap: pretty; box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25); }"
     },
@@ -453,10 +499,11 @@
   ],
   "narrative": {
     "northStar": "The sticker booth pen",
-    "overview": "The screen is a bright photo sticker booth. You stand in front of the camera, your own picture fills the stage under a pink exposure, and everything you place on it is drawn with booth pen: a saturated colour core, a thick white cut edge, a soft plum drop shadow. The scribble is the instrument. A candy pink bar holds every control at the top; the rest of the viewport belongs to the grid.\n\nThe shell is quiet and the ink is loud. Chrome stays in two colours (candy pink and plum, with off-white sticker paper for light controls), so the saturated pens and stickers on the stage carry all of the colour. Rank in the controls comes from weight, never from size or case. Motion is tied to the beat and stepped: things under the playhead jump to full size for a fraction of a beat and jump back, with no easing.\n\nThe world refuses the dark studio-plugin look: no knobs, meters, black panels or a piano-roll grid with one neon accent.",
+    "overview": "The screen is a bright photo sticker booth. You stand in front of the camera, your own picture fills the stage under a pink exposure, and everything you place on it is drawn with booth pen: a saturated colour core, a thick white cut edge, a soft plum drop shadow. The scribble is the instrument. A candy pink bar holds every control at the top; the rest of the viewport belongs to the grid.\n\nThe shell is quiet and the ink is loud. Chrome stays in two colours (candy pink and plum, with off-white sticker paper for light controls), so the saturated pens, stickers and robots on the stage carry all of the colour. Rank in the controls comes from weight, never from size or case. Motion is tied to the beat and stepped: things under the playhead jump to full size for a fraction of a beat and jump back, with no easing.\n\nThe world refuses the dark studio-plugin look: no knobs, meters, black panels or a piano-roll grid with one neon accent.",
     "keyCharacteristics": [
       "Bright pink-lilac booth backdrop, plum ink for every word.",
       "Booth pen treatment on everything placed: colour core, white edge, soft plum shadow.",
+      "A line's pen colour is its sound.",
       "One rounded gothic face at one size, rank by weight.",
       "Fully round controls on a single candy pink bar.",
       "Registration ticks instead of ruled grid lines.",
@@ -465,17 +512,22 @@
     "rules": [
       {
         "name": "The Two Colour Shell Rule",
-        "body": "Chrome uses only candy pink, plum and sticker paper. Saturated colour belongs to things placed on the stage.",
+        "body": "Chrome uses only candy pink, plum and sticker paper. Saturated colour belongs to things on the stage. The one exception is a 14px round swatch in a control or menu item that names the stage ink it stands for (a sound's pen, a robot's tint).",
         "section": "colors"
       },
       {
         "name": "The Plum Only Rule",
-        "body": "All text is plum ink or sticker paper on plum. No grey text, no coloured text.",
+        "body": "All text is plum ink, soft plum for a secondary value, or sticker paper on plum. No grey text, no coloured text.",
+        "section": "colors"
+      },
+      {
+        "name": "The Ink Is The Sound Rule",
+        "body": "A melody line's colour comes from its sound, never from the order it was drawn in.",
         "section": "colors"
       },
       {
         "name": "The One Size Rule",
-        "body": "Every piece of text is 15px. Rank comes from weight (500, 700, 800) and from plum fill versus paper fill, never from a larger size or uppercase.",
+        "body": "Every piece of text is 15px. Rank comes from weight (500, 700, 800), from soft plum versus plum, and from plum fill versus paper fill, never from a larger size or uppercase.",
         "section": "typography"
       },
       {
@@ -485,7 +537,7 @@
       },
       {
         "name": "The Edges Rule",
-        "body": "Controls live in the bar and the gutters. The grid itself carries no chrome.",
+        "body": "Controls live in the bar and the gutters. The grid itself carries no chrome; the pedal ring and its guides are instrument readouts that exist only while a pedal is pressed or held.",
         "section": "layout"
       },
       {
@@ -495,28 +547,30 @@
       },
       {
         "name": "The Cut Edge Rule",
-        "body": "Anything placed on the stage gets a white edge roughly as thick as its colour core (lines: edge 2.1 times the core width; stickers: 0.62 of the radius; sprites: 8px; robot hand parts: 5px). Without the edge it does not belong to this world.",
+        "body": "Anything placed on the stage gets a white edge roughly as thick as its colour core (lines and the Singer ribbon: edge 2.1 times the core width; stickers: 0.62 of the radius; robot sprites: 8px; robot hand parts: 5px; the pedal ring: 12px under a 6px core). Without the edge it does not belong to this world.",
         "section": "shapes"
       }
     ],
     "dos": [
       "Do set every word at 15px in M PLUS Rounded 1c and rank it by weight (500, 700, 800).",
-      "Do keep chrome to candy pink, plum and sticker paper, and give the saturated pen and drum inks to the stage.",
+      "Do keep chrome to candy pink, plum and sticker paper, and give the saturated pen, drum and robot inks to the stage; a swatch that names a stage ink is the only colour allowed in a control.",
+      "Do colour a melody line by its sound, and give any new robot kind an ink already in the pen or drum sets.",
       "Do give anything placed on the stage a white cut edge and the soft plum sticker shadow.",
+      "Do keep robots under placed ink so the player's marks stay readable.",
       "Do tell drums apart by sticker shape as well as colour.",
       "Do step beat motion in a single jump with no easing, and remove it under reduced motion while keeping the playhead.",
-      "Do keep controls as full pills labelled in plain words, using the existing shadcn components.",
-      "Do keep UI text to the minimum: one sentence before the first play, one hint while the stage is nearly empty, and nothing else."
+      "Do keep controls as full pills labelled in plain words, using the existing shadcn components, and put further settings in a dropdown menu with sentence case group labels and the current value in a soft plum second column.",
+      "Do keep UI text to the minimum: one sentence before the first play, one hint while the stage is nearly empty or the mouse plays a pedal, the pedal's name over its ring, and a short description per robot in the Robots menu."
     ],
     "donts": [
       "Don't use italic or oblique text anywhere, including canvas text, wordmarks and labels.",
-      "Don't put all-caps eyebrows, kickers or decorative labels above anything.",
+      "Don't put all-caps eyebrows, kickers or decorative labels above anything, including menu group labels.",
       "Don't use JetBrains Mono (or any alias of it) anywhere, including fallback stacks.",
       "Don't use em dashes in any copy, label or generated text.",
       "Don't put an accent stripe on one side of a container, by border, pseudo-element, background or shadow.",
       "Don't use gradient text, glass panels, glows or neon effects.",
       "Don't add text sizes beyond 15px or uppercase labels to create hierarchy.",
-      "Don't draw ruled grid lines; mark intersections with registration ticks and dots.",
+      "Don't draw ruled grid lines; mark intersections with registration ticks and dots. The pedal pad's dotted guides are the only full-length lines, and only while a pedal is down.",
       "Don't drift toward the dark studio-plugin look: knobs, meters, black panels, a piano roll with one neon accent.",
       "Don't add hard offset shadows; the only shadow is the soft, downward plum one."
     ]
