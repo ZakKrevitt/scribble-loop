@@ -13,6 +13,7 @@ import {
   drawGrid,
   drawHand,
   drawLine,
+  drawNoteNames,
   drawPlayhead,
   drawSticker,
   drawWalker,
@@ -111,6 +112,13 @@ export function Stage(props: StageProps) {
       robots = stickerSheet(strip)
     }
     strip.src = '/sprites/stilt-walk.webp'
+
+    let parts: HTMLCanvasElement | null = null
+    const partsStrip = new Image()
+    partsStrip.onload = () => {
+      parts = stickerSheet(partsStrip, 5)
+    }
+    partsStrip.src = '/sprites/stilt-parts.webp'
     let lastVideoTime = -1
 
     const mouse = { pen: new Pen(aspect), point: null as Point | null, erasing: false }
@@ -127,7 +135,7 @@ export function Stage(props: StageProps) {
       ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
       const narrow = width < 640
       const left = narrow ? 34 : 52
-      const right = narrow ? 34 : 46
+      const right = narrow ? 42 : 52
       grid = { x: left, y: 12, w: Math.max(1, width - left - right), h: Math.max(1, height - 24) }
     }
 
@@ -204,7 +212,7 @@ export function Stage(props: StageProps) {
     const render = (now: number) => {
       const { items, settings, engine, tool, nextInk } = live.current
       ctx.clearRect(0, 0, width, height)
-      drawGrid(ctx, grid, settings.key, settings.scale, width < 640 ? 11 : 12)
+      drawGrid(ctx, grid)
 
       const position = engine.position()
       const step = position === null ? -1 : Math.min(STEPS - 1, Math.floor(position * STEPS))
@@ -215,10 +223,11 @@ export function Stage(props: StageProps) {
       for (const item of items) {
         if (item.kind !== 'line') continue
         const y = step >= 0 ? stepsOf(item)[step] : null
-        drawLine(ctx, grid, item.points, INKS[item.ink % INKS.length], y === null || y === undefined ? rest : 1)
-        if (y !== null && y !== undefined && position !== null && !still.matches) {
-          if ((position * STEPS) % 1 < 0.5) glints.push({ x: grid.x + position * grid.w, y: grid.y + y * grid.h })
-        }
+        const sounding = y !== null && y !== undefined && position !== null
+        // A sounding line swells for the first half of every step, in one jump.
+        const onBeat = sounding && !still.matches && (position * STEPS) % 1 < 0.5
+        drawLine(ctx, grid, item.points, INKS[item.ink % INKS.length], sounding ? 1 : rest, onBeat ? 1.45 : 1)
+        if (onBeat) glints.push({ x: grid.x + position * grid.w, y: grid.y + y * grid.h })
       }
       for (const item of items) {
         if (item.kind !== 'blob') continue
@@ -246,6 +255,8 @@ export function Stage(props: StageProps) {
         }
       }
 
+      drawNoteNames(ctx, grid, settings.key, settings.scale, 15)
+
       const drafts: (Draft | null)[] = [mouse.pen.draft(now), ...slots.map((s) => s.pen.draft(now))]
       for (const draft of drafts) {
         if (!draft) continue
@@ -261,12 +272,12 @@ export function Stage(props: StageProps) {
       }
 
       if (position !== null) drawPlayhead(ctx, grid, position)
-      for (const g of glints) drawGlint(ctx, g.x, g.y, 11)
+      for (const g of glints) drawGlint(ctx, g.x, g.y, 18)
 
       const reach = ERASE_RADIUS * grid.h
       for (const slot of slots) {
         if (!slot.point) continue
-        drawHand(ctx, slot.joints)
+        drawHand(ctx, slot.joints, parts)
         const kind = slot.pose === 'fist' ? 'erase' : slot.pose === 'pinch' ? 'draw' : 'hover'
         drawCursor(ctx, grid.x + slot.point.x * grid.w, grid.y + slot.point.y * grid.h, kind, reach)
       }
@@ -352,7 +363,13 @@ export function Stage(props: StageProps) {
         aria-hidden="true"
         className={`absolute inset-0 size-full -scale-x-100 object-cover brightness-110 saturate-[1.15] ${props.stream ? '' : 'hidden'}`}
       />
-      {props.stream && <div aria-hidden="true" className="absolute inset-0 bg-background/55" />}
+      {props.stream && (
+        <>
+          {/* Booth exposure: screen a pink over the shot so shadows lift to pink, then a thin veil. */}
+          <div aria-hidden="true" className="absolute inset-0 bg-[oklch(0.8_0.11_335)] mix-blend-screen" />
+          <div aria-hidden="true" className="absolute inset-0 bg-background/25" />
+        </>
+      )}
       <canvas
         ref={canvasRef}
         role="img"

@@ -117,7 +117,7 @@ export function drawSticker(
 }
 
 export function blobRadius(grid: Rect, size: number): number {
-  return (0.016 + 0.026 * size) * Math.min(grid.h, grid.w * 0.7)
+  return Math.max(9 + 5 * size, (0.016 + 0.026 * size) * Math.min(grid.h, grid.w * 0.7))
 }
 
 export function drawBlob(ctx: CanvasRenderingContext2D, grid: Rect, blob: Blob, scale: number): void {
@@ -132,7 +132,7 @@ export const WALK_FRAMES = 12
  * Turn the rendered walk cycle into booth stickers: each frame tinted plum with a white cut edge.
  * The source is a strip of square frames, the AnyMachine Stilt walking in place, seen from the side.
  */
-export function stickerSheet(strip: HTMLImageElement): HTMLCanvasElement {
+export function stickerSheet(strip: HTMLImageElement, edge = 8): HTMLCanvasElement {
   const tinted = document.createElement('canvas')
   tinted.width = strip.naturalWidth
   tinted.height = strip.naturalHeight
@@ -146,7 +146,6 @@ export function stickerSheet(strip: HTMLImageElement): HTMLCanvasElement {
   sheet.width = tinted.width
   sheet.height = tinted.height
   const c = sheet.getContext('2d')!
-  const edge = 8
   for (let i = 0; i < 16; i++) {
     const a = (i / 16) * Math.PI * 2
     c.drawImage(strip, Math.cos(a) * edge, Math.sin(a) * edge)
@@ -160,7 +159,7 @@ export function stickerSheet(strip: HTMLImageElement): HTMLCanvasElement {
 }
 
 export function walkerHeight(grid: Rect): number {
-  return Math.max(64, Math.min(150, grid.h * 0.2))
+  return Math.max(44, Math.min(150, grid.h * 0.2, grid.w * 0.24))
 }
 
 export function drawWalker(
@@ -182,44 +181,45 @@ export function drawWalker(
   ctx.restore()
 }
 
+/** Finger bones, a bar across the knuckles and one strut to the wrist. No webbing over the palm. */
 const BONES = [
   [0, 1], [1, 2], [2, 3], [3, 4],
-  [0, 5], [5, 6], [6, 7], [7, 8],
-  [5, 9], [9, 10], [10, 11], [11, 12],
-  [9, 13], [13, 14], [14, 15], [15, 16],
-  [13, 17], [17, 18], [18, 19], [19, 20],
-  [0, 17],
+  [5, 6], [6, 7], [7, 8],
+  [9, 10], [10, 11], [11, 12],
+  [13, 14], [14, 15], [15, 16],
+  [17, 18], [18, 19], [19, 20],
+  [5, 9], [9, 13], [13, 17],
+  [0, 9],
 ] as const
 
-/** A robot hand laid over the player's own: rods between the tracked joints, a bolt at each one. */
-export function drawHand(ctx: CanvasRenderingContext2D, joints: Point[]): void {
-  if (joints.length < 21) return
+const SEGMENT = { x: 0, w: 512, h: 128 }
+const CAP = { x: 512, w: 128, h: 128 }
+
+/**
+ * A robot hand laid over the player's own. Each bone is a limb segment of the AnyMachine Stilt
+ * stretched between two tracked joints, with one of its knee caps on every joint.
+ * `parts` is the sticker sheet made from the parts strip: segment on the left, cap on the right.
+ */
+export function drawHand(ctx: CanvasRenderingContext2D, joints: Point[], parts: HTMLCanvasElement | null): void {
+  if (!parts || joints.length < 21) return
   const size = Math.hypot(joints[0].x - joints[9].x, joints[0].y - joints[9].y)
-  const rod = Math.max(2.5, Math.min(6, size * 0.035))
+  const girth = Math.max(9, Math.min(26, size * 0.13))
   ctx.save()
-  ctx.lineCap = 'round'
-  const rods = () => {
-    ctx.beginPath()
-    for (const [a, b] of BONES) {
-      ctx.moveTo(joints[a].x, joints[a].y)
-      ctx.lineTo(joints[b].x, joints[b].y)
-    }
-    ctx.stroke()
-  }
   ctx.shadowColor = SHADOW
-  ctx.shadowBlur = 6
-  ctx.strokeStyle = WHITE
-  ctx.lineWidth = rod * 2.4
-  rods()
-  ctx.shadowColor = 'transparent'
-  ctx.strokeStyle = PLUM
-  ctx.lineWidth = rod
-  rods()
-  ctx.fillStyle = WHITE
+  ctx.shadowBlur = 5
+  ctx.shadowOffsetY = 2
+  for (const [a, b] of BONES) {
+    const dx = joints[b].x - joints[a].x
+    const dy = joints[b].y - joints[a].y
+    ctx.save()
+    ctx.translate(joints[a].x, joints[a].y)
+    ctx.rotate(Math.atan2(dy, dx))
+    ctx.drawImage(parts, SEGMENT.x, 0, SEGMENT.w, SEGMENT.h, 0, -girth / 2, Math.hypot(dx, dy), girth)
+    ctx.restore()
+  }
+  const cap = girth * 0.85
   for (const joint of joints) {
-    ctx.beginPath()
-    ctx.arc(joint.x, joint.y, rod * 0.62, 0, Math.PI * 2)
-    ctx.fill()
+    ctx.drawImage(parts, CAP.x, 0, CAP.w, CAP.h, joint.x - cap / 2, joint.y - cap / 2, cap, cap)
   }
   ctx.restore()
 }
@@ -230,9 +230,11 @@ export function drawLine(
   points: Point[],
   ink: string,
   alpha: number,
+  /** Above 1 while the line is sounding, so it swells on the beat. */
+  swell = 1,
 ): void {
   if (points.length === 0) return
-  const width = Math.max(5, Math.min(9, grid.h / 75))
+  const width = Math.max(5, Math.min(9, grid.h / 75)) * swell
   ctx.save()
   ctx.globalAlpha = alpha
   ctx.lineCap = 'round'
@@ -271,13 +273,7 @@ export function drawGlint(ctx: CanvasRenderingContext2D, x: number, y: number, r
   ctx.restore()
 }
 
-export function drawGrid(
-  ctx: CanvasRenderingContext2D,
-  grid: Rect,
-  key: KeyName,
-  scale: ScaleName,
-  labelSize: number,
-): void {
+export function drawGrid(ctx: CanvasRenderingContext2D, grid: Rect): void {
   ctx.save()
   // Registration ticks at every beat and row, dots between.
   for (let s = 0; s <= STEPS; s++) {
@@ -321,18 +317,33 @@ export function drawGrid(
     ctx.lineTo(grid.x - 8, y)
   }
   ctx.stroke()
+  ctx.restore()
+}
 
-  // Note names down the right edge, one per row.
-  ctx.font = `700 ${labelSize}px ${FONT}`
+/** Note names down the right edge, one per row, with a white edge so they hold over any camera image. */
+export function drawNoteNames(
+  ctx: CanvasRenderingContext2D,
+  grid: Rect,
+  key: KeyName,
+  scale: ScaleName,
+  size: number,
+): void {
+  ctx.save()
+  ctx.font = `700 ${size}px ${FONT}`
   ctx.textAlign = 'center'
   ctx.textBaseline = 'middle'
+  ctx.lineJoin = 'round'
+  ctx.lineWidth = 4
+  ctx.strokeStyle = WHITE
   ctx.fillStyle = PLUM
-  const rightMid = grid.x + grid.w + (ctx.canvas.clientWidth - grid.x - grid.w) / 2
+  const x = grid.x + grid.w + (ctx.canvas.clientWidth - grid.x - grid.w) / 2
   const row = grid.h / ROWS
-  const every = row < labelSize * 1.15 ? 2 : 1
+  const every = row < size * 1.15 ? 2 : 1
   for (let r = 0; r < ROWS; r += every) {
     const y = grid.y + grid.h - (r + 0.5) * row
-    ctx.fillText(noteName(midiForRow(r, key, scale)), rightMid, y)
+    const name = noteName(midiForRow(r, key, scale))
+    ctx.strokeText(name, x, y)
+    ctx.fillText(name, x, y)
   }
   ctx.restore()
 }
@@ -359,23 +370,38 @@ export function drawCursor(
   ctx.save()
   ctx.shadowColor = SHADOW
   ctx.shadowBlur = 6
+  ctx.shadowOffsetY = 2
+  const ring = (radius: number) => {
+    ctx.beginPath()
+    ctx.arc(x, y, radius, 0, Math.PI * 2)
+  }
   if (kind === 'erase') {
-    ctx.setLineDash([7, 6])
+    ctx.setLineDash([9, 7])
+    ring(eraseRadius)
+    ctx.lineWidth = 7
+    ctx.strokeStyle = WHITE
+    ctx.stroke()
+    ctx.shadowColor = 'transparent'
     ctx.lineWidth = 3
-    ctx.strokeStyle = WHITE
-    ctx.beginPath()
-    ctx.arc(x, y, eraseRadius, 0, Math.PI * 2)
+    ctx.strokeStyle = PLUM
     ctx.stroke()
+  } else if (kind === 'draw') {
+    ring(11)
+    ctx.lineWidth = 5
+    ctx.strokeStyle = WHITE
+    ctx.stroke()
+    ctx.shadowColor = 'transparent'
+    ctx.fillStyle = PLUM
+    ctx.fill()
   } else {
-    ctx.lineWidth = 4
+    ring(19)
+    ctx.lineWidth = 10
     ctx.strokeStyle = WHITE
-    ctx.beginPath()
-    ctx.arc(x, y, kind === 'draw' ? 7 : 13, 0, Math.PI * 2)
     ctx.stroke()
-    if (kind === 'draw') {
-      ctx.fillStyle = PLUM
-      ctx.fill()
-    }
+    ctx.shadowColor = 'transparent'
+    ctx.lineWidth = 4
+    ctx.strokeStyle = PLUM
+    ctx.stroke()
   }
   ctx.restore()
 }

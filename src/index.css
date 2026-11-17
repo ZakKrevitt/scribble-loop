@@ -33,10 +33,10 @@
   --radius-xl: calc(var(--radius) * 1.4);
 }
 
-/* A photo sticker booth: candy pink bar, pale pink backdrop, plum ink. */
+/* A photo sticker booth: candy pink bar, pale pink-lilac backdrop, plum ink. */
 :root {
   --bar: oklch(0.8 0.15 352);
-  --background: oklch(0.93 0.045 345);
+  --background: oklch(0.93 0.045 326);
   --foreground: oklch(0.27 0.09 340);
   --card: oklch(0.985 0.012 345);
   --card-foreground: oklch(0.27 0.09 340);
@@ -73,8 +73,10 @@
     background: var(--accent);
     color: var(--accent-foreground);
   }
-  :focus-visible {
-    outline: 3px solid var(--ring);
-    outline-offset: 2px;
-  }
+}
+
+/* Outside the layers so it outranks each component's own focus styling. */
+:focus-visible {
+  outline: 3px solid var(--ring);
+  outline-offset: 2px;
 }

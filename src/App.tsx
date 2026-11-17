@@ -1,5 +1,5 @@
 import { useCallback, useEffect, useMemo, useRef, useState } from 'react'
-import { Bot, Eraser, Pencil, Play, Square, Trash2, Undo2, Video, VideoOff } from 'lucide-react'
+import { Play, Square } from 'lucide-react'
 import { Engine, LEADS, type LeadName, type Settings } from '@/audio/engine'
 import { Button } from '@/components/ui/button'
 import { Select, SelectContent, SelectItem, SelectTrigger } from '@/components/ui/select'
@@ -29,7 +29,9 @@ const CAMERA_NOTE: Partial<Record<Camera, string>> = {
   failed: 'Hand tracking did not load. Check your connection and press Camera again.',
 }
 
-const control = 'h-10 rounded-full px-3.5 text-[15px] font-bold'
+const control = 'h-10 rounded-full px-3.5 text-[15px] font-bold max-sm:px-3'
+const lift = 'shadow-[0_3px_10px_oklch(0.27_0.09_340/0.25)]'
+const pill = `w-fit max-w-[calc(100%-2rem)] rounded-3xl bg-secondary px-4 py-2 text-center text-[15px] font-bold text-pretty ${lift}`
 const option = 'rounded-lg py-1.5 pr-9 pl-3 text-[15px]'
 const light = 'border-transparent bg-secondary text-secondary-foreground hover:bg-secondary/80'
 
@@ -173,8 +175,8 @@ export default function App() {
 
   return (
     <div className="flex h-dvh flex-col">
-      <header className="flex flex-wrap items-center gap-2 bg-bar px-4 py-2 text-[15px] font-bold">
-        <h1 className="mr-2 text-[15px] font-extrabold">Scribble Loop</h1>
+      <header className="flex flex-wrap items-center gap-2 bg-bar px-4 py-2 text-[15px] font-bold max-sm:gap-1.5 max-sm:px-3">
+        <h1 className="mr-2 text-[15px] font-extrabold max-sm:sr-only">Scribble Loop</h1>
 
         <Button
           className={`${control} min-w-[5.25rem]`}
@@ -188,7 +190,7 @@ export default function App() {
         <div className="flex shrink-0 items-center gap-2">
           <Slider
             aria-label="Tempo"
-            className="w-20 min-w-20 shrink-0 data-horizontal:w-20"
+            className="w-28 min-w-28 shrink-0 data-horizontal:w-28 max-sm:w-20 max-sm:min-w-20 max-sm:data-horizontal:w-20"
             min={90}
             max={200}
             step={1}
@@ -202,7 +204,10 @@ export default function App() {
           <SelectTrigger aria-label="Key" className={`${control} ${light} data-[size=default]:h-10`}>
             Key {settings.key}
           </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false} className="min-w-44 p-1 font-bold">
+          <SelectContent
+            alignItemWithTrigger={false}
+            className="min-w-44 p-1 font-bold data-closed:animate-none data-open:animate-none"
+          >
             {KEYS.map((k) => (
               <SelectItem key={k} value={k} className={option}>
                 {k}
@@ -213,9 +218,12 @@ export default function App() {
 
         <Select value={settings.scale} onValueChange={(v) => setSettings((s) => ({ ...s, scale: v as ScaleName }))}>
           <SelectTrigger aria-label="Scale" className={`${control} ${light} data-[size=default]:h-10`}>
-            {settings.scale}
+            <span className="truncate max-sm:max-w-20">{settings.scale}</span>
           </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false} className="min-w-44 p-1 font-bold">
+          <SelectContent
+            alignItemWithTrigger={false}
+            className="min-w-44 p-1 font-bold data-closed:animate-none data-open:animate-none"
+          >
             {Object.keys(SCALES).map((name) => (
               <SelectItem key={name} value={name} className={option}>
                 {name}
@@ -228,7 +236,10 @@ export default function App() {
           <SelectTrigger aria-label="Lead sound" className={`${control} ${light} data-[size=default]:h-10`}>
             {settings.lead}
           </SelectTrigger>
-          <SelectContent alignItemWithTrigger={false} className="min-w-44 p-1 font-bold">
+          <SelectContent
+            alignItemWithTrigger={false}
+            className="min-w-44 p-1 font-bold data-closed:animate-none data-open:animate-none"
+          >
             {LEADS.map((name) => (
               <SelectItem key={name} value={name} className={option}>
                 {name}
@@ -242,14 +253,12 @@ export default function App() {
           value={[tool]}
           onValueChange={(v) => v.length > 0 && setTool(v[v.length - 1] as Tool)}
           spacing={1}
-          className="rounded-full bg-secondary p-1"
+          className="rounded-full bg-secondary p-1 max-sm:order-2"
         >
-          <ToggleGroupItem value="draw" className="h-8 rounded-full px-3 text-[15px] font-bold aria-pressed:bg-primary aria-pressed:text-primary-foreground">
-            <Pencil data-icon="inline-start" />
+          <ToggleGroupItem value="draw" className="h-8 rounded-full px-3 text-[15px] font-bold aria-pressed:bg-primary aria-pressed:text-primary-foreground max-sm:px-2.5">
             Draw
           </ToggleGroupItem>
-          <ToggleGroupItem value="erase" className="h-8 rounded-full px-3 text-[15px] font-bold aria-pressed:bg-primary aria-pressed:text-primary-foreground">
-            <Eraser data-icon="inline-start" />
+          <ToggleGroupItem value="erase" className="h-8 rounded-full px-3 text-[15px] font-bold aria-pressed:bg-primary aria-pressed:text-primary-foreground max-sm:px-2.5">
             Rub out
           </ToggleGroupItem>
         </ToggleGroup>
@@ -257,25 +266,27 @@ export default function App() {
         <Button
           variant="secondary"
           aria-label="Add a walking robot"
-          className={`${control} ${light}`}
+          className={`${control} ${light} max-sm:order-2`}
           onClick={addRobot}
           disabled={robots >= MAX_WALKERS}
         >
-          <Bot data-icon="inline-start" />
           Robot
         </Button>
 
-        <Button variant="secondary" className={`${control} ${light}`} onClick={undo} disabled={past.length === 0}>
-          <Undo2 data-icon="inline-start" />
+        <Button
+          variant="secondary"
+          className={`${control} ${light} max-sm:order-2`}
+          onClick={undo}
+          disabled={past.length === 0}
+        >
           Undo
         </Button>
         <Button
           variant="secondary"
-          className={`${control} ${light}`}
+          className={`${control} ${light} max-sm:order-2`}
           onClick={() => change([])}
           disabled={items.length === 0}
         >
-          <Trash2 data-icon="inline-start" />
           Clear
         </Button>
 
@@ -283,9 +294,8 @@ export default function App() {
           pressed={withCamera}
           disabled={camera === 'loading'}
           onPressedChange={(on) => (on ? void cameraOn() : cameraOff())}
-          className={`${control} ${light} ml-auto aria-pressed:bg-primary aria-pressed:text-primary-foreground`}
+          className={`${control} ${light} ml-auto aria-pressed:bg-primary aria-pressed:text-primary-foreground max-sm:order-1`}
         >
-          {withCamera ? <Video data-icon="inline-start" /> : <VideoOff data-icon="inline-start" />}
           {camera === 'loading' ? 'Starting camera' : 'Camera'}
         </Toggle>
       </header>
@@ -308,14 +318,9 @@ export default function App() {
         onErase={erase}
       >
         {!started && (
-          <div className="absolute inset-0 grid place-items-center bg-background/70 p-6">
-            <div className="flex max-w-md flex-col items-center gap-5 text-center">
-              <p className="text-[clamp(2rem,6vw,3.5rem)] leading-none font-extrabold tracking-tight text-balance">
-                Draw a loop in the air
-              </p>
-              <p className="text-[15px] font-medium text-pretty">
-                Lines are melody, stickers are drums. The bar sweeping across plays whatever it touches.
-              </p>
+          <div className="absolute inset-0 grid place-items-center p-6">
+            <div className="flex flex-col items-center gap-4">
+              <p className={pill}>Lines are melody, stickers are drums. The moving bar plays what it touches.</p>
               <div className="flex flex-wrap justify-center gap-3">
                 <Button
                   className={`${control} h-12 px-6`}
@@ -325,10 +330,9 @@ export default function App() {
                     void cameraOn()
                   }}
                 >
-                  <Video data-icon="inline-start" />
                   Start with camera
                 </Button>
-                <Button variant="secondary" className={`${control} ${light} h-12 px-6`} onClick={() => void play()}>
+                <Button variant="secondary" className={`${control} ${light} h-12 px-6 ${lift}`} onClick={() => void play()}>
                   Start with mouse
                 </Button>
               </div>
@@ -336,7 +340,7 @@ export default function App() {
           </div>
         )}
         {started && items.length < 3 && (
-          <p className="pointer-events-none absolute inset-x-0 bottom-5 mx-auto w-fit max-w-[calc(100%-2rem)] rounded-full bg-secondary px-4 py-2 text-center text-[15px] font-bold shadow-[0_3px_10px_oklch(0.27_0.09_340/0.25)]">
+          <p className={`pointer-events-none absolute inset-x-0 bottom-5 mx-auto ${pill}`}>
             {hint}
           </p>
         )}

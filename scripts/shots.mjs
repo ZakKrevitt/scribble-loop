@@ -4,10 +4,17 @@ import { chromium } from '@playwright/test'
 
 const url = 'http://localhost:4319/?debug'
 const out = '.impeccable/review'
-const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] })
+const args = ['--autoplay-policy=no-user-gesture-required', '--use-fake-ui-for-media-stream', '--use-fake-device-for-media-stream']
+// Set HAND_VIDEO to a .y4m clip of a hand to capture the camera view as well.
+if (process.env.HAND_VIDEO) args.push(`--use-file-for-fake-video-capture=${process.env.HAND_VIDEO}`)
+const browser = await chromium.launch({ args })
 
-async function play(page) {
-  await page.getByRole('button', { name: 'Start with mouse' }).click()
+async function play(page, start = 'Start with mouse') {
+  await page.getByRole('button', { name: start }).click()
+  if (start !== 'Start with mouse') {
+    await page.getByRole('button', { name: 'Camera', pressed: true }).waitFor({ timeout: 30000 })
+    await page.locator('canvas:not([data-hands="0"])').waitFor({ timeout: 20000 })
+  }
   const box = await page.locator('canvas').boundingBox()
   const at = (x, y) => [box.x + x * box.width, box.y + y * box.height]
   const line = async (pts) => {
@@ -42,10 +49,24 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['mob
     await page.waitForTimeout(300)
     await page.screenshot({ path: `${out}/desktop-select.png` })
     await page.keyboard.press('Escape')
+    await page.getByRole('listbox').waitFor({ state: 'hidden' })
+    await page.getByRole('combobox', { name: 'Scale' }).focus()
     await page.keyboard.press('Tab')
     await page.keyboard.press('Tab')
+    await page.waitForTimeout(200)
+    console.log('focus on:', await page.evaluate(() => {
+      const el = document.activeElement
+      return `${el.tagName} "${el.getAttribute('aria-label') ?? el.textContent.trim()}" focus-visible=${el.matches(':focus-visible')}`
+    }))
     await page.screenshot({ path: `${out}/desktop-focus.png` })
   }
+  await page.close()
+}
+if (process.env.HAND_VIDEO) {
+  const page = await browser.newPage({ viewport: { width: 1440, height: 900 } })
+  await page.goto(url)
+  await play(page, 'Start with camera')
+  await page.screenshot({ path: `${out}/camera.png` })
   await page.close()
 }
 await browser.close()

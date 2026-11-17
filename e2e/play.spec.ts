@@ -12,7 +12,7 @@ async function drag(page: Page, points: [number, number][]) {
 
 test('a drawn line and a held blob become a playing loop', async ({ page }) => {
   await page.goto('/?debug')
-  await expect(page.getByText('Draw a loop in the air')).toBeVisible()
+  await expect(page.getByRole('button', { name: 'Start with camera' })).toBeVisible()
   await page.getByRole('button', { name: 'Start with mouse' }).click()
   await expect(page.getByRole('button', { name: 'Stop' })).toBeVisible()
 
