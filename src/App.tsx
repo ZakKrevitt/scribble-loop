@@ -22,6 +22,12 @@ import { createHandTracker, type HandTracker } from '@/tracking/handTracker'
 
 type Camera = 'off' | 'loading' | 'on' | 'blocked' | 'failed'
 
+/** Shorter scale names for the phone control bar. The menu always shows the full names. */
+const SHORT_SCALE: Partial<Record<ScaleName, string>> = {
+  'Major pentatonic': 'Major pent.',
+  'Minor pentatonic': 'Minor pent.',
+}
+
 const START: Settings = { bpm: 160, key: 'A', scale: 'Minor pentatonic', lead: 'Supersaw' }
 
 const CAMERA_NOTE: Partial<Record<Camera, string>> = {
@@ -29,7 +35,7 @@ const CAMERA_NOTE: Partial<Record<Camera, string>> = {
   failed: 'Hand tracking did not load. Check your connection and press Camera again.',
 }
 
-const control = 'h-10 rounded-full px-3.5 text-[15px] font-bold max-sm:px-3'
+const control = 'h-10 rounded-full px-3.5 text-[15px] font-bold max-[1340px]:px-3'
 const lift = 'shadow-[0_3px_10px_oklch(0.27_0.09_340/0.25)]'
 const pill = `w-fit max-w-[calc(100%-2rem)] rounded-3xl bg-secondary px-4 py-2 text-center text-[15px] font-bold text-pretty ${lift}`
 const option = 'rounded-lg py-1.5 pr-9 pl-3 text-[15px]'
@@ -176,7 +182,7 @@ export default function App() {
   return (
     <div className="flex h-dvh flex-col">
       <header className="flex flex-wrap items-center gap-2 bg-bar px-4 py-2 text-[15px] font-bold max-sm:gap-1.5 max-sm:px-3">
-        <h1 className="mr-2 text-[15px] font-extrabold max-sm:sr-only">Scribble Loop</h1>
+        <h1 className="mr-2 text-[15px] font-extrabold max-[1340px]:sr-only">Scribble Loop</h1>
 
         <Button
           className={`${control} min-w-[5.25rem]`}
@@ -218,7 +224,8 @@ export default function App() {
 
         <Select value={settings.scale} onValueChange={(v) => setSettings((s) => ({ ...s, scale: v as ScaleName }))}>
           <SelectTrigger aria-label="Scale" className={`${control} ${light} data-[size=default]:h-10`}>
-            <span className="truncate max-sm:max-w-20">{settings.scale}</span>
+            <span className="max-sm:hidden">{settings.scale}</span>
+            <span className="sm:hidden">{SHORT_SCALE[settings.scale] ?? settings.scale}</span>
           </SelectTrigger>
           <SelectContent
             alignItemWithTrigger={false}

@@ -45,6 +45,20 @@ for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['mob
   await play(page)
   await page.screenshot({ path: `${out}/${name}.png` })
   if (name === 'desktop') {
+    // Freeze the audio clock on the first half of a step while the playhead is over the pink line,
+    // so the sounding line's swell and glint are on screen.
+    await page.waitForFunction(() => {
+      const engine = window.scribble.engine
+      const pos = engine.position()
+      if (pos === null) return false
+      const step = pos * 32
+      if (step % 1 > 0.25 || step < 4 || step > 12) return false
+      engine.ctx.suspend()
+      return true
+    }, null, { timeout: 15000, polling: 'raf' })
+    await page.waitForTimeout(250)
+    await page.screenshot({ path: `${out}/desktop-beat.png` })
+    await page.evaluate(() => window.scribble.engine.ctx.resume())
     await page.getByRole('combobox', { name: 'Scale' }).click()
     await page.waitForTimeout(300)
     await page.screenshot({ path: `${out}/desktop-select.png` })

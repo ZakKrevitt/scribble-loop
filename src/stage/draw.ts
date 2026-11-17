@@ -192,7 +192,8 @@ const BONES = [
   [0, 9],
 ] as const
 
-const SEGMENT = { x: 0, w: 512, h: 128 }
+/** The segment was framed with 12% headroom along its length; this trims to the painted part. */
+const SEGMENT = { x: 26, w: 460, h: 128 }
 const CAP = { x: 512, w: 128, h: 128 }
 
 /**
