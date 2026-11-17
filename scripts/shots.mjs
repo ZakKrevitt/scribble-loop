@@ -1,0 +1,51 @@
+// Captures the screens used for design review into .impeccable/review/.
+// Run `pnpm build && pnpm preview --port 4319` first.
+import { chromium } from '@playwright/test'
+
+const url = 'http://localhost:4319/?debug'
+const out = '.impeccable/review'
+const browser = await chromium.launch({ args: ['--autoplay-policy=no-user-gesture-required'] })
+
+async function play(page) {
+  await page.getByRole('button', { name: 'Start with mouse' }).click()
+  const box = await page.locator('canvas').boundingBox()
+  const at = (x, y) => [box.x + x * box.width, box.y + y * box.height]
+  const line = async (pts) => {
+    await page.mouse.move(...at(...pts[0]))
+    await page.mouse.down()
+    for (const p of pts.slice(1)) await page.mouse.move(...at(...p), { steps: 8 })
+    await page.mouse.up()
+  }
+  await line([[0.08, 0.62], [0.2, 0.4], [0.3, 0.52], [0.42, 0.3]])
+  await line([[0.55, 0.2], [0.7, 0.26], [0.92, 0.12]])
+  for (const [x, y, hold] of [[0.06, 0.93, 500], [0.31, 0.93, 500], [0.56, 0.93, 500], [0.81, 0.93, 500], [0.19, 0.75, 150], [0.69, 0.75, 150], [0.44, 0.42, 100], [0.9, 0.58, 100], [0.5, 0.08, 60], [0.62, 0.08, 60], [0.75, 0.08, 60]]) {
+    await page.mouse.move(...at(x, y))
+    await page.mouse.down()
+    await page.waitForTimeout(hold)
+    await page.mouse.up()
+  }
+  await page.getByRole('button', { name: 'Add a walking robot' }).click()
+  await page.getByRole('button', { name: 'Add a walking robot' }).click()
+  await page.mouse.move(5, 5)
+  await page.waitForTimeout(900)
+}
+
+for (const [name, viewport] of [['desktop', { width: 1440, height: 900 }], ['mobile', { width: 390, height: 844 }]]) {
+  const page = await browser.newPage({ viewport })
+  await page.goto(url)
+  await page.waitForTimeout(400)
+  await page.screenshot({ path: `${out}/${name}-start.png` })
+  await play(page)
+  await page.screenshot({ path: `${out}/${name}.png` })
+  if (name === 'desktop') {
+    await page.getByRole('combobox', { name: 'Scale' }).click()
+    await page.waitForTimeout(300)
+    await page.screenshot({ path: `${out}/desktop-select.png` })
+    await page.keyboard.press('Escape')
+    await page.keyboard.press('Tab')
+    await page.keyboard.press('Tab')
+    await page.screenshot({ path: `${out}/desktop-focus.png` })
+  }
+  await page.close()
+}
+await browser.close()
