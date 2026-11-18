@@ -35,7 +35,11 @@ export function HowTo({ writingHand }: HowToProps) {
             </li>
             <li>Pinch and hold still: a drum. The longer you hold, the louder it hits.</li>
             <li>Point your index finger at a line to change it to the next sound.</li>
-            <li>Make a fist over anything to erase it.</li>
+            <li>
+              Make a fist and a robot rides with your hand. Open your hand to drop it there. Choose which robot under A
+              fist drops.
+            </li>
+            <li>To erase with your hand, switch the bottom bar to Erase, then pinch over anything.</li>
           </ul>
           <p>The white bar sweeps left to right and plays whatever it touches.</p>
         </section>

@@ -1,3 +1,4 @@
+import type React from "react";
 import { useCallback, useEffect, useMemo, useRef, useState } from "react";
 import {
   EFFECTS,
@@ -115,6 +116,7 @@ export default function App() {
   const [tracker, setTracker] = useState<HandTracker | null>(null);
   const [faceTracker, setFaceTracker] = useState<FaceTracker | null>(null);
   const [faceOn, setFaceOn] = useState(true);
+  const [deployBot, setDeployBot] = useState<BotType>("singer");
   const [swapWinks, setSwapWinks] = useState(false);
   const [toast, setToast] = useState<string | null>(null);
   const toastTimer = useRef(0);
@@ -305,7 +307,14 @@ export default function App() {
   }, []);
 
   const addRobot = useCallback(
-    (bot: BotType) => {
+    (bot: BotType, at?: Point) => {
+      const robotsNow = itemsRef.current.filter(
+        (i) => i.kind === "walker",
+      ).length;
+      if (robotsNow >= MAX_WALKERS) {
+        say(`${MAX_WALKERS} robots is the most at once`);
+        return;
+      }
       const id = nextId.current++;
       change([
         ...itemsRef.current,
@@ -313,12 +322,13 @@ export default function App() {
           kind: "walker",
           id,
           bot,
-          x: 0.1 + Math.random() * 0.8,
-          y: 0.2 + Math.random() * 0.6,
+          x: at?.x ?? 0.1 + Math.random() * 0.8,
+          y: at?.y ?? 0.2 + Math.random() * 0.6,
         },
       ]);
+      if (at) say(`${BOT_INFO[bot].name} dropped`);
     },
-    [change],
+    [change, say],
   );
 
   const undo = useCallback(() => {
@@ -412,7 +422,7 @@ export default function App() {
   const hint = withCamera
     ? writingHand === null
       ? "Both hands play pedals: pinch a finger to your thumb, make a fist to change pedal. Draw with the mouse."
-      : `${writingHand === "right" ? "Right" : "Left"} hand: pinch a finger to your thumb to draw, each finger its own sound. ${effectsHand === "left" ? "Left" : "Right"} hand: pinch to play a pedal, make a fist to change pedal.`
+      : `${writingHand === "right" ? "Right" : "Left"} hand: pinch a finger to your thumb to draw, each finger its own sound, make a fist then open it to drop a robot. ${effectsHand === "left" ? "Left" : "Right"} hand: pinch to play a pedal, make a fist to change pedal.`
     : mode === "effects"
       ? `Drag to play the ${mousePedal} pedal. Higher is stronger. Change it in Pedals.`
       : "Drag for a melody. Press and hold for a drum. Alt-click a line to change its sound.";
@@ -490,14 +500,19 @@ export default function App() {
               key={name}
               variant={on ? "primary" : "secondary"}
               aria-pressed={on}
-              className="justify-between"
+              className="justify-start gap-3"
               onClick={() => {
                 releaseAll();
                 setPedalBySide((p) => ({ ...p, [side]: name }));
               }}
             >
+              <span
+                className="orb"
+                data-on={live || undefined}
+                aria-hidden="true"
+              />
               <span>{name}</span>
-              {live && <span className="font-medium">playing</span>}
+              {live && <span className="sr-only">, playing</span>}
             </Button>
           );
         })}
@@ -539,8 +554,10 @@ export default function App() {
             }
           >
             <span
-              className="block size-3.5 shrink-0 rounded-full ring-2 ring-white"
-              style={{ background: LEAD_INK[lead] }}
+              className="orb"
+              data-on
+              aria-hidden="true"
+              style={{ "--orb": LEAD_INK[lead] } as React.CSSProperties}
             />
             <span>{lead}</span>
             {side && (
@@ -576,6 +593,17 @@ export default function App() {
           onSelect: () => addRobot(bot),
         }))}
       />
+      {side && (
+        <Select
+          label="A fist drops"
+          value={deployBot}
+          options={BOTS.map((bot) => ({
+            value: bot,
+            label: BOT_INFO[bot].name,
+          }))}
+          onValueChange={(v) => setDeployBot(v as BotType)}
+        />
+      )}
     </section>
   );
 
@@ -594,12 +622,12 @@ export default function App() {
     );
 
   return (
-    <div className="booth grid h-dvh grid-cols-[15rem_minmax(0,1fr)_15rem] bg-bar max-lg:grid-cols-1 max-lg:grid-rows-[auto_auto_minmax(0,1fr)]">
+    <div className="booth grid h-dvh grid-cols-[15rem_minmax(0,1fr)_15rem] bg-bar max-lg:grid-cols-[minmax(0,1fr)] max-lg:grid-rows-[minmax(0,1fr)_auto_auto]">
       <h1 className="sr-only">Scribble Loop</h1>
 
-      <aside className="side max-lg:order-2">{leftPanel}</aside>
+      <aside className="side max-lg:order-3">{leftPanel}</aside>
 
-      <main className="flex min-h-0 min-w-0 flex-col max-lg:order-3">
+      <main className="flex min-h-0 min-w-0 flex-col max-lg:order-1">
         <div className="bar flex flex-wrap items-center justify-center gap-2 px-3 py-2">
           <Button
             variant="primary"
@@ -688,6 +716,8 @@ export default function App() {
           faceTracker={faceTracker}
           faceOn={faceOn}
           onWink={wink}
+          deployBot={deployBot}
+          onDeploy={(at, bot) => addRobot(bot, at)}
           onPlace={place}
           onErase={erase}
           onRecolor={recolor}
@@ -788,7 +818,7 @@ export default function App() {
         </div>
       </main>
 
-      <aside className="side max-lg:order-1">{rightPanel}</aside>
+      <aside className="side max-lg:order-2">{rightPanel}</aside>
 
       <p className="sr-only" role="status">
         {lines} {lines === 1 ? "line" : "lines"}, {drums}{" "}

@@ -553,6 +553,7 @@ export function drawTipLabels(
     ctx.fillText(text, x, y + 1)
   }
   ;(['index', 'middle', 'ring', 'pinky'] as const).forEach((finger, i) => {
+    if (labels[i] === undefined) return
     const p = toPx(grid, tips[finger])
     const on = active === finger
     pill(p.x, p.y - 24, labels[i], on ? PLUM : (inks?.[i] ?? WHITE), on ? WHITE : PLUM, 15)

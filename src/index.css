@@ -3,10 +3,13 @@
 @import "@fontsource/m-plus-rounded-1c/latin-500.css";
 @import "@fontsource/m-plus-rounded-1c/latin-700.css";
 @import "@fontsource/m-plus-rounded-1c/latin-800.css";
+@import "@fontsource/chakra-petch/latin-500.css";
+@import "@fontsource/chakra-petch/latin-600.css";
+@import "@fontsource/chakra-petch/latin-700.css";
 
 @theme inline {
-  --font-sans: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
-  --color-bar: var(--bar);
+  --font-sans: 'Chakra Petch', system-ui, sans-serif;
+  --color-bar: var(--chrome);
   --color-background: var(--background);
   --color-foreground: var(--foreground);
   --color-primary: var(--accent);
@@ -16,33 +19,49 @@
 }
 
 /*
- * A photo sticker booth on Arc UI's foundation: candy pink bar, pale pink-lilac backdrop, plum ink.
- * Arc's own semantic tokens are retuned here; the components themselves are untouched.
+ * A late-night console dashboard in pink, wrapped round the sticker-booth stage. The chrome is a
+ * plum-black frame laced with a faint web of pink lines; controls are translucent plates with notched
+ * corners and lit edges; the chosen item is a solid lit plate. Arc UI's semantic tokens are retuned
+ * here and its components are shaped from the outside; their code is untouched.
  */
 :root {
-  --bar: oklch(0.8 0.15 352);
-  --background: oklch(0.93 0.045 326);
-  --surface: oklch(0.985 0.012 345);
-  --surface-raised: oklch(0.985 0.012 345);
-  --surface-muted: oklch(0.94 0.04 345);
-  --foreground: oklch(0.27 0.09 340);
-  --text-secondary: oklch(0.4 0.09 340);
-  --text-muted: oklch(0.47 0.08 340);
-  --border: oklch(0.27 0.09 340 / 0.16);
-  --border-subtle: oklch(0.27 0.09 340 / 0.09);
-  --border-strong: oklch(0.27 0.09 340 / 0.32);
-  --accent: oklch(0.27 0.09 340);
-  --accent-strong: oklch(0.2 0.07 340);
-  --accent-subtle: oklch(0.27 0.09 340 / 0.1);
-  --accent-foreground: oklch(0.985 0.012 345);
-  --control-on: oklch(0.27 0.09 340);
-  --control-track: oklch(0.9 0.06 348);
-  --control-track-hover: oklch(0.86 0.07 348);
-  --focus-ring: oklch(0.27 0.09 340);
-  --shadow-floating: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08);
-  --font-display: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
-  --font-body: 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif;
-  --tracking-body: 0em;
+  --chrome: oklch(0.15 0.045 340);
+  --stage: oklch(0.93 0.045 326);
+  --neon: oklch(0.78 0.21 352);
+  --neon-dim: oklch(0.62 0.19 352 / 0.5);
+  --glow: 0 0 0 1px var(--neon-dim), 0 0 18px oklch(0.7 0.22 352 / 0.28);
+  --glow-strong: 0 0 0 1px var(--neon), 0 0 22px oklch(0.75 0.22 352 / 0.55);
+  /* The notch cut from two corners of every plate. */
+  --cut: 9px;
+
+  --background: var(--chrome);
+  --surface: oklch(0.22 0.075 345 / 0.84);
+  --surface-raised: oklch(0.19 0.065 343 / 0.97);
+  --surface-muted: oklch(0.32 0.12 350 / 0.7);
+  --foreground: oklch(0.94 0.05 350);
+  --text-secondary: oklch(0.82 0.09 350);
+  --text-muted: oklch(0.72 0.11 350);
+  --border: var(--neon-dim);
+  --border-subtle: oklch(0.62 0.19 352 / 0.25);
+  --border-strong: var(--neon);
+  --accent: oklch(0.83 0.17 352);
+  --accent-strong: oklch(0.9 0.12 352);
+  --accent-subtle: oklch(0.78 0.21 352 / 0.18);
+  --accent-foreground: oklch(0.17 0.06 340);
+  --control-on: var(--neon);
+  --control-track: oklch(0.3 0.09 345);
+  --control-track-hover: oklch(0.36 0.11 348);
+  --control-thumb: oklch(0.96 0.03 350);
+  --control-thumb-on: oklch(0.96 0.03 350);
+  --focus-ring: var(--foreground);
+  --shadow-raised: var(--glow);
+  --shadow-floating: var(--glow), 0 24px 48px oklch(0.08 0.03 340 / 0.6);
+  --radius-control: 3px;
+  --radius-panel: 4px;
+  --radius-surface: 6px;
+  --font-display: 'Chakra Petch', system-ui, sans-serif;
+  --font-body: 'Chakra Petch', system-ui, sans-serif;
+  --tracking-body: 0.01em;
   --text-sm: 0.9375rem;
   --text-field: 0.9375rem;
 }
@@ -53,7 +72,7 @@
     font-synthesis: none;
   }
   body {
-    background: var(--background);
+    background: var(--chrome);
     color: var(--foreground);
     overscroll-behavior: none;
   }
@@ -61,18 +80,98 @@
   [role='combobox'],
   [role='menuitem'],
   [role='option'] {
-    font-weight: 700;
+    font-weight: 600;
   }
   ::selection {
-    background: oklch(0.88 0.1 185);
-    color: var(--foreground);
+    background: var(--accent);
+    color: var(--accent-foreground);
   }
 }
 
 /* Keyboard focus, outside the layers so it outranks every component's own focus styling. */
 :focus-visible {
-  outline: 3px solid var(--foreground);
+  outline: 2px solid var(--foreground);
   outline-offset: 2px;
+}
+
+/* The frame: a faint web of pink lines over plum-black, brightest around the stage. */
+.booth {
+  background:
+    radial-gradient(ellipse at 50% 40%, oklch(0.32 0.14 352 / 0.55), transparent 65%),
+    repeating-linear-gradient(60deg, transparent 0 46px, oklch(0.7 0.2 352 / 0.09) 46px 47px),
+    repeating-linear-gradient(-60deg, transparent 0 46px, oklch(0.7 0.2 352 / 0.09) 46px 47px),
+    repeating-linear-gradient(0deg, transparent 0 80px, oklch(0.7 0.2 352 / 0.06) 80px 81px),
+    var(--chrome);
+}
+
+/* The stage keeps its pastel booth; the frame sits round it. */
+.stage {
+  background: var(--stage);
+  box-shadow: inset 0 0 0 1px var(--neon-dim);
+}
+.stage-veil {
+  background: oklch(0.93 0.045 326 / 0.25);
+}
+
+/* Plates: buttons, select and menu triggers, the segmented control, panels and floating layers get notched corners. */
+.booth button:is([class*='_primary_'], [class*='_secondary_'], [class*='_ghost_']),
+.booth [class*='_trigger_'],
+.booth [role='group'][class*='_root_'],
+.panel,
+[class*='_content_'][role='dialog'],
+[data-radix-popper-content-wrapper] > [class*='_content_'],
+[data-radix-popper-content-wrapper] > [class*='_menu_'] {
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
+}
+
+.booth button[class*='_secondary_'],
+.booth [class*='_trigger_'] {
+  background: var(--surface);
+  border-color: var(--neon-dim);
+  color: var(--foreground);
+  box-shadow: inset 0 1px 0 oklch(0.95 0.05 350 / 0.12);
+}
+@media (hover: hover) {
+  .booth button[class*='_secondary_']:hover:not(:disabled),
+  .booth [class*='_trigger_']:hover {
+    border-color: var(--neon);
+    background: var(--surface-muted);
+  }
+}
+/* The chosen item is a solid lit plate, like a highlighted dashboard tab. */
+.booth button[class*='_primary_'] {
+  background: var(--accent);
+  color: var(--accent-foreground);
+  border-color: var(--accent-strong);
+  box-shadow:
+    inset 0 1px 0 oklch(1 0 0 / 0.45),
+    0 0 18px oklch(0.78 0.21 352 / 0.55);
+}
+.booth button[class*='_ghost_'] {
+  color: var(--text-secondary);
+}
+/* Notched plates clip an outline, so their keyboard focus draws inside the plate. */
+.booth button:is([class*='_primary_'], [class*='_secondary_'], [class*='_ghost_']):focus-visible,
+.booth [class*='_trigger_']:focus-visible {
+  outline: none;
+  box-shadow: inset 0 0 0 2px var(--foreground);
+}
+
+/* Orbs: lit when a pedal is sounding; a sound's orb glows in its own ink. */
+.orb {
+  --orb: var(--neon);
+  position: relative;
+  width: 14px;
+  height: 14px;
+  flex: none;
+  border-radius: 50%;
+  border: 1.5px solid var(--neon-dim);
+  background: oklch(0.2 0.06 345);
+}
+.orb[data-on] {
+  border-color: oklch(0.97 0.02 350);
+  background: radial-gradient(circle at 35% 30%, oklch(1 0 0 / 0.9) 0 18%, var(--orb) 45%);
+  box-shadow: 0 0 10px var(--orb);
 }
 
 /*
@@ -88,29 +187,44 @@
   clip: rect(0 0 0 0);
   white-space: nowrap;
 }
+.bar [class*='_header_'] {
+  height: 0;
+  overflow: hidden;
+}
+.bar button[aria-haspopup='menu'] {
+  min-height: var(--control-height-md);
+}
+.bar {
+  color: var(--foreground);
+}
 
 .pill {
   width: fit-content;
   max-width: calc(100% - 2rem);
-  border-radius: 1.5rem;
-  background: var(--surface);
+  background: var(--surface-raised);
+  color: var(--foreground);
   padding: 0.5rem 1rem;
   text-align: center;
   font-size: 15px;
-  font-weight: 700;
+  font-weight: 600;
   text-wrap: pretty;
-  box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25);
+  box-shadow: var(--glow);
+  clip-path: polygon(var(--cut) 0, 100% 0, 100% calc(100% - var(--cut)), calc(100% - var(--cut)) 100%, 0 100%, 0 var(--cut));
 }
 
 .howto h3 {
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
+  color: var(--neon);
 }
 .howto ul {
   display: grid;
   gap: 0.25rem;
   padding-left: 1.1rem;
-  list-style: disc;
+  list-style: square;
+}
+.howto ul li::marker {
+  color: var(--neon);
 }
 .howto table {
   width: 100%;
@@ -119,7 +233,7 @@
 }
 .howto th,
 .howto td {
-  border-bottom: 1px solid var(--border);
+  border-bottom: 1px solid var(--border-subtle);
   padding: 0.35rem 0.5rem 0.35rem 0;
   text-align: left;
   vertical-align: top;
@@ -127,16 +241,6 @@
 .howto th {
   font-weight: 700;
   color: var(--text-secondary);
-}
-
-.bar [class*='_header_'] {
-  height: 0;
-  overflow: hidden;
-}
-
-/* Arc's menu trigger matches the height of the other controls in the bar. */
-.bar button[aria-haspopup='menu'] {
-  min-height: var(--control-height-md);
 }
 
 /* Hand panels: each side of the screen belongs to the hand on that side. */
@@ -149,33 +253,72 @@
   display: grid;
   align-content: start;
   gap: 0.75rem;
-  border-radius: var(--radius-panel);
-  background: oklch(0.985 0.012 345 / 0.92);
+  background: var(--surface);
   padding: 1rem;
-  box-shadow: var(--shadow-raised);
+  box-shadow: var(--glow);
+  border-top: 2px solid var(--neon);
 }
 .panel h2 {
   display: grid;
   gap: 0.15rem;
   font-size: 15px;
-  font-weight: 800;
+  font-weight: 700;
+  color: var(--neon);
 }
 .panel h2 span {
   font-weight: 500;
   color: var(--text-secondary);
 }
-.booth main {
-  background: var(--background);
+.panel label {
+  color: var(--text-secondary);
 }
+/*
+ * Narrow screens: each hand's panel becomes one strip that scrolls sideways, so the stage keeps
+ * most of the screen. Panel headings and field labels stay for screen readers only.
+ */
 @media (max-width: 1023px) {
   .side {
-    padding: 0.5rem 0.75rem;
+    position: relative;
+    min-width: 0;
+    overflow-x: auto;
+    overflow-y: hidden;
+    padding: 0.4rem 0.5rem;
   }
   .side .panel {
-    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    display: flex;
+    width: max-content;
     align-items: center;
+    gap: 0.5rem;
+    padding: 0.5rem;
+    border-top-width: 1px;
   }
-  .side .panel h2 {
-    grid-column: 1 / -1;
+  .side .panel > .grid {
+    display: flex;
+    gap: 0.4rem;
+  }
+  .side .panel > div:has(> [class*='_trigger_']) {
+    min-width: 8rem;
+  }
+  .side .panel h2,
+  .side .panel label {
+    position: absolute;
+    width: 1px;
+    height: 1px;
+    overflow: hidden;
+    clip: rect(0 0 0 0);
+    white-space: nowrap;
+  }
+  .side .panel [class*='_field_'] {
+    min-width: 8.5rem;
+  }
+  /* On a phone the sequencer leads; every control sits below it. */
+  .booth main {
+    min-height: 55dvh;
+  }
+  .booth main > .stage {
+    order: 1;
+  }
+  .booth main > .bar {
+    order: 2;
   }
 }
