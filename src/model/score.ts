@@ -189,7 +189,8 @@ export function eraseAt(
 
 /**
  * Take a bite out of the song: drums under the point go, and lines lose the stretch under it,
- * splitting in two where the bite lands in the middle. Robots are never eaten.
+ * splitting in two where the bite lands in the middle. Robots are never eaten. Returns the same
+ * array when nothing was in reach, so callers can skip an update.
  */
 export function biteAt(
   items: Item[],
@@ -226,7 +227,7 @@ export function biteAt(
       flush()
     }
   }
-  return out
+  return out.length === items.length && out.every((item, i) => item === items[i]) ? items : out
 }
 
 /** True when anything edible is within reach. */

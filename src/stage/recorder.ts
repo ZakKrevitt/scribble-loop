@@ -3,6 +3,9 @@ import type { Engine } from '@/audio/engine'
 /** The longest clip, in seconds. */
 export const CLIP_SECONDS = 30
 
+/** Where a recording is: running (with its seconds), saved to downloads, or failed. */
+export type RecordState = 'recording' | 'saved' | 'failed'
+
 /** The first container the browser can record, best first: MP4 plays everywhere, WebM is the fallback. */
 const TYPES = [
   'video/mp4;codecs=avc1.42E01E,mp4a.40.2',
@@ -12,62 +15,92 @@ const TYPES = [
   'video/webm',
 ]
 
+const FPS = 30
 const STAGE = 'oklch(0.93 0.045 326)'
 const WASH = 'oklch(0.8 0.11 335)'
 const VEIL = 'oklch(0.93 0.045 326 / 0.25)'
 
+type Report = (seconds: number, state: RecordState) => void
+
+/** One clip being recorded. Everything it needs is its own, so a clip still saving never touches the next. */
+interface Take {
+  canvas: HTMLCanvasElement
+  ctx: CanvasRenderingContext2D
+  media: MediaRecorder
+  startedAt: number
+  lastDrawn: number
+  lastSecond: number
+  timer: number
+}
+
 /**
- * Records the stage as a video clip with its sound. Each frame it composites what the player sees
- * (the mirrored camera, the pink booth wash and the stage canvas) onto one canvas, which it captures
- * together with the engine's mix. It costs nothing until a recording starts, and saves the file
- * when the recording ends, at the latest after CLIP_SECONDS.
+ * Records the stage as a video clip with its sound. At 30 frames a second it composites what the
+ * player sees (the mirrored camera, the pink booth wash and the stage canvas) onto one canvas, which
+ * it captures together with the engine's mix. It costs nothing until a recording starts, and saves
+ * the file when the recording ends, at the latest after CLIP_SECONDS.
  */
 export class Recorder {
-  private canvas: HTMLCanvasElement | null = null
-  private ctx: CanvasRenderingContext2D | null = null
-  private media: MediaRecorder | null = null
-  private release: (() => void) | null = null
-  private chunks: Blob[] = []
-  private startedAt = 0
-  private lastSecond = -1
-  private report: ((seconds: number, done: boolean) => void) | null = null
+  private take: Take | null = null
 
-  get active(): boolean {
-    return this.media !== null
-  }
+  start(engine: Engine, width: number, height: number, report: Report): void {
+    if (this.take) return
+    let release: (() => void) | null = null
+    try {
+      // At most 1280 pixels wide, so encoding stays light while the instrument plays.
+      const scale = Math.min(1, 1280 / Math.max(1, width))
+      const canvas = document.createElement('canvas')
+      canvas.width = Math.max(2, Math.round((width * scale) / 2) * 2)
+      canvas.height = Math.max(2, Math.round((height * scale) / 2) * 2)
+      const ctx = canvas.getContext('2d')!
 
-  start(engine: Engine, width: number, height: number, report: (seconds: number, done: boolean) => void): void {
-    if (this.media) return
-    // At most 1280 pixels wide, so encoding stays light while the instrument plays.
-    const scale = Math.min(1, 1280 / Math.max(1, width))
-    const canvas = document.createElement('canvas')
-    canvas.width = Math.round((width * scale) / 2) * 2
-    canvas.height = Math.round((height * scale) / 2) * 2
-    this.canvas = canvas
-    this.ctx = canvas.getContext('2d')!
-    this.report = report
+      const tap = engine.recordTap()
+      release = tap.release
+      const stream = canvas.captureStream(FPS)
+      for (const track of tap.stream.getAudioTracks()) stream.addTrack(track)
+      const type = TYPES.find((t) => MediaRecorder.isTypeSupported(t)) ?? ''
+      const media = new MediaRecorder(stream, { mimeType: type || undefined, videoBitsPerSecond: 6_000_000 })
 
-    const tap = engine.recordTap()
-    this.release = tap.release
-    const stream = canvas.captureStream(30)
-    for (const track of tap.stream.getAudioTracks()) stream.addTrack(track)
-    const type = TYPES.find((t) => MediaRecorder.isTypeSupported(t)) ?? ''
-    const media = new MediaRecorder(stream, { mimeType: type || undefined, videoBitsPerSecond: 6_000_000 })
-    this.chunks = []
-    media.ondataavailable = (e) => {
-      if (e.data.size > 0) this.chunks.push(e.data)
+      const chunks: Blob[] = []
+      const take: Take = { canvas, ctx, media, startedAt: performance.now(), lastDrawn: 0, lastSecond: 0, timer: 0 }
+      const tapRelease = release
+      media.ondataavailable = (e) => {
+        if (e.data.size > 0) chunks.push(e.data)
+      }
+      media.onstop = () => {
+        tapRelease()
+        for (const track of stream.getTracks()) track.stop()
+        const seconds = take.lastSecond
+        if (chunks.length === 0) {
+          report(seconds, 'failed')
+          return
+        }
+        save(new Blob(chunks, { type: media.mimeType || type || 'video/webm' }))
+        report(seconds, 'saved')
+      }
+      media.onerror = () => this.stop()
+      media.start(1000)
+      // The clip ends on time even when the tab is hidden and frames stop.
+      take.timer = window.setTimeout(() => this.stop(), CLIP_SECONDS * 1000)
+      this.take = take
+      report(0, 'recording')
+      this.report = report
+    } catch {
+      release?.()
+      this.take = null
+      report(0, 'failed')
     }
-    media.onstop = () => this.save(media.mimeType || type || 'video/webm')
-    media.start(1000)
-    this.media = media
-    this.startedAt = performance.now()
-    this.lastSecond = -1
   }
+
+  private report: Report | null = null
 
   /** Draw this frame into the recording. `video` is the camera, or null when it is off. */
   frame(video: HTMLVideoElement | null, stage: HTMLCanvasElement): void {
-    const { ctx, canvas, media } = this
-    if (!ctx || !canvas || !media) return
+    const take = this.take
+    if (!take) return
+    const now = performance.now()
+    if (now - take.lastDrawn < 1000 / FPS - 2) return
+    take.lastDrawn = now
+    const { ctx, canvas } = take
     const w = canvas.width
     const h = canvas.height
     ctx.globalCompositeOperation = 'source-over'
@@ -93,33 +126,29 @@ export class Recorder {
     }
     ctx.drawImage(stage, 0, 0, w, h)
 
-    const seconds = Math.floor((performance.now() - this.startedAt) / 1000)
-    if (seconds !== this.lastSecond) {
-      this.lastSecond = seconds
-      this.report?.(seconds, false)
+    const seconds = Math.min(CLIP_SECONDS, Math.floor((now - take.startedAt) / 1000))
+    if (seconds !== take.lastSecond) {
+      take.lastSecond = seconds
+      this.report?.(seconds, 'recording')
     }
-    if (seconds >= CLIP_SECONDS) this.stop()
   }
 
+  /** End the clip; it saves itself once the last data arrives. */
   stop(): void {
-    if (this.media && this.media.state !== 'inactive') this.media.stop()
-    this.media = null
-    this.release?.()
-    this.release = null
-  }
-
-  private save(type: string): void {
-    const blob = new Blob(this.chunks, { type })
-    this.chunks = []
-    const stamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')
-    const link = document.createElement('a')
-    link.href = URL.createObjectURL(blob)
-    link.download = `scribble-loop-${stamp}.${type.includes('mp4') ? 'mp4' : 'webm'}`
-    link.click()
-    setTimeout(() => URL.revokeObjectURL(link.href), 10_000)
-    this.canvas = null
-    this.ctx = null
-    this.report?.(this.lastSecond, true)
+    const take = this.take
+    if (!take) return
+    this.take = null
     this.report = null
+    window.clearTimeout(take.timer)
+    if (take.media.state !== 'inactive') take.media.stop()
   }
+}
+
+function save(blob: Blob): void {
+  const stamp = new Date().toISOString().slice(0, 19).replace(/[-:T]/g, '')
+  const link = document.createElement('a')
+  link.href = URL.createObjectURL(blob)
+  link.download = `scribble-loop-${stamp}.${blob.type.includes('mp4') ? 'mp4' : 'webm'}`
+  link.click()
+  setTimeout(() => URL.revokeObjectURL(link.href), 10_000)
 }

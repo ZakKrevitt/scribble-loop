@@ -47,7 +47,7 @@ export interface Settings {
 
 /** Something a robot did to the song, for the app to apply to the items. */
 export type BotEdit =
-  | { kind: 'bite'; by: number; at: Point; radius: number }
+  | { kind: 'bite'; by: number; at: Point; radius: number; aspect: number }
   | { kind: 'swap'; by: number; lineId: number; lead: LeadName }
   | { kind: 'drop'; by: number; item: Omit<Blob, 'id'> | Omit<Line, 'id'> }
 
@@ -1201,7 +1201,7 @@ export class Engine {
         case 'eater':
           if (time - bot.lastAct > 0.22 && touches(this.items, at, REACH, this.aspect, this.where)) {
             bot.lastAct = time
-            this.onEdit?.({ kind: 'bite', by: id, at, radius: REACH })
+            this.onEdit?.({ kind: 'bite', by: id, at, radius: REACH, aspect: this.aspect })
             this.crunch(time)
             this.act(id, time)
           }

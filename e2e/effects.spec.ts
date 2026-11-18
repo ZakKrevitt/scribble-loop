@@ -101,4 +101,12 @@ test('recording saves a clip of the stage with its sound', async ({ page }) => {
   const size = (await (await file.createReadStream()).toArray()).reduce((n, c) => n + c.length, 0)
   expect(size).toBeGreaterThan(10_000)
   await expect(page.getByRole('button', { name: 'Record 30s' })).toBeVisible()
+
+  // Straight into a second clip while the first is still saving: both must be real files.
+  await page.getByRole('button', { name: 'Record 30s' }).click()
+  await page.waitForTimeout(1200)
+  const second = page.waitForEvent('download')
+  await page.getByRole('button', { name: /^Stop \d+s$/ }).click()
+  const bytes = (await (await (await second).createReadStream()).toArray()).reduce((n, c) => n + c.length, 0)
+  expect(bytes).toBeGreaterThan(10_000)
 })

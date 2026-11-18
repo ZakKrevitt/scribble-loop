@@ -4,18 +4,22 @@ export type Wink = 'left' | 'right'
 /** An eye counts as shut above this blink score; the face readout uses it too. */
 export const WINK_SHUT = 0.42
 const WINK_GAP = 0.25
-const EYES_OPEN = 0.25
 const HOLD_FRAMES = 3
+/** Reads in a row without a wink before another can fire. */
+const RELAX_FRAMES = 2
 
 /**
  * Turns per-frame blink scores into winks. One eye has to be shut clearly more than the other,
- * because the open eye usually squints a little during a wink. Each wink fires once, and the eyes
- * have to relax again before another can. Blinking both eyes never counts.
+ * because the open eye usually squints a little during a wink. Each wink fires once, and the wink
+ * has to end before another can. Ending is judged by the gap between the eyes, not by both eyes
+ * reading wide open, because many faces rest with one eye a little shut on camera and would
+ * otherwise never re-arm. Blinking both eyes never counts.
  */
 export class WinkReader {
   private side: Wink | null = null
   private frames = 0
   private fired = false
+  private relaxed = 0
 
   /** `left` and `right` are the player's own eyes. Returns the wink that just happened, if any. */
   read(left: number, right: number): Wink | null {
@@ -26,11 +30,12 @@ export class WinkReader {
           ? 'right'
           : null
     if (winking === null) {
-      if (Math.max(left, right) < EYES_OPEN) this.fired = false
+      if (++this.relaxed >= RELAX_FRAMES) this.fired = false
       this.side = null
       this.frames = 0
       return null
     }
+    this.relaxed = 0
     if (winking !== this.side) {
       this.side = winking
       this.frames = 0

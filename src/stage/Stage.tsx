@@ -1,5 +1,5 @@
 import { useEffect, useRef, type ReactNode } from 'react'
-import { PEDAL_OPTIONS, type EffectName, type Engine, type Settings } from '@/audio/engine'
+import { EFFECTS, PEDAL_OPTIONS, type EffectName, type Engine, type Settings } from '@/audio/engine'
 import { HAND_FEEL, MOUSE_FEEL, Pen, type Draft } from '@/input/pen'
 import {
   BOTS,
@@ -18,7 +18,7 @@ import { HandSmoother, Smoother, SwatReader, readHand, type Pose, type Touch } f
 import type { FaceTracker, HandTracker } from '@/tracking/handTracker'
 import { MouthReader, TiltReader, WinkReader, mouthOpen, type FaceState, type Wink } from '@/tracking/face'
 import { FxLayer } from './fx'
-import { Recorder } from './recorder'
+import { Recorder, type RecordState } from './recorder'
 import {
   BOT_TINT,
   LEAD_INK,
@@ -66,6 +66,8 @@ const POINT_REACH = 0.035
 const POINT_HOLD_MS = 700
 /** A wrist that jumps this far between frames is a different hand, not the same one moving. */
 const SWAPPED_HAND = 0.18
+/** Frames the tracker must call a hand the other side before the hand switches roles. */
+const SIDE_FRAMES = 10
 
 /** How big each robot is drawn, against the walker. */
 const BOT_SIZE: Record<BotType, number> = { swapper: 1, dropper: 0.95, bumper: 0.85, eater: 0.75, singer: 0.7 }
@@ -110,8 +112,8 @@ interface StageProps {
   onSwat: () => void
   /** True while a clip is being recorded. */
   recording: boolean
-  /** Called each second of a recording, and once more with `done` when the file is ready. */
-  onRecordProgress: (seconds: number, done: boolean) => void
+  /** Called each second of a recording, then once with whether the clip was saved or failed. */
+  onRecordProgress: (seconds: number, state: RecordState) => void
   children?: ReactNode
 }
 
@@ -132,6 +134,8 @@ interface HandSlot {
   tips: Record<Touch, Point> | null
   palm: Point | null
   side: Side
+  /** Frames in a row the tracker has called this hand the other side. */
+  sideVotes: number
   lastSeen: number
   /** Robots this hand is touching, so a bump sounds once on contact rather than every frame. */
   touching: Set<number>
@@ -233,6 +237,7 @@ export function Stage(props: StageProps) {
       tips: null,
       palm: null,
       side: 'right',
+      sideVotes: 0,
       lastSeen: 0,
       touching: new Set(),
       press: null,
@@ -247,6 +252,7 @@ export function Stage(props: StageProps) {
       pointIdleSince: null,
     })
     const slots: HandSlot[] = [newSlot(), newSlot()]
+    const free = new Set<HandSlot>()
     const mouse = { pen: new Pen(aspect, MOUSE_FEEL), point: null as Point | null, action: IDLE }
 
     const fx = new FxLayer()
@@ -259,6 +265,11 @@ export function Stage(props: StageProps) {
     const namesLayer = new Layer()
     const inkLayer = new Layer()
     let inkItems: Item[] | null = null
+    // Cached text is redrawn once the bundled fonts arrive, or it keeps the fallback face.
+    let fontsLoaded = 0
+    const onFonts = () => fontsLoaded++
+    void document.fonts.ready.then(onFonts)
+    document.fonts.addEventListener('loadingdone', onFonts)
     let inkVersion = 0
 
     /** Where each pressed pedal is drawn, in grid fractions. */
@@ -292,13 +303,23 @@ export function Stage(props: StageProps) {
     const tilts = new TiltReader()
     let faceFrame = 0
 
+    // The stage's size comes from a ResizeObserver rather than a layout read every frame.
+    let boxW = wrap.clientWidth
+    let boxH = wrap.clientHeight
+    const resize = new ResizeObserver(([entry]) => {
+      boxW = entry.contentRect.width
+      boxH = entry.contentRect.height
+    })
+    resize.observe(wrap)
+
     const layout = () => {
-      const rect = wrap.getBoundingClientRect()
       // 1.5x is sharp enough for stickers and saves almost half the pixels of a retina canvas.
-      dpr = Math.min(1.5, window.devicePixelRatio || 1)
-      if (rect.width !== width || rect.height !== height) {
-        width = rect.width
-        height = rect.height
+      // Checked every frame so moving the window to a screen of another density redraws sharply.
+      const nextDpr = Math.min(1.5, window.devicePixelRatio || 1)
+      if (boxW !== width || boxH !== height || nextDpr !== dpr) {
+        dpr = nextDpr
+        width = boxW
+        height = boxH
         canvas.width = Math.round(width * dpr)
         canvas.height = Math.round(height * dpr)
       }
@@ -417,7 +438,8 @@ export function Stage(props: StageProps) {
       const { engine, mode, items } = live.current
       const touched = robotAt(point)
       if (touched !== undefined && !slot.touching.has(touched)) engine.hit(touched)
-      slot.touching = new Set(touched === undefined ? [] : [touched])
+      slot.touching.clear()
+      if (touched !== undefined) slot.touching.add(touched)
 
       const pinched = slot.press === 'index'
       if (slot.action.kind === 'idle' && pinched) {
@@ -472,8 +494,19 @@ export function Stage(props: StageProps) {
         readFace(now)
         const hands = tracker.detect(video, now)
         const videoAspect = video.videoWidth / video.videoHeight
-        const free = new Set(slots)
-        for (const hand of hands.slice(0, slots.length)) {
+        free.clear()
+        for (const s of slots) free.add(s)
+        // Two hands with the same label (or none) are told apart by where they are on screen: the
+        // mirrored video puts the player's left hand on the left.
+        const count = Math.min(hands.length, slots.length)
+        const sameLabel = count === 2 && hands[0].side === hands[1].side
+        for (let h = 0; h < count; h++) {
+          const hand = hands[h]
+          let label = hand.side
+          if (sameLabel || !label) {
+            const x = 1 - hand.landmarks[9].x
+            label = count === 2 ? (x < 1 - hands[1 - h].landmarks[9].x ? 'left' : 'right') : x < 0.5 ? 'left' : 'right'
+          }
           const wrist = hand.landmarks[0]
           let slot: HandSlot | null = null
           let best = Infinity
@@ -508,15 +541,24 @@ export function Stage(props: StageProps) {
             pinky: toStage(reading.tips.pinky),
           }
 
-          // Which hand is this? Trust the model; failing that, the side of the screen it is on.
-          const side: Side = hand.side ?? (palm.x < 0.5 ? 'left' : 'right')
+          // Which hand is this? A hand keeps its side until the label has disagreed for a while, so a
+          // flickering label never flips a hand between writing and pedals mid-gesture.
+          if (slot.role === null) {
+            slot.side = label
+            slot.sideVotes = 0
+          } else if (label !== slot.side) {
+            if (++slot.sideVotes >= SIDE_FRAMES) {
+              slot.side = label
+              slot.sideVotes = 0
+            }
+          } else slot.sideVotes = 0
+          const side = slot.side
           const pedals = live.current.effectsHand
           const role = pedals === 'both' || side === pedals ? 'effects' : 'write'
           if (slot.role !== role) {
             slot.action = finish(slot.action, slot.pen, now, slot.pedalAt, slot.lead)
             slot.role = role
           }
-          slot.side = side
 
           // A fast sideways sweep of a flat, open hand wipes the board.
           if (slot.swat.read(palm.x, palm.y, reading.pose === 'open' && !reading.touch, now)) live.current.onSwat()
@@ -648,7 +690,7 @@ export function Stage(props: StageProps) {
         }
       }
       ctx.drawImage(
-        namesLayer.get(`${settings.key}|${settings.scale}`, width, height, dpr, (c) =>
+        namesLayer.get(`${settings.key}|${settings.scale}|${fontsLoaded}`, width, height, dpr, (c) =>
           drawNoteNames(c, grid, settings.key, settings.scale, 15),
         ),
         0,
@@ -680,7 +722,9 @@ export function Stage(props: StageProps) {
       ctx.restore()
 
       // Every pedal that is pressed or held shows where it is being played.
-      for (const [name, value] of Object.entries(engine.effects) as [EffectName, { x: number; y: number; detail: string }][]) {
+      for (const name of EFFECTS) {
+        const value = engine.effects[name]
+        if (!value) continue
         drawPad(ctx, grid, marks.get(name) ?? value, `${name} ${value.detail}`, value.x)
       }
 
@@ -717,6 +761,8 @@ export function Stage(props: StageProps) {
     let seenHands = -1
     let wasRecording = false
     const frame = () => {
+      // The next frame is asked for first, so one error never freezes the stage for good.
+      raf = requestAnimationFrame(frame)
       const now = performance.now()
       layout()
       trackHands(now)
@@ -725,19 +771,18 @@ export function Stage(props: StageProps) {
       // Recording: composite the camera, the booth wash and the stage into one frame.
       const { recording, engine, stream } = live.current
       if (recording && !wasRecording) {
-        recorder.start(engine, width, height, (seconds, done) => live.current.onRecordProgress(seconds, done))
+        recorder.start(engine, width, height, (seconds, state) => live.current.onRecordProgress(seconds, state))
       } else if (!recording && wasRecording) {
         recorder.stop()
       }
       wasRecording = recording
       if (recording) recorder.frame(stream ? video : null, canvas)
 
-      const hands = slots.filter((s) => s.point).length
+      const hands = (slots[0].point ? 1 : 0) + (slots[1].point ? 1 : 0)
       if (hands !== seenHands) {
         seenHands = hands
         canvas.dataset.hands = String(hands)
       }
-      raf = requestAnimationFrame(frame)
     }
     raf = requestAnimationFrame(frame)
 
@@ -803,6 +848,8 @@ export function Stage(props: StageProps) {
     return () => {
       cancelAnimationFrame(raf)
       recorder.stop()
+      resize.disconnect()
+      document.fonts.removeEventListener('loadingdone', onFonts)
       canvas.removeEventListener('pointerdown', down)
       canvas.removeEventListener('pointermove', move)
       canvas.removeEventListener('pointerup', up)

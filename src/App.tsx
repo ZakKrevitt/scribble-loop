@@ -147,7 +147,7 @@ export default function App() {
           current,
           edit.at,
           edit.radius,
-          1.6,
+          edit.aspect,
           () => nextId.current++,
           engine.where,
         );
@@ -170,6 +170,7 @@ export default function App() {
           next = next.filter((i) => !oldest.has(i.id));
         }
       }
+      if (next === current) return;
       itemsRef.current = next;
       setItems(next);
     };
@@ -781,11 +782,17 @@ export default function App() {
           onRecolor={recolor}
           onNextPen={nextPen}
           recording={recordSeconds !== null}
-          onRecordProgress={(seconds, done) => {
-            if (done) {
-              setRecordSeconds(null);
-              say("Clip saved to your downloads.");
-            } else setRecordSeconds(Math.min(CLIP_SECONDS, seconds));
+          onRecordProgress={(seconds, state) => {
+            if (state === "recording") {
+              setRecordSeconds(Math.min(CLIP_SECONDS, seconds));
+              return;
+            }
+            setRecordSeconds(null);
+            say(
+              state === "saved"
+                ? "Clip saved to your downloads."
+                : "This browser could not record the clip.",
+            );
           }}
           onSwat={() => {
             if (itemsRef.current.some((i) => i.kind !== "walker")) {

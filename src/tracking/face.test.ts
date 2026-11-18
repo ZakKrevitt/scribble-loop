@@ -7,7 +7,23 @@ describe('WinkReader', () => {
     const seen = [r.read(0.9, 0.05), r.read(0.9, 0.05), r.read(0.9, 0.05), r.read(0.9, 0.05)]
     expect(seen).toEqual([null, null, 'left', null])
     r.read(0.05, 0.05)
+    r.read(0.05, 0.05)
     expect([r.read(0.05, 0.9), r.read(0.05, 0.9), r.read(0.05, 0.9)]).toEqual([null, null, 'right'])
+  })
+
+  it('re-arms for the other eye when one eye rests half shut', () => {
+    const r = new WinkReader()
+    // This face rests with its left eye at 0.35: never "wide open", which used to block every later wink.
+    expect([r.read(0.9, 0.1), r.read(0.9, 0.1), r.read(0.9, 0.1)]).toEqual([null, null, 'left'])
+    r.read(0.35, 0.1)
+    r.read(0.35, 0.1)
+    expect([r.read(0.3, 0.9), r.read(0.3, 0.9), r.read(0.3, 0.9)]).toEqual([null, null, 'right'])
+  })
+
+  it('does not fire twice for one wink that flickers for a single frame', () => {
+    const r = new WinkReader()
+    const seen = [0.9, 0.9, 0.9, 0.3, 0.9, 0.9, 0.9].map((v) => r.read(v, 0.05))
+    expect(seen.filter(Boolean)).toEqual(['left'])
   })
 
   it('counts a wink even when the open eye squints a little', () => {

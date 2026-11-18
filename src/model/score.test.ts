@@ -92,6 +92,11 @@ describe('drum timing', () => {
 })
 
 describe('biteAt', () => {
+  it('returns the same array when nothing is in reach, so the app can skip an update', () => {
+    const items: Item[] = [{ kind: 'blob', id: 1, x: 0.9, y: 0.9, size: 0.02 } as Item]
+    expect(biteAt(items, { x: 0.1, y: 0.1 }, 0.03, 1.2, () => 99)).toBe(items)
+  })
+
   it('splits a line where the bite lands and swallows drums, never robots', () => {
     let next = 100
     const points = Array.from({ length: 21 }, (_, i) => [0.1 + i * 0.02, 0.5] as [number, number])

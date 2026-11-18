@@ -82,3 +82,7 @@ The hand model (`public/models/hand_landmarker.task`) is Google's MediaPipe mode
 from the Stilt walker in [AnyMachine](https://github.com/apekshik/anymachine) (MIT) and rendered from the side in Blender.
 
 Camera frames are processed in the browser and are never sent anywhere.
+
+## License
+
+MIT, see `LICENSE`. Bundled components, models and sprites keep their own licenses, listed in `THIRD_PARTY_NOTICES.md`. Fork it and make it yours.
