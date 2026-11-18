@@ -77,8 +77,8 @@ a `.y4m` or `.mjpeg` clip of a hand, which Chromium plays as if it were the webc
 - `src/input/pen.ts`: turns one press, drag and release into a line or a sticker, for hands and mouse alike.
 - `src/stage/`: the canvas.
 
-The hand model (`public/models/hand_landmarker.task`) is Google's MediaPipe model, Apache 2.0. The robot sprite
-(`public/sprites/stilt-walk.webp`) is the Stilt walker from [AnyMachine](https://github.com/apekshik/anymachine)
-(MIT), its walk cycle rendered from the side in Blender.
+The hand model (`public/models/hand_landmarker.task`) is Google's MediaPipe model, Apache 2.0. The robot sprites
+(`public/sprites/bot-*.webp`, one per robot type) and the hand overlay parts (`public/sprites/stilt-parts.webp`) are cut
+from the Stilt walker in [AnyMachine](https://github.com/apekshik/anymachine) (MIT) and rendered from the side in Blender.
 
 Camera frames are processed in the browser and are never sent anywhere.
