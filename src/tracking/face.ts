@@ -1,14 +1,15 @@
-/** Eyes count as shut above this and open below that, from MediaPipe's 0 to 1 blink scores. */
-const SHUT = 0.55
-const OPEN = 0.3
-/** A wink must hold for this many frames, so a twitch does not count. */
-const HOLD_FRAMES = 3
-
 export type Wink = 'left' | 'right'
 
+/** A wink is one eye shut clearly more than the other, held this many frames. */
+const WINK_SHUT = 0.42
+const WINK_GAP = 0.25
+const EYES_OPEN = 0.25
+const HOLD_FRAMES = 3
+
 /**
- * Turns per-frame blink scores into winks. A wink is one eye shut while the other stays open;
- * it fires once, and the eyes must open again before another can. Blinking both eyes never counts.
+ * Turns per-frame blink scores into winks. One eye has to be shut clearly more than the other,
+ * because the open eye usually squints a little during a wink. Each wink fires once, and the eyes
+ * have to relax again before another can. Blinking both eyes never counts.
  */
 export class WinkReader {
   private side: Wink | null = null
@@ -18,9 +19,13 @@ export class WinkReader {
   /** `left` and `right` are the player's own eyes. Returns the wink that just happened, if any. */
   read(left: number, right: number): Wink | null {
     const winking: Wink | null =
-      left > SHUT && right < OPEN ? 'left' : right > SHUT && left < OPEN ? 'right' : null
+      left > WINK_SHUT && left - right > WINK_GAP
+        ? 'left'
+        : right > WINK_SHUT && right - left > WINK_GAP
+          ? 'right'
+          : null
     if (winking === null) {
-      if (left < OPEN && right < OPEN) this.fired = false
+      if (Math.max(left, right) < EYES_OPEN) this.fired = false
       this.side = null
       this.frames = 0
       return null
@@ -41,4 +46,59 @@ export class WinkReader {
 /** How open the mouth is, 0 shut to 1 wide, from MediaPipe's jaw score with its resting floor removed. */
 export function mouthOpen(jaw: number): number {
   return Math.max(0, Math.min(1, (jaw - 0.08) / 0.55))
+}
+
+/** Fires once each time the mouth opens wide, and re-arms when it closes again. */
+export class MouthReader {
+  private frames = 0
+  private fired = false
+
+  read(open: number): boolean {
+    if (open < 0.25) {
+      this.fired = false
+      this.frames = 0
+      return false
+    }
+    this.frames = open > 0.55 ? this.frames + 1 : 0
+    if (!this.fired && this.frames >= HOLD_FRAMES) {
+      this.fired = true
+      return true
+    }
+    return false
+  }
+}
+
+/** A head tilted this far (about 15 degrees) counts; it must come back near upright before the next. */
+const TILT_ON = 0.26
+const TILT_OFF = 0.12
+
+/**
+ * Fires 'left' or 'right' once per tilt of the head, as the player sees it on screen. It starts
+ * disarmed: the head has to be seen upright once, so a head that rests at an angle never fires.
+ */
+export class TiltReader {
+  private frames = 0
+  private fired = true
+
+  read(tilt: number): Wink | null {
+    if (Math.abs(tilt) < TILT_OFF) {
+      this.fired = false
+      this.frames = 0
+      return null
+    }
+    this.frames = Math.abs(tilt) > TILT_ON ? this.frames + 1 : 0
+    if (!this.fired && this.frames >= HOLD_FRAMES + 1) {
+      this.fired = true
+      return tilt < 0 ? 'left' : 'right'
+    }
+    return null
+  }
+}
+
+/** What the camera reads off the face, for the on-screen readout. */
+export interface FaceState {
+  found: boolean
+  left: number
+  right: number
+  mouth: number
 }

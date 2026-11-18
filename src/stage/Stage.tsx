@@ -3,7 +3,6 @@ import { PEDAL_OPTIONS, type EffectName, type Engine, type Settings } from '@/au
 import { HAND_FEEL, MOUSE_FEEL, Pen, type Draft } from '@/input/pen'
 import {
   BOTS,
-  LEADS,
   STEPS,
   drumFromY,
   drumX,
@@ -17,8 +16,7 @@ import {
 } from '@/model/score'
 import { Smoother, readHand, type Pose, type Touch } from '@/tracking/gestures'
 import type { FaceTracker, HandTracker } from '@/tracking/handTracker'
-import { BOT_INFO } from '@/robots/bots'
-import { WinkReader, mouthOpen, type Wink } from '@/tracking/face'
+import { MouthReader, TiltReader, WinkReader, mouthOpen, type FaceState, type Wink } from '@/tracking/face'
 import { FxLayer } from './fx'
 import {
   BOT_TINT,
@@ -88,9 +86,12 @@ interface StageProps {
   onErase: (at: Point, radius: number, aspect: number) => void
   /** Step one line to the next sound. */
   onRecolor: (lineId: number) => void
-  /** The robot a fist on the writing hand drops when it opens. */
+  /** The robot an open mouth drops, where the face is on the stage. Tilting the head picks it. */
   deployBot: BotType
   onDeploy: (at: Point, bot: BotType) => void
+  onTilt: (side: Wink) => void
+  /** Filled in with what the camera reads off the face, for the on-screen readout. */
+  face: FaceState
   /** Step the sound that new lines get. */
   onNextPen: () => void
   children?: ReactNode
@@ -132,9 +133,6 @@ interface HandSlot {
   fistFrames: number
   /** The sound this hand's current stroke is drawing with. */
   lead: LeadName
-  /** On the writing hand: a fist arms a robot, carried with the hand until it opens. */
-  armed: boolean
-  openFrames2: number
   /** The pedal this hand is pressing, and its last reading. */
   pedal: EffectName | null
   pedalAt: { x: number; y: number }
@@ -215,8 +213,6 @@ export function Stage(props: StageProps) {
       side: 'right' as Side,
       fistFrames: 0,
       lead: 'Supersaw' as LeadName,
-      armed: false,
-      openFrames2: 0,
       pedal: null,
       pedalAt: { x: 0.5, y: 0.5 },
       pointFrames: 0,
@@ -254,6 +250,8 @@ export function Stage(props: StageProps) {
     partsStrip.src = '/sprites/stilt-parts.webp'
     let lastVideoTime = -1
     const winks = new WinkReader()
+    const mouth = new MouthReader()
+    const tilts = new TiltReader()
     let faceFrame = 0
 
     const mouse = {
@@ -340,8 +338,6 @@ export function Stage(props: StageProps) {
       slot.tips = null
       slot.palm = null
       slot.fistFrames = 0
-      slot.armed = false
-      slot.openFrames2 = 0
       slot.pinching = false
       slot.pinchFrames = 0
       slot.openFrames = 0
@@ -374,10 +370,22 @@ export function Stage(props: StageProps) {
         if (faceTracker && faceOn && faceFrame++ % 2 === 0) {
           const face = faceTracker.detect(video, now)
           if (canvas.dataset.face !== String(Boolean(face))) canvas.dataset.face = String(Boolean(face))
+          const state = live.current.face
+          state.found = Boolean(face)
           if (face) {
+            const open = mouthOpen(face.jaw)
+            state.left = face.blinkLeft
+            state.right = face.blinkRight
+            state.mouth = open
             const wink = winks.read(face.blinkLeft, face.blinkRight)
             if (wink) live.current.onWink(wink)
-            engine.setSpread(mouthOpen(face.jaw))
+            const tilt = tilts.read(face.tilt)
+            if (tilt) live.current.onTilt(tilt)
+            // An open mouth drops a robot where the face is on the stage.
+            if (mouth.read(open)) {
+              const nose = fromVideo(face.nose)
+              live.current.onDeploy(toGrid(nose.x, nose.y), live.current.deployBot)
+            }
           }
         }
         const hands = tracker.detect(video, now)
@@ -471,20 +479,20 @@ export function Stage(props: StageProps) {
           if (touched !== undefined && !slot.touching.has(touched)) engine.hit(touched)
           slot.touching = new Set(touched === undefined ? [] : [touched])
 
-          // A finger pressed to the thumb draws, in that finger's sound. The pinch point is midway
-          // between the thumb and that fingertip.
-          const at = slot.gesture
+          // Thumb and index pinched together draw in the current sound.
+          const pinched = slot.gesture === 'index'
+          const at = pinched
             ? toStage({
-                x: (reading.thumb.x + reading.tips[slot.gesture].x) / 2,
-                y: (reading.thumb.y + reading.tips[slot.gesture].y) / 2,
+                x: (reading.thumb.x + reading.tips.index.x) / 2,
+                y: (reading.thumb.y + reading.tips.index.y) / 2,
               })
             : point
-          if (!slot.pinching && slot.gesture) {
+          if (!slot.pinching && pinched) {
             slot.pinching = true
-            slot.lead = LEADS[FINGERS.indexOf(slot.gesture)]
+            slot.lead = live.current.settings.lead
             if (live.current.mode === 'erase') erase(at)
             else slot.pen.down(at, now)
-          } else if (slot.pinching && !slot.gesture) {
+          } else if (slot.pinching && !pinched) {
             slot.pinching = false
             if (slot.pen.active) place(slot.pen.up(now), slot.lead)
           } else if (slot.pinching) {
@@ -492,17 +500,9 @@ export function Stage(props: StageProps) {
             else if (live.current.mode === 'erase') erase(at)
           }
           if (slot.pinching) slot.point = at
-          // A fist arms a robot that rides with the hand; opening the hand drops it there.
+          // A fist moves on to the next sound, once per fist.
           slot.fistFrames = !slot.pinching && reading.pose === 'fist' ? slot.fistFrames + 1 : 0
-          if (!slot.armed && slot.fistFrames >= GESTURE_FRAMES) slot.armed = true
-          if (slot.armed) {
-            slot.openFrames2 = reading.pose === 'fist' ? 0 : slot.openFrames2 + 1
-            if (slot.openFrames2 >= GESTURE_FRAMES) {
-              slot.armed = false
-              slot.openFrames2 = 0
-              live.current.onDeploy(point, live.current.deployBot)
-            }
-          }
+          if (slot.fistFrames === GESTURE_FRAMES) live.current.onNextPen()
 
           // Pointing at a line steps it to the next sound; pointing at nothing for a moment steps the pen.
           slot.pointFrames = !slot.pinching && reading.pose === 'point' ? slot.pointFrames + 1 : 0
@@ -630,24 +630,10 @@ export function Stage(props: StageProps) {
           drawTipLabels(ctx, grid, slot.tips, PEDAL_OPTIONS[name], slot.gesture, slot.palm, name)
           continue
         }
-        if (slot.role === 'write' && slot.tips && !slot.pen.active) {
-          drawTipLabels(ctx, grid, slot.tips, LEADS, slot.gesture, null, null, LEADS.map((l) => LEAD_INK[l]))
-        }
         if (slot.role !== 'write') continue
-        if (slot.armed) {
-          // The armed robot rides with the hand, faded, with what it will drop.
-          const bot = live.current.deployBot
-          const sheet = sheets.get(bot)
-          const px = grid.x + slot.point.x * grid.w
-          const py = grid.y + slot.point.y * grid.h
-          if (sheet) {
-            ctx.save()
-            ctx.globalAlpha = 0.7
-            drawWalker(ctx, sheet, px, py, walkerHeight(grid), Math.floor(now / 90), 1)
-            ctx.restore()
-          }
-          drawTipLabels(ctx, grid, { index: slot.point, middle: slot.point, ring: slot.point, pinky: slot.point }, [], null, { x: slot.point.x, y: slot.point.y - (walkerHeight(grid) * 0.62) / grid.h }, `Open to drop ${BOT_INFO[bot].name}`)
-          continue
+        // The writing hand shows its current sound on the palm, in that sound's ink.
+        if (slot.palm && !slot.pen.active) {
+          drawTipLabels(ctx, grid, slot.tips ?? { index: slot.palm, middle: slot.palm, ring: slot.palm, pinky: slot.palm }, [], null, slot.palm, settings.lead, undefined, LEAD_INK[settings.lead])
         }
         const kind =
           slot.pinching && mode === 'erase'

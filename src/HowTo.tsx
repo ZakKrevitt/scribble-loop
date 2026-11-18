@@ -1,5 +1,4 @@
 import { EFFECTS, PEDAL_OPTIONS, type EffectName } from '@/audio/engine'
-import { LEADS } from '@/model/score'
 import type { Side } from '@/stage/Stage'
 
 /** What moving up does on each pedal, and what twisting adds. Left to right is always the amount. */
@@ -11,7 +10,6 @@ const CONTROLS: Record<EffectName, { up: string; twist: string }> = {
   Crush: { up: 'Breaks it further', twist: 'Nothing' },
 }
 
-const FINGERS = ['Index', 'Middle', 'Ring', 'Little'] as const
 
 interface HowToProps {
   /** The hand that writes, or null when both hands play pedals. */
@@ -28,17 +26,10 @@ export function HowTo({ writingHand }: HowToProps) {
         <section className="grid gap-2">
           <h3>{writing} hand writes the music</h3>
           <ul>
-            <li>Pinch a finger to your thumb and drag: a melody line. Higher is a higher note.</li>
-            <li>
-              Each finger draws its own sound: {FINGERS.map((f, i) => `${f.toLowerCase()} ${LEADS[i]}`).join(', ')}.
-              The colour of a line shows its sound, and each fingertip is labelled on screen.
-            </li>
+            <li>Pinch thumb and index and drag: a melody line. Higher is a higher note.</li>
             <li>Pinch and hold still: a drum. The longer you hold, the louder it hits.</li>
-            <li>Point your index finger at a line to change it to the next sound.</li>
-            <li>
-              Make a fist and a robot rides with your hand. Open your hand to drop it there. Choose which robot under A
-              fist drops.
-            </li>
+            <li>Make a fist to change the sound. Its name shows on your palm, and lines take its colour.</li>
+            <li>Point your index finger at a line to change that line to the next sound.</li>
             <li>To erase with your hand, switch the bottom bar to Erase, then pinch over anything.</li>
           </ul>
           <p>The white bar sweeps left to right and plays whatever it touches.</p>
@@ -54,7 +45,11 @@ export function HowTo({ writingHand }: HowToProps) {
             While you hold it, your hand is an XY pad. Left to right is how much you hear. Up and down is the
             pedal's main move. Twisting your hand adds one extra. The ring under your hand shows what it is doing.
           </li>
-          <li>Let go of the pinch and the pedal stops, unless Hold pedals on is set in Pedals.</li>
+          <li>Let go of the pinch and the pedal stops, unless Hold pedals on is set in the pedal panel.</li>
+          <li>
+            To layer pedals, set Pedal hands to Both at the top of the pedal panel. Each hand then holds its own
+            pedal, and a fist on either hand moves that hand on.
+          </li>
         </ul>
         <table>
           <thead>
@@ -83,7 +78,7 @@ export function HowTo({ writingHand }: HowToProps) {
         <ul>
           <li>Draw: drag for a melody, press and hold for a drum. Alt-click a line to change its sound.</li>
           <li>Erase: drag over anything to remove it.</li>
-          <li>Effects: drag to play the pedal chosen under Mouse plays in Pedals, as an XY pad.</li>
+          <li>Effects: drag to play the pedal chosen under Mouse plays, as an XY pad.</li>
         </ul>
       </section>
 
@@ -94,8 +89,12 @@ export function HowTo({ writingHand }: HowToProps) {
           <li>Chords and arp stacks every note into a chord, and the arpeggiator plays it one note at a time.</li>
           <li>
             With the camera on, wink your left eye to turn the arpeggiator on or off, and your right eye for chords.
-            Open your mouth to spread them: wider chords, and arpeggios over more octaves. If the winks come out the
-            wrong way round, use Swap winks in Chords and arp.
+            The orbs in the top bar light as each eye closes, so you can see what the camera reads. If the winks come
+            out the wrong way round, use Swap winks in Chords and arp.
+          </li>
+          <li>
+            Open your mouth wide to drop a robot where your face is. Tilt your head left or right to choose which
+            robot.
           </li>
           <li>
             Robots walk the grid by themselves. The Singer glides a held note, the Swapper changes sounds, the Eater

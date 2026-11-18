@@ -533,6 +533,8 @@ export function drawTipLabels(
   palm: Point | null,
   title: string | null,
   inks?: readonly string[],
+  /** The palm pill's fill; plum unless given. */
+  titleInk?: string,
 ): void {
   ctx.save()
   ctx.textAlign = 'center'
@@ -560,7 +562,7 @@ export function drawTipLabels(
   })
   if (palm && title) {
     const p = toPx(grid, palm)
-    pill(p.x, p.y + 6, title, PLUM, WHITE, 18)
+    pill(p.x, p.y + 6, title, titleInk ?? PLUM, titleInk ? PLUM : WHITE, 15)
   }
   ctx.restore()
 }

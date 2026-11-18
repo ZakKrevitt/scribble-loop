@@ -320,3 +320,24 @@
     order: 2;
   }
 }
+
+/* The face readout: an orb per eye that lights as it shuts, and a bar for the mouth. */
+.facehud {
+  display: inline-flex;
+  align-items: center;
+  gap: 0.4rem;
+}
+.facehud .mouth {
+  position: relative;
+  width: 3rem;
+  height: 0.5rem;
+  border: 1px solid var(--neon-dim);
+  background: oklch(0.2 0.06 345);
+  clip-path: polygon(4px 0, 100% 0, 100% calc(100% - 4px), calc(100% - 4px) 100%, 0 100%, 0 4px);
+}
+.facehud .mouth span {
+  position: absolute;
+  inset: 0 auto 0 0;
+  background: var(--neon);
+  box-shadow: 0 0 8px var(--neon);
+}

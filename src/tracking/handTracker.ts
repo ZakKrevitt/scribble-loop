@@ -56,6 +56,10 @@ export interface FaceReading {
   blinkLeft: number
   blinkRight: number
   jaw: number
+  /** Head tilt in radians as the player sees it on screen: negative leans left, positive right. */
+  tilt: number
+  /** The nose tip, in camera image fractions. */
+  nose: Point
 }
 
 export interface FaceTracker {
@@ -82,11 +86,25 @@ export async function createFaceTracker(): Promise<FaceTracker> {
   }
   return {
     detect(video, timeMs) {
-      const shapes = landmarker.detectForVideo(video, timeMs).faceBlendshapes?.[0]?.categories
-      if (!shapes) return null
+      const result = landmarker.detectForVideo(video, timeMs)
+      const shapes = result.faceBlendshapes?.[0]?.categories
+      const points = result.faceLandmarks?.[0]
+      if (!shapes || !points) return null
       const score = (name: string) => shapes.find((c) => c.categoryName === name)?.score ?? 0
+      // The line between the outer eye corners. The image is unmirrored, so flip x to read the
+      // tilt the player sees: a head leaning to the player's left reads negative.
+      const a = points[33]
+      const b = points[263]
+      const aspect = video.videoWidth / video.videoHeight || 1
+      const tilt = Math.atan2(-(b.y - a.y), (b.x - a.x) * aspect)
       // MediaPipe follows ARKit's naming, where eyeBlinkLeft is the person's own left eye.
-      return { blinkLeft: score('eyeBlinkLeft'), blinkRight: score('eyeBlinkRight'), jaw: score('jawOpen') }
+      return {
+        blinkLeft: score('eyeBlinkLeft'),
+        blinkRight: score('eyeBlinkRight'),
+        jaw: score('jawOpen'),
+        tilt,
+        nose: { x: points[1].x, y: points[1].y },
+      }
     },
     close() {
       landmarker.close()

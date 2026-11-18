@@ -56,7 +56,7 @@ import {
   type FaceTracker,
   type HandTracker,
 } from "@/tracking/handTracker";
-import type { Wink } from "@/tracking/face";
+import type { FaceState, Wink } from "@/tracking/face";
 import { HowTo } from "./HowTo";
 
 type Camera = "off" | "loading" | "on" | "blocked" | "failed";
@@ -71,8 +71,6 @@ const START: Settings = {
   arp: "Off",
   arpRate: "1/16",
 };
-
-const FINGER_NAMES = ["index", "middle", "ring", "little"] as const;
 
 /** A robot that leaves things behind keeps at most this many on the grid, oldest going first. */
 const MAX_DROPS = 12;
@@ -300,11 +298,36 @@ export default function App() {
   );
 
   const nextPen = useCallback(() => {
-    setSettings((s) => ({
-      ...s,
-      lead: LEADS[(LEADS.indexOf(s.lead) + 1) % LEADS.length],
-    }));
-  }, []);
+    const next =
+      LEADS[(LEADS.indexOf(settingsRef.current.lead) + 1) % LEADS.length];
+    setSettings((s) => ({ ...s, lead: next }));
+    say(next);
+  }, [say]);
+
+  /** Tilting the head steps the robot an open mouth will drop: left goes back, right goes on. */
+  const tiltBot = useCallback(
+    (side: Wink) => {
+      setDeployBot((current) => {
+        const step = side === "right" ? 1 : BOTS.length - 1;
+        const next = BOTS[(BOTS.indexOf(current) + step) % BOTS.length];
+        say(`Mouth drops ${BOT_INFO[next].name}`);
+        return next;
+      });
+    },
+    [say],
+  );
+
+  // What the camera reads off the face. The stage writes into this object every frame; the
+  // readout in the top bar copies it a few times a second.
+  const face = useMemo<FaceState>(
+    () => ({ found: false, left: 0, right: 0, mouth: 0 }),
+    [],
+  );
+  const [faceView, setFaceView] = useState<FaceState>({ ...face });
+  useEffect(() => {
+    const id = window.setInterval(() => setFaceView({ ...face }), 120);
+    return () => window.clearInterval(id);
+  }, [face]);
 
   const addRobot = useCallback(
     (bot: BotType, at?: Point) => {
@@ -422,7 +445,7 @@ export default function App() {
   const hint = withCamera
     ? writingHand === null
       ? "Both hands play pedals: pinch a finger to your thumb, make a fist to change pedal. Draw with the mouse."
-      : `${writingHand === "right" ? "Right" : "Left"} hand: pinch a finger to your thumb to draw, each finger its own sound, make a fist then open it to drop a robot. ${effectsHand === "left" ? "Left" : "Right"} hand: pinch to play a pedal, make a fist to change pedal.`
+      : `${writingHand === "right" ? "Right" : "Left"} hand: pinch thumb and index to draw, make a fist to change sound. Open your mouth to drop a robot. ${effectsHand === "left" ? "Left" : "Right"} hand: pinch to play a pedal, make a fist to change pedal.`
     : mode === "effects"
       ? `Drag to play the ${mousePedal} pedal. Higher is stronger. Change it in Pedals.`
       : "Drag for a melody. Press and hold for a drum. Alt-click a line to change its sound.";
@@ -469,8 +492,8 @@ export default function App() {
         />
         <p className="text-[15px] font-medium text-[var(--text-secondary)]">
           Wink your {swapWinks ? "right" : "left"} eye for the arpeggiator, your{" "}
-          {swapWinks ? "left" : "right"} for chords. Open your mouth to spread
-          them wider.
+          {swapWinks ? "left" : "right"} for chords. The eye orbs in the top bar
+          light as each eye closes.
         </p>
         <Switch
           label="Swap winks"
@@ -491,6 +514,25 @@ export default function App() {
         {side === "left" ? "Left" : "Right"} hand
         <span>Pedals. A fist moves to the next one.</span>
       </h2>
+      <div className="grid gap-1.5">
+        <span className="text-[15px] font-medium text-[var(--text-secondary)]">
+          Pedal hands
+        </span>
+        <SegmentedControl
+          label="Pedal hands"
+          fullWidth
+          value={effectsHand}
+          onValueChange={(v) => {
+            releaseAll();
+            setEffectsHand(v as PedalHands);
+          }}
+          options={[
+            { value: "left", label: "Left" },
+            { value: "both", label: "Both" },
+            { value: "right", label: "Right" },
+          ]}
+        />
+      </div>
       <div className="grid gap-1.5">
         {EFFECTS.map((name) => {
           const on = pedalBySide[side] === name;
@@ -538,12 +580,12 @@ export default function App() {
         {side ? `${side === "left" ? "Left" : "Right"} hand` : "Mouse"}
         <span>
           {side
-            ? "Pinch a finger to draw in its sound."
+            ? "Pinch thumb and index to draw. A fist changes the sound."
             : "Sound for new lines."}
         </span>
       </h2>
       <div className="grid gap-1.5">
-        {LEADS.map((lead, i) => (
+        {LEADS.map((lead) => (
           <Button
             key={lead}
             variant={settings.lead === lead ? "primary" : "secondary"}
@@ -560,11 +602,6 @@ export default function App() {
               style={{ "--orb": LEAD_INK[lead] } as React.CSSProperties}
             />
             <span>{lead}</span>
-            {side && (
-              <span className="ml-auto font-medium opacity-75">
-                {FINGER_NAMES[i]}
-              </span>
-            )}
           </Button>
         ))}
       </div>
@@ -595,7 +632,7 @@ export default function App() {
       />
       {side && (
         <Select
-          label="A fist drops"
+          label="Mouth drops (tilt your head to change)"
           value={deployBot}
           options={BOTS.map((bot) => ({
             value: bot,
@@ -682,6 +719,32 @@ export default function App() {
             disabled={camera === "loading"}
             onCheckedChange={(on) => (on ? void cameraOn() : cameraOff())}
           />
+          {withCamera && faceOn && (
+            <span
+              className="facehud"
+              title="What the camera reads off your face"
+              aria-label={faceView.found ? "Face found" : "No face found"}
+            >
+              <span
+                className="orb"
+                data-on={faceView.left > 0.42 || undefined}
+                aria-hidden="true"
+              />
+              <span
+                className="orb"
+                data-on={faceView.right > 0.42 || undefined}
+                aria-hidden="true"
+              />
+              <span className="mouth" aria-hidden="true">
+                <span
+                  style={{ width: `${Math.round(faceView.mouth * 100)}%` }}
+                />
+              </span>
+              {!faceView.found && (
+                <span className="text-[15px] font-medium">No face</span>
+              )}
+            </span>
+          )}
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost">How to play</Button>
@@ -718,6 +781,8 @@ export default function App() {
           onWink={wink}
           deployBot={deployBot}
           onDeploy={(at, bot) => addRobot(bot, at)}
+          onTilt={tiltBot}
+          face={face}
           onPlace={place}
           onErase={erase}
           onRecolor={recolor}
@@ -800,21 +865,6 @@ export default function App() {
           >
             Clear
           </Button>
-          <div className="w-52 shrink-0">
-            <Select
-              label="Pedal hand"
-              value={effectsHand}
-              options={[
-                { value: "left", label: "Pedals: left hand" },
-                { value: "right", label: "Pedals: right hand" },
-                { value: "both", label: "Pedals: both hands" },
-              ]}
-              onValueChange={(v) => {
-                releaseAll();
-                setEffectsHand(v as PedalHands);
-              }}
-            />
-          </div>
         </div>
       </main>
 
