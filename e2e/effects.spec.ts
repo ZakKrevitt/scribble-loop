@@ -3,7 +3,7 @@ import { expect, test } from '@playwright/test'
 test('the mouse plays a pedal in effects mode and lets go on release', async ({ page }) => {
   await page.goto('/?debug')
   await page.getByRole('button', { name: 'Start with mouse' }).click()
-  await page.locator('header').getByText('Effects', { exact: true }).click()
+  await page.getByRole('group', { name: 'What the mouse does' }).getByText('Effects', { exact: true }).click()
   const effects = () => page.evaluate(() => JSON.stringify((window as any).scribble.engine.effects))
 
   const box = (await page.locator('canvas').boundingBox())!
@@ -27,7 +27,7 @@ test('drum timing snaps drums to the grid or leaves them free', async ({ page })
   await expect(page.getByRole('status')).toHaveText('0 lines, 1 drum, 0 robots')
 
   await page.getByRole('combobox', { name: 'Quantize drums' }).click()
-  await page.getByRole('option', { name: 'Quantize off' }).click()
+  await page.getByRole('option', { name: 'Off', exact: true }).click()
   await expect.poll(() => page.evaluate(() => (window as any).scribble.engine['settings'].drumGrid)).toBe('Free')
   await expect
     .poll(() => page.evaluate(() => (window as any).scribble.engine.stats.drums), { timeout: 8000 })
@@ -72,11 +72,10 @@ test('chords stack notes on a line and the arpeggiator plucks them in turn', asy
 test('the echo pedal speeds up as the hand or mouse moves up', async ({ page }) => {
   await page.goto('/?debug')
   await page.getByRole('button', { name: 'Start with mouse' }).click()
-  await page.getByRole('button', { name: 'Pedals' }).click()
+  await page.getByRole('group', { name: 'What the mouse does' }).getByText('Effects', { exact: true }).click()
   await page.getByRole('combobox', { name: 'Mouse plays' }).click()
-  await page.getByRole('option', { name: 'Echo', exact: true }).click()
-  await page.keyboard.press('Escape')
-  await page.locator('header').getByText('Effects', { exact: true }).click()
+  await page.getByRole('option', { name: 'Mouse: Echo', exact: true }).click()
+  await page.getByRole('listbox').waitFor({ state: 'detached' })
   const detail = () => page.evaluate(() => (window as any).scribble.engine.effects.Echo?.detail as string | undefined)
 
   const box = (await page.locator('canvas').boundingBox())!

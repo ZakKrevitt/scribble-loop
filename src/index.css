@@ -138,3 +138,44 @@
 .bar button[aria-haspopup='menu'] {
   min-height: var(--control-height-md);
 }
+
+/* Hand panels: each side of the screen belongs to the hand on that side. */
+.side {
+  min-height: 0;
+  overflow-y: auto;
+  padding: 0.75rem;
+}
+.panel {
+  display: grid;
+  align-content: start;
+  gap: 0.75rem;
+  border-radius: var(--radius-panel);
+  background: oklch(0.985 0.012 345 / 0.92);
+  padding: 1rem;
+  box-shadow: var(--shadow-raised);
+}
+.panel h2 {
+  display: grid;
+  gap: 0.15rem;
+  font-size: 15px;
+  font-weight: 800;
+}
+.panel h2 span {
+  font-weight: 500;
+  color: var(--text-secondary);
+}
+.booth main {
+  background: var(--background);
+}
+@media (max-width: 1023px) {
+  .side {
+    padding: 0.5rem 0.75rem;
+  }
+  .side .panel {
+    grid-template-columns: repeat(auto-fill, minmax(10rem, 1fr));
+    align-items: center;
+  }
+  .side .panel h2 {
+    grid-column: 1 / -1;
+  }
+}

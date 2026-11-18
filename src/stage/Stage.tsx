@@ -17,6 +17,7 @@ import {
 } from '@/model/score'
 import { Smoother, readHand, type Pose, type Touch } from '@/tracking/gestures'
 import type { HandTracker } from '@/tracking/handTracker'
+import { FxLayer } from './fx'
 import {
   BOT_TINT,
   LEAD_INK,
@@ -208,6 +209,9 @@ export function Stage(props: StageProps) {
       pointLine: null,
       pointIdleSince: null,
     }))
+
+    const fx = new FxLayer()
+    let lastFrame = performance.now()
 
     /** Where each pressed pedal is drawn, in grid fractions. */
     const marks = new Map<EffectName, Point>()
@@ -491,7 +495,20 @@ export function Stage(props: StageProps) {
     const render = (now: number) => {
       const { items, settings, engine, mode } = live.current
       ctx.clearRect(0, 0, width, height)
+      // The pedals' animations creep in as they are pressed; none of it runs with reduced motion.
+      const animate = !still.matches
+      if (animate) fx.update(Math.min(0.1, (now - lastFrame) / 1000), engine.effects, grid)
+      lastFrame = now
+      ctx.save()
+      if (animate) {
+        const shake = fx.shake()
+        ctx.translate(shake.x, shake.y)
+      }
       drawGrid(ctx, grid)
+      if (animate) {
+        fx.drawBack(ctx)
+        fx.drawEchoes(ctx, grid, items, settings.drumGrid)
+      }
 
       const position = engine.position()
       const step = position === null ? -1 : Math.min(STEPS - 1, Math.floor(position * STEPS))
@@ -557,6 +574,8 @@ export function Stage(props: StageProps) {
 
       if (position !== null) drawPlayhead(ctx, grid, position)
       for (const g of glints) drawGlint(ctx, g.x, g.y, 18)
+      if (animate) fx.drawFront(ctx)
+      ctx.restore()
 
       // Every pedal that is pressed or held shows where it is being played.
       for (const [name, value] of Object.entries(engine.effects) as [EffectName, { x: number; y: number; detail: string }][]) {

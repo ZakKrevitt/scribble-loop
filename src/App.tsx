@@ -47,7 +47,7 @@ import {
   type ScaleName,
 } from "@/model/score";
 import { BOT_INFO } from "@/robots/bots";
-import { BOT_TINT } from "@/stage/draw";
+import { BOT_TINT, LEAD_INK } from "@/stage/draw";
 import { Stage, type Mode, type PedalHands, type Side } from "@/stage/Stage";
 import { createHandTracker, type HandTracker } from "@/tracking/handTracker";
 import { HowTo } from "./HowTo";
@@ -64,6 +64,8 @@ const START: Settings = {
   arp: "Off",
   arpRate: "1/16",
 };
+
+const FINGER_NAMES = ["index", "middle", "ring", "little"] as const;
 
 /** A robot that leaves things behind keeps at most this many on the grid, oldest going first. */
 const MAX_DROPS = 12;
@@ -154,6 +156,23 @@ export default function App() {
     return () => {
       engine.onEdit = null;
     };
+  }, [engine]);
+
+  // Which pedals are sounding, so each hand's panel can show it. The pedals live in the audio
+  // engine, so this checks a few times a second rather than on every frame.
+  const [playingPedals, setPlayingPedals] = useState<Set<EffectName>>(
+    new Set(),
+  );
+  useEffect(() => {
+    const id = window.setInterval(() => {
+      const now = Object.keys(engine.effects).sort().join(",");
+      setPlayingPedals((prev) =>
+        [...prev].sort().join(",") === now
+          ? prev
+          : new Set(now ? (now.split(",") as EffectName[]) : []),
+      );
+    }, 150);
+    return () => window.clearInterval(id);
   }, [engine]);
 
   const cyclePedal = useCallback((side: Side) => {
@@ -350,14 +369,175 @@ export default function App() {
       ? `Drag to play the ${mousePedal} pedal. Higher is stronger. Change it in Pedals.`
       : "Drag for a melody. Press and hold for a drum. Alt-click a line to change its sound.";
 
-  return (
-    <div className="flex h-dvh flex-col">
-      <header className="bar grid gap-2 bg-bar px-4 py-2">
-        <h1 className="mr-2 self-center text-[15px] font-extrabold max-[1700px]:sr-only">
-          Scribble Loop
-        </h1>
+  const chordsPanel = (
+    <Popover>
+      <PopoverTrigger asChild>
+        <Button variant="secondary">Chords and arp</Button>
+      </PopoverTrigger>
+      <PopoverContent
+        side="left"
+        className="grid w-64 gap-3"
+        onInteractOutside={keepPanelOpen}
+        onFocusOutside={keepPanelOpen}
+      >
+        <Select
+          label="Chord"
+          value={settings.chord}
+          options={options(CHORDS)}
+          onValueChange={(v) =>
+            setSettings((s) => ({ ...s, chord: v as ChordName }))
+          }
+        />
+        <Select
+          label="Arpeggiator"
+          value={settings.arp}
+          options={options(ARPS)}
+          onValueChange={(v) =>
+            setSettings((s) => ({ ...s, arp: v as ArpName }))
+          }
+        />
+        <Select
+          label="Arpeggio speed"
+          value={settings.arpRate}
+          options={options(Object.keys(ARP_RATES))}
+          onValueChange={(v) =>
+            setSettings((s) => ({ ...s, arpRate: v as ArpRate }))
+          }
+        />
+      </PopoverContent>
+    </Popover>
+  );
 
-        <div className="flex flex-wrap items-center gap-2">
+  /** The panel for a hand that plays pedals: its pedals, lit where the fist has moved it. */
+  const pedalPanel = (side: Side) => (
+    <section
+      className="panel"
+      aria-label={`${side === "left" ? "Left" : "Right"} hand pedals`}
+    >
+      <h2>
+        {side === "left" ? "Left" : "Right"} hand
+        <span>Pedals. A fist moves to the next one.</span>
+      </h2>
+      <div className="grid gap-1.5">
+        {EFFECTS.map((name) => {
+          const on = pedalBySide[side] === name;
+          const live = playingPedals.has(name);
+          return (
+            <Button
+              key={name}
+              variant={on ? "primary" : "secondary"}
+              aria-pressed={on}
+              className="justify-between"
+              onClick={() => {
+                releaseAll();
+                setPedalBySide((p) => ({ ...p, [side]: name }));
+              }}
+            >
+              <span>{name}</span>
+              {live && <span className="font-medium">playing</span>}
+            </Button>
+          );
+        })}
+      </div>
+      <Switch
+        label="Hold pedals on"
+        checked={hold}
+        onCheckedChange={(on) => {
+          setHold(on);
+          if (!on) releaseAll();
+        }}
+      />
+      <Button variant="ghost" onClick={releaseAll}>
+        Release all pedals
+      </Button>
+    </section>
+  );
+
+  /** The panel for the writing hand: one sound per finger, then timing, chords and robots. */
+  const soundPanel = (side: Side | null) => (
+    <section className="panel" aria-label="Sounds">
+      <h2>
+        {side ? `${side === "left" ? "Left" : "Right"} hand` : "Mouse"}
+        <span>
+          {side
+            ? "Pinch a finger to draw in its sound."
+            : "Sound for new lines."}
+        </span>
+      </h2>
+      <div className="grid gap-1.5">
+        {LEADS.map((lead, i) => (
+          <Button
+            key={lead}
+            variant={settings.lead === lead ? "primary" : "secondary"}
+            aria-pressed={settings.lead === lead}
+            className="justify-start gap-2.5"
+            onClick={() =>
+              setSettings((s) => ({ ...s, lead: lead as LeadName }))
+            }
+          >
+            <span
+              className="block size-3.5 shrink-0 rounded-full ring-2 ring-white"
+              style={{ background: LEAD_INK[lead] }}
+            />
+            <span>{lead}</span>
+            {side && (
+              <span className="ml-auto font-medium opacity-75">
+                {FINGER_NAMES[i]}
+              </span>
+            )}
+          </Button>
+        ))}
+      </div>
+      <Select
+        label="Quantize drums"
+        value={settings.drumGrid}
+        options={options(Object.keys(DRUM_GRIDS), (v) =>
+          v === "Free" ? "Off" : v,
+        )}
+        onValueChange={(v) =>
+          setSettings((s) => ({ ...s, drumGrid: v as DrumGrid }))
+        }
+      />
+      {chordsPanel}
+      <DropdownMenu
+        label="Add a robot"
+        items={BOTS.map((bot: BotType) => ({
+          label: BOT_INFO[bot].name,
+          disabled: robots >= MAX_WALKERS,
+          icon: (
+            <span
+              className="block size-3.5 rounded-full"
+              style={{ background: BOT_TINT[bot] }}
+            />
+          ),
+          onSelect: () => addRobot(bot),
+        }))}
+      />
+    </section>
+  );
+
+  const leftPanel =
+    effectsHand === "right" ? soundPanel("left") : pedalPanel("left");
+  const rightPanel =
+    effectsHand === "both" ? (
+      <div className="grid content-start gap-3">
+        {pedalPanel("right")}
+        {soundPanel(null)}
+      </div>
+    ) : effectsHand === "right" ? (
+      pedalPanel("right")
+    ) : (
+      soundPanel("right")
+    );
+
+  return (
+    <div className="booth grid h-dvh grid-cols-[15rem_minmax(0,1fr)_15rem] bg-bar max-lg:grid-cols-1 max-lg:grid-rows-[auto_auto_minmax(0,1fr)]">
+      <h1 className="sr-only">Scribble Loop</h1>
+
+      <aside className="side max-lg:order-2">{leftPanel}</aside>
+
+      <main className="flex min-h-0 min-w-0 flex-col max-lg:order-3">
+        <div className="bar flex flex-wrap items-center justify-center gap-2 px-3 py-2">
           <Button
             variant="primary"
             className="min-w-20"
@@ -366,7 +546,6 @@ export default function App() {
           >
             {playing ? "Stop" : "Play"}
           </Button>
-
           <div className="flex shrink-0 items-center gap-2">
             <div className="w-28">
               <Slider
@@ -386,7 +565,6 @@ export default function App() {
               {settings.bpm} bpm
             </span>
           </div>
-
           <div className="w-24 shrink-0">
             <Select
               label="Key"
@@ -407,67 +585,87 @@ export default function App() {
               }
             />
           </div>
-          <div className="w-32 shrink-0">
-            <Select
-              label="Sound for new lines"
-              value={settings.lead}
-              options={options(LEADS)}
-              onValueChange={(v) =>
-                setSettings((s) => ({ ...s, lead: v as LeadName }))
-              }
-            />
-          </div>
-          <div className="w-40 shrink-0">
-            <Select
-              label="Quantize drums"
-              value={settings.drumGrid}
-              options={options(Object.keys(DRUM_GRIDS), (v) =>
-                v === "Free" ? "Quantize off" : `Quantize ${v}`,
-              )}
-              onValueChange={(v) =>
-                setSettings((s) => ({ ...s, drumGrid: v as DrumGrid }))
-              }
-            />
-          </div>
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="secondary">Chords and arp</Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="grid w-64 gap-3"
-              onInteractOutside={keepPanelOpen}
-              onFocusOutside={keepPanelOpen}
-            >
-              <Select
-                label="Chord"
-                value={settings.chord}
-                options={options(CHORDS)}
-                onValueChange={(v) =>
-                  setSettings((s) => ({ ...s, chord: v as ChordName }))
-                }
-              />
-              <Select
-                label="Arpeggiator"
-                value={settings.arp}
-                options={options(ARPS)}
-                onValueChange={(v) =>
-                  setSettings((s) => ({ ...s, arp: v as ArpName }))
-                }
-              />
-              <Select
-                label="Arpeggio speed"
-                value={settings.arpRate}
-                options={options(Object.keys(ARP_RATES))}
-                onValueChange={(v) =>
-                  setSettings((s) => ({ ...s, arpRate: v as ArpRate }))
-                }
-              />
-            </PopoverContent>
-          </Popover>
+          <Switch
+            label={camera === "loading" ? "Starting camera" : "Camera"}
+            checked={withCamera}
+            disabled={camera === "loading"}
+            onCheckedChange={(on) => (on ? void cameraOn() : cameraOff())}
+          />
+          <Dialog>
+            <DialogTrigger asChild>
+              <Button variant="ghost">How to play</Button>
+            </DialogTrigger>
+            <DialogContent title="How to play">
+              <HowTo writingHand={writingHand} />
+            </DialogContent>
+          </Dialog>
         </div>
 
-        <div className="flex flex-wrap items-center gap-2">
+        {CAMERA_NOTE[camera] && (
+          <p
+            role="alert"
+            className="bg-primary px-4 py-2 text-[15px] font-medium text-primary-foreground"
+          >
+            {CAMERA_NOTE[camera]}
+          </p>
+        )}
+
+        <Stage
+          items={items}
+          settings={settings}
+          engine={engine}
+          mode={mode}
+          effectsHand={effectsHand}
+          pedalBySide={pedalBySide}
+          onCyclePedal={cyclePedal}
+          mousePedal={mousePedal}
+          hold={hold}
+          stream={stream}
+          tracker={tracker}
+          onPlace={place}
+          onErase={erase}
+          onRecolor={recolor}
+          onNextPen={nextPen}
+        >
+          {!started && (
+            <div className="absolute inset-0 grid place-items-center p-6">
+              <div className="flex flex-col items-center gap-4">
+                <p className="pill">
+                  {writingHand === null
+                    ? "Both hands play the pedals."
+                    : `${writingHand === "right" ? "Right" : "Left"} hand writes notes. ${writingHand === "right" ? "Left" : "Right"} hand plays the pedals.`}
+                </p>
+                <div className="flex flex-wrap justify-center gap-3">
+                  <Button
+                    variant="primary"
+                    size="lg"
+                    disabled={camera === "loading"}
+                    onClick={() => {
+                      void play();
+                      void cameraOn();
+                    }}
+                  >
+                    Start with camera
+                  </Button>
+                  <Button
+                    variant="secondary"
+                    size="lg"
+                    onClick={() => void play()}
+                  >
+                    Start with mouse
+                  </Button>
+                </div>
+              </div>
+            </div>
+          )}
+          {started && (items.length < 3 || mode === "effects") && (
+            <p className="pill pointer-events-none absolute inset-x-0 bottom-5 mx-auto">
+              {hint}
+            </p>
+          )}
+        </Stage>
+
+        <div className="bar flex flex-wrap items-center justify-center gap-2 px-3 py-2">
           <SegmentedControl
             label="What the mouse does"
             value={mode}
@@ -478,80 +676,16 @@ export default function App() {
               { value: "effects", label: "Effects" },
             ]}
           />
-
-          <DropdownMenu
-            label="Robots"
-            items={BOTS.map((bot: BotType) => ({
-              label: BOT_INFO[bot].name,
-              disabled: robots >= MAX_WALKERS,
-              icon: (
-                <span
-                  className="block size-3.5 rounded-full"
-                  style={{ background: BOT_TINT[bot] }}
-                />
-              ),
-              onSelect: () => addRobot(bot),
-            }))}
-          />
-
-          <Popover>
-            <PopoverTrigger asChild>
-              <Button variant="secondary">Pedals</Button>
-            </PopoverTrigger>
-            <PopoverContent
-              className="grid w-72 gap-3"
-              onInteractOutside={keepPanelOpen}
-              onFocusOutside={keepPanelOpen}
-            >
-              <div className="grid gap-2">
-                <span className="text-[15px] font-bold">Pedal hand</span>
-                <SegmentedControl
-                  label="Pedal hand"
-                  fullWidth
-                  value={effectsHand}
-                  onValueChange={(v) => {
-                    releaseAll();
-                    setEffectsHand(v as PedalHands);
-                  }}
-                  options={[
-                    { value: "left", label: "Left" },
-                    { value: "right", label: "Right" },
-                    { value: "both", label: "Both" },
-                  ]}
-                />
-              </div>
-              {(["left", "right"] as const).map((side) => (
-                <Select
-                  key={side}
-                  label={`${side === "left" ? "Left" : "Right"} hand pedal (a fist changes it)`}
-                  value={pedalBySide[side]}
-                  options={options(EFFECTS)}
-                  onValueChange={(v) => {
-                    releaseAll();
-                    setPedalBySide((p) => ({ ...p, [side]: v as EffectName }));
-                  }}
-                />
-              ))}
+          {mode === "effects" && (
+            <div className="w-36 shrink-0">
               <Select
                 label="Mouse plays"
                 value={mousePedal}
-                options={options(EFFECTS)}
+                options={options(EFFECTS, (v) => `Mouse: ${v}`)}
                 onValueChange={(v) => setMousePedal(v as EffectName)}
               />
-              <Switch
-                label="Hold pedals on"
-                checked={hold}
-                onCheckedChange={(on) => {
-                  setHold(on);
-                  if (!on) releaseAll();
-                }}
-              />
-              <Button variant="secondary" onClick={releaseAll}>
-                Release all pedals
-              </Button>
-            </PopoverContent>
-          </Popover>
-
+            </div>
+          )}
           <Button variant="ghost" onClick={undo} disabled={past.length === 0}>
             Undo
           </Button>
@@ -562,97 +696,25 @@ export default function App() {
           >
             Clear
           </Button>
-
-          <div className="ml-auto flex items-center gap-3 self-center">
-            <Dialog>
-              <DialogTrigger asChild>
-                <Button variant="secondary">How to play</Button>
-              </DialogTrigger>
-              <DialogContent title="How to play">
-                <HowTo writingHand={writingHand} />
-              </DialogContent>
-            </Dialog>
-            <Switch
-              label={camera === "loading" ? "Starting camera" : "Camera"}
-              checked={withCamera}
-              disabled={camera === "loading"}
-              onCheckedChange={(on) => (on ? void cameraOn() : cameraOff())}
+          <div className="w-52 shrink-0">
+            <Select
+              label="Pedal hand"
+              value={effectsHand}
+              options={[
+                { value: "left", label: "Pedals: left hand" },
+                { value: "right", label: "Pedals: right hand" },
+                { value: "both", label: "Pedals: both hands" },
+              ]}
+              onValueChange={(v) => {
+                releaseAll();
+                setEffectsHand(v as PedalHands);
+              }}
             />
           </div>
         </div>
-      </header>
+      </main>
 
-      {CAMERA_NOTE[camera] && (
-        <p
-          role="alert"
-          className="bg-primary px-4 py-2 text-[15px] font-medium text-primary-foreground"
-        >
-          {CAMERA_NOTE[camera]}
-        </p>
-      )}
-
-      <Stage
-        items={items}
-        settings={settings}
-        engine={engine}
-        mode={mode}
-        effectsHand={effectsHand}
-        pedalBySide={pedalBySide}
-        onCyclePedal={cyclePedal}
-        mousePedal={mousePedal}
-        hold={hold}
-        stream={stream}
-        tracker={tracker}
-        onPlace={place}
-        onErase={erase}
-        onRecolor={recolor}
-        onNextPen={nextPen}
-      >
-        {!started && (
-          <div className="absolute inset-0 grid place-items-center p-6">
-            <div className="flex flex-col items-center gap-4">
-              <p className="pill">
-                Right hand writes notes. Left hand plays the pedals.
-              </p>
-              <div className="flex flex-wrap justify-center gap-3">
-                <Button
-                  variant="primary"
-                  size="lg"
-                  disabled={camera === "loading"}
-                  onClick={() => {
-                    void play();
-                    void cameraOn();
-                  }}
-                >
-                  Start with camera
-                </Button>
-                <Button
-                  variant="secondary"
-                  size="lg"
-                  onClick={() => void play()}
-                >
-                  Start with mouse
-                </Button>
-                <Dialog>
-                  <DialogTrigger asChild>
-                    <Button variant="ghost" size="lg">
-                      How to play
-                    </Button>
-                  </DialogTrigger>
-                  <DialogContent title="How to play">
-                    <HowTo writingHand={writingHand} />
-                  </DialogContent>
-                </Dialog>
-              </div>
-            </div>
-          </div>
-        )}
-        {started && (items.length < 3 || mode === "effects") && (
-          <p className="pill pointer-events-none absolute inset-x-0 bottom-5 mx-auto">
-            {hint}
-          </p>
-        )}
-      </Stage>
+      <aside className="side max-lg:order-1">{rightPanel}</aside>
 
       <p className="sr-only" role="status">
         {lines} {lines === 1 ? "line" : "lines"}, {drums}{" "}
