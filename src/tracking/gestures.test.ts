@@ -1,6 +1,6 @@
 import { describe, expect, it } from 'vitest'
 import type { Point } from '@/model/score'
-import { Smoother, readHand } from './gestures'
+import { HandSmoother, Smoother, SwatReader, readHand } from './gestures'
 
 /** A flat right hand, wrist at the bottom, fingers pointing up. */
 function hand(overrides: Record<number, Point> = {}): Point[] {
@@ -88,3 +88,43 @@ describe('Smoother', () => {
     expect(spread).toBeLessThan(1)
   })
 })
+
+describe('SwatReader', () => {
+  it('clears once for a fast sideways sweep of an open hand', () => {
+    const s = new SwatReader()
+    const fired = [0.1, 0.3, 0.5, 0.75].map((x, i) => s.read(x, 0.5, true, i * 70))
+    expect(fired).toEqual([false, false, false, true])
+    // Resting: another sweep straight after does nothing.
+    expect([0.75, 0.5, 0.3, 0.05].map((x, i) => s.read(x, 0.5, true, 400 + i * 70))).not.toContain(true)
+  })
+
+  it('does not count moving an open hand to a new spot, which slows down as it arrives', () => {
+    const s = new SwatReader()
+    const reposition = [0.15, 0.4, 0.62, 0.74, 0.75].map((x, i) => s.read(x, 0.5, true, i * 70))
+    expect(reposition).not.toContain(true)
+  })
+
+  it('ignores slow drifts, closed hands and up-and-down moves', () => {
+    const s = new SwatReader()
+    expect([0.2, 0.3, 0.4, 0.5, 0.6, 0.7].map((x, i) => s.read(x, 0.5, true, i * 200))).not.toContain(true)
+    expect([0.2, 0.4, 0.6, 0.8].map((x, i) => s.read(x, 0.5, false, 2000 + i * 60))).not.toContain(true)
+    expect([0.1, 0.4, 0.7, 0.95].map((y, i) => s.read(0.5 + i * 0.12, y, true, 4000 + i * 60))).not.toContain(true)
+  })
+})
+
+describe('HandSmoother', () => {
+  it('steadies jittering keypoints without lagging behind a real move for long', () => {
+    const h = new HandSmoother()
+    let out = [{ x: 0.5, y: 0.5 }]
+    let spread = 0
+    for (let i = 0; i < 90; i++) {
+      const next = h.next([{ x: 0.5 + (i % 2 ? 0.004 : -0.004), y: 0.5 }], i * 33)
+      if (i > 30) spread = Math.max(spread, Math.abs(next[0].x - out[0].x))
+      out = next
+    }
+    expect(spread).toBeLessThan(0.004)
+    for (let i = 90; i < 120; i++) out = h.next([{ x: 0.8, y: 0.5 }], i * 33)
+    expect(out[0].x).toBeGreaterThan(0.78)
+  })
+})
+

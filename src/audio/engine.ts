@@ -29,7 +29,7 @@ import {
   type Point,
   type ScaleName,
 } from '@/model/score'
-import { STRIDE, startBody, walk, type BotBody } from '@/robots/bots'
+import { GAITS, STRIDE, startBody, walk, type BotBody } from '@/robots/bots'
 
 export interface Settings {
   bpm: number
@@ -152,7 +152,7 @@ interface Bot {
 }
 
 /** The pedals the hand can play in effects mode. */
-export const EFFECTS = ['Filter', 'Echo', 'Reverb', 'Drive', 'Crush'] as const
+export const EFFECTS = ['Filter', 'Echo', 'Reverb', 'Drive', 'Crush', 'Pitch'] as const
 export type EffectName = (typeof EFFECTS)[number]
 
 /**
@@ -165,6 +165,7 @@ export const PEDAL_OPTIONS: Record<EffectName, readonly [string, string, string,
   Reverb: ['Room', 'Hall', 'Cathedral', 'Endless'],
   Drive: ['Warm', 'Hard', 'Fuzz', 'Fold'],
   Crush: ['Light', 'Heavy', 'Broken', 'Shattered'],
+  Pitch: ['Glide', 'Semitones', 'Fifths', 'Octaves'],
 }
 
 /** The four drive characters: soft saturation, hard clipping, a heavy asymmetric fuzz and a wavefolder. */
@@ -196,6 +197,110 @@ function crushCurve(levels: number): Float32Array<ArrayBuffer> {
   return curve
 }
 
+/**
+ * A whole-mix pitch shifter built from two modulated delay lines, after Chris Wilson's Web Audio
+ * "Jungle" shifter: each delay sweeps its time on a sawtooth while the pair crossfades, so the
+ * signal is read back faster (higher) or slower (lower). Native nodes only, no worklet.
+ */
+class PitchShifter {
+  readonly input: GainNode
+  readonly output: GainNode
+  private upGains: GainNode[] = []
+  private downGains: GainNode[] = []
+  private depths: GainNode[] = []
+  private static readonly WINDOW = 0.1
+  private static readonly FADE = 0.05
+
+  constructor(ctx: AudioContext) {
+    const W = PitchShifter.WINDOW
+    const F = PitchShifter.FADE
+    this.input = ctx.createGain()
+    this.output = ctx.createGain()
+    const sr = ctx.sampleRate
+    const active = Math.floor(W * sr)
+    const length = active + Math.floor((W - 2 * F) * sr)
+    const ramp = (up: boolean) => {
+      const b = ctx.createBuffer(1, length, sr)
+      const d = b.getChannelData(0)
+      for (let i = 0; i < active; i++) d[i] = up ? (active - i) / length : i / active
+      return b
+    }
+    const fade = (() => {
+      const b = ctx.createBuffer(1, length, sr)
+      const d = b.getChannelData(0)
+      const f = Math.floor(F * sr)
+      // Linear, not equal-power: both delay lines carry the same signal, so their levels add directly.
+      for (let i = 0; i < active; i++) d[i] = i < f ? i / f : i >= active - f ? 1 - (i - (active - f)) / f : 1
+      return b
+    })()
+    const down = ramp(false)
+    const up = ramp(true)
+    const start = ctx.currentTime + 0.05
+    const later = start + W - F
+    for (const at of [start, later]) {
+      const delay = ctx.createDelay(1)
+      const depth = ctx.createGain()
+      depth.gain.value = 0
+      depth.connect(delay.delayTime)
+      for (const [buffer, list, on] of [
+        [down, this.downGains, 1],
+        [up, this.upGains, 0],
+      ] as const) {
+        const src = ctx.createBufferSource()
+        src.buffer = buffer
+        src.loop = true
+        const g = ctx.createGain()
+        g.gain.value = on
+        src.connect(g).connect(depth)
+        src.start(at)
+        list.push(g)
+      }
+      const mix = ctx.createGain()
+      mix.gain.value = 0
+      const fader = ctx.createBufferSource()
+      fader.buffer = fade
+      fader.loop = true
+      fader.connect(mix.gain)
+      fader.start(at)
+      this.input.connect(delay).connect(mix).connect(this.output)
+      this.depths.push(depth)
+    }
+  }
+
+  private upward = false
+
+  /**
+   * Shift by `semitones`, up to an octave either way. Turning between up and down first eases the
+   * delay depth to nothing, so the read position never jumps mid-sweep.
+   */
+  set(semitones: number, time: number): void {
+    const ratio = 2 ** (semitones / 12)
+    const upward = ratio >= 1
+    const amount = upward ? ratio - 1 : 1 - ratio
+    let at = time
+    if (upward !== this.upward) {
+      for (const d of this.depths) d.gain.setTargetAtTime(0, time, 0.008)
+      at = time + 0.04
+      for (const g of this.upGains) g.gain.setValueAtTime(upward ? 1 : 0, at)
+      for (const g of this.downGains) g.gain.setValueAtTime(upward ? 0 : 1, at)
+      this.upward = upward
+    }
+    for (const d of this.depths) d.gain.setTargetAtTime(PitchShifter.WINDOW * amount, at, 0.03)
+  }
+}
+
+/** The pitch pedal's shift in semitones for a height on the grid (0 top, 1 bottom) and variant. */
+export function pitchShift(y: number, option: number): number {
+  const raw = (0.5 - Math.min(1, Math.max(0, y))) * 24
+  if (option === 1) return Math.round(raw)
+  if (option === 2) {
+    const steps = [-12, -7, -5, 0, 5, 7, 12]
+    return steps.reduce((best, s) => (Math.abs(s - raw) < Math.abs(best - raw) ? s : best), 0)
+  }
+  if (option === 3) return Math.round(raw / 12) * 12
+  return Math.round(raw * 10) / 10
+}
+
 interface Pedals {
   filter: BiquadFilterNode
   wobble: OscillatorNode
@@ -214,7 +319,16 @@ interface Pedals {
   echoFeedback: GainNode
   /** One send per reverb size, so changing size never swaps a buffer under a playing signal. */
   hallSends: GainNode[]
+  /** Which rooms are plugged in yet, and what feeds them. */
+  hallPlugged: boolean[]
+  hallFeeds: AudioNode[]
   hallTone: BiquadFilterNode
+  /** Built on first use: until then the pitch pedal costs nothing. */
+  shifter: PitchShifter | null
+  pitchFeed: AudioNode
+  pitchOut: AudioNode
+  pitchDry: GainNode
+  pitchWet: GainNode
 }
 
 /** How close a robot must come to something to act on it, as a fraction of grid height. */
@@ -306,81 +420,113 @@ function clipCurve(drive: number): Float32Array<ArrayBuffer> {
   return curve
 }
 
-/** One monophonic lead voice. Each line on the grid owns one. */
+/** The oscillators behind one sounding phrase of a lead voice; they exist only while it sounds. */
+interface LeadSources {
+  pitch: ConstantSourceNode
+  oscillators: OscillatorNode[]
+  modDepth: GainNode | null
+}
+
+/**
+ * Where a lead voice is in its life. Idle has no oscillators. Sounding has live ones. Releasing has
+ * ones fading out that stop on their own at `until`; a new note never revives them, it builds fresh
+ * ones, so a late or stalled tick cannot land on oscillators that have already ended.
+ */
+type VoicePhase =
+  | { kind: 'idle' }
+  | { kind: 'sounding'; src: LeadSources; row: number }
+  | { kind: 'releasing'; until: number }
+
+/**
+ * One monophonic lead voice. Each line (and each note of its chord) owns one. The filter and level
+ * stay put; the oscillators are built when a note starts and stopped once it has faded, so a silent
+ * line costs nothing.
+ */
 class LeadVoice {
-  private pitch: ConstantSourceNode
-  private oscillators: OscillatorNode[] = []
-  private modDepth: GainNode | null = null
+  private phase: VoicePhase = { kind: 'idle' }
   private filter: BiquadFilterNode
   private amp: GainNode
-  on = false
-  row = -1
   private ctx: AudioContext
   private preset: LeadPreset
 
   constructor(ctx: AudioContext, preset: LeadPreset, out: AudioNode) {
     this.ctx = ctx
     this.preset = preset
-    const p = preset
-    this.pitch = ctx.createConstantSource()
-    this.pitch.offset.value = 220
     this.filter = ctx.createBiquadFilter()
     this.filter.type = 'lowpass'
-    this.filter.frequency.value = p.cutoff.rest
-    this.filter.Q.value = p.cutoff.q
+    this.filter.frequency.value = preset.cutoff.rest
+    this.filter.Q.value = preset.cutoff.q
     this.amp = ctx.createGain()
     this.amp.gain.value = 0
     this.filter.connect(this.amp).connect(out)
+  }
 
-    let modOut: GainNode | null = null
+  /** Whether a note is sounding. */
+  get on(): boolean {
+    return this.phase.kind === 'sounding'
+  }
+
+  /** The row of the sounding note, or -1. */
+  get row(): number {
+    return this.phase.kind === 'sounding' ? this.phase.row : -1
+  }
+
+  private build(time: number): LeadSources {
+    const ctx = this.ctx
+    const p = this.preset
+    const pitch = ctx.createConstantSource()
+    pitch.offset.value = 220
+    const oscillators: OscillatorNode[] = []
+    let modDepth: GainNode | null = null
     if (p.fm) {
       const mod = ctx.createOscillator()
       mod.frequency.value = 0
       const ratio = ctx.createGain()
       ratio.gain.value = p.fm.ratio
-      this.pitch.connect(ratio).connect(mod.frequency)
-      modOut = ctx.createGain()
-      modOut.gain.value = 0
-      mod.connect(modOut)
-      mod.start()
-      this.oscillators.push(mod)
-      this.modDepth = modOut
+      pitch.connect(ratio).connect(mod.frequency)
+      modDepth = ctx.createGain()
+      modDepth.gain.value = 0
+      mod.connect(modDepth)
+      oscillators.push(mod)
     }
-
     const mix = 1 / Math.sqrt(p.detunes.length)
     p.detunes.forEach((cents, i) => {
       const osc = ctx.createOscillator()
       osc.type = p.wave
       osc.frequency.value = 0
       osc.detune.value = cents
-      this.pitch.connect(osc.frequency)
-      if (modOut) modOut.connect(osc.frequency)
+      pitch.connect(osc.frequency)
+      if (modDepth) modDepth.connect(osc.frequency)
       const gain = ctx.createGain()
       gain.gain.value = cents >= 1200 ? mix * 0.4 : mix
       const pan = ctx.createStereoPanner()
       const t = p.detunes.length > 1 ? i / (p.detunes.length - 1) : 0.5
       pan.pan.value = (t * 2 - 1) * p.spread
       osc.connect(gain).connect(pan).connect(this.filter)
-      osc.start()
-      this.oscillators.push(osc)
+      oscillators.push(osc)
     })
-
     if (p.sub) {
       const sub = ctx.createOscillator()
       sub.type = 'sine'
       sub.frequency.value = 0
       sub.detune.value = -1200
-      this.pitch.connect(sub.frequency)
+      pitch.connect(sub.frequency)
       const gain = ctx.createGain()
       gain.gain.value = 0.7
       sub.connect(gain).connect(this.filter)
-      sub.start()
-      this.oscillators.push(sub)
+      oscillators.push(sub)
     }
-    this.pitch.start()
+    const at = Math.max(time, ctx.currentTime)
+    for (const osc of oscillators) osc.start(at)
+    pitch.start(at)
+    return { pitch, oscillators, modDepth }
   }
 
-  /** Start a note, or move to a new pitch if one is already sounding. */
+  private static end(src: LeadSources, at: number): void {
+    for (const osc of src.oscillators) osc.stop(at)
+    src.pitch.stop(at)
+  }
+
   /**
    * Start a note, or move to a new pitch if one is already sounding.
    * `share` scales the level so a stacked chord is no louder than one note; `pluck` re-strikes it.
@@ -389,45 +535,62 @@ class LeadVoice {
     const p = this.preset
     const f = hz * 2 ** p.octave
     const level = p.level * share
-    if (pluck && this.on) {
-      this.pitch.offset.setValueAtTime(f, time)
-      this.amp.gain.setValueAtTime(level * 0.3, time)
-      this.amp.gain.setTargetAtTime(level, time, 0.004)
-    } else if (!this.on) {
-      if (p.bend) {
-        this.pitch.offset.setValueAtTime(f * 2 ** (p.bend / 12), time)
-        this.pitch.offset.exponentialRampToValueAtTime(f, time + 0.045)
+    if (this.phase.kind === 'sounding') {
+      const src = this.phase.src
+      if (pluck) {
+        src.pitch.offset.setValueAtTime(f, time)
+        this.amp.gain.setValueAtTime(level * 0.3, time)
+        this.amp.gain.setTargetAtTime(level, time, 0.004)
       } else {
-        this.pitch.offset.setValueAtTime(f, time)
+        src.pitch.offset.setTargetAtTime(f, time, p.glide)
       }
-      this.amp.gain.setTargetAtTime(level, time, p.attack)
+      this.phase = { kind: 'sounding', src, row }
+      this.strike(src, f, time)
+      return
+    }
+    // Idle or releasing: always fresh oscillators. Any still fading stop on their own.
+    const src = this.build(time)
+    if (p.bend) {
+      src.pitch.offset.setValueAtTime(f * 2 ** (p.bend / 12), time)
+      src.pitch.offset.exponentialRampToValueAtTime(f, time + 0.045)
     } else {
-      this.pitch.offset.setTargetAtTime(f, time, p.glide)
+      src.pitch.offset.setValueAtTime(f, time)
     }
-    this.filter.frequency.setValueAtTime(p.cutoff.peak, time)
-    this.filter.frequency.setTargetAtTime(p.cutoff.rest, time, p.cutoff.decay)
-    if (this.modDepth && p.fm) {
-      this.modDepth.gain.setValueAtTime(f * p.fm.peak, time)
-      this.modDepth.gain.setTargetAtTime(f * p.fm.index, time, p.fm.decay)
-    }
-    this.on = true
-    this.row = row
+    this.amp.gain.setTargetAtTime(level, time, p.attack)
+    this.phase = { kind: 'sounding', src, row }
+    this.strike(src, f, time)
   }
 
+  private strike(src: LeadSources, f: number, time: number): void {
+    const p = this.preset
+    this.filter.frequency.setValueAtTime(p.cutoff.peak, time)
+    this.filter.frequency.setTargetAtTime(p.cutoff.rest, time, p.cutoff.decay)
+    if (src.modDepth && p.fm) {
+      src.modDepth.gain.setValueAtTime(f * p.fm.peak, time)
+      src.modDepth.gain.setTargetAtTime(f * p.fm.index, time, p.fm.decay)
+    }
+  }
+
+  /** Let the note fade out from `time`; the oscillators stop once it is silent. */
   stop(time: number): void {
-    if (!this.on) return
+    if (this.phase.kind !== 'sounding') return
     this.amp.gain.setTargetAtTime(0, time, this.preset.release)
-    this.on = false
-    this.row = -1
+    // Six time constants of release is silence.
+    const until = time + this.preset.release * 6 + 0.05
+    LeadVoice.end(this.phase.src, until)
+    this.phase = { kind: 'releasing', until }
+  }
+
+  /** Silence now, dropping anything already scheduled ahead, as when the transport stops. */
+  halt(now: number): void {
+    this.amp.gain.cancelScheduledValues(now)
+    this.amp.gain.setTargetAtTime(0, now, 0.02)
+    if (this.phase.kind === 'sounding') LeadVoice.end(this.phase.src, now + 0.15)
+    this.phase = { kind: 'idle' }
   }
 
   dispose(): void {
-    const now = this.ctx.currentTime
-    this.amp.gain.cancelScheduledValues(now)
-    this.amp.gain.setTargetAtTime(0, now, 0.01)
-    const end = now + 0.2
-    for (const osc of this.oscillators) osc.stop(end)
-    this.pitch.stop(end)
+    this.halt(this.ctx.currentTime)
     setTimeout(() => this.amp.disconnect(), 400)
   }
 }
@@ -447,6 +610,7 @@ export class Engine {
   private reverb!: GainNode
   private noise!: AudioBuffer
   private fxIn!: GainNode
+  private master!: GainNode
   private pedals!: Pedals
   /** Which pedals are pressed right now, with their amount, height and variant, for the screen and for tests. */
   readonly effects: Partial<Record<EffectName, { x: number; y: number; option: number; detail: string }>> = {}
@@ -468,7 +632,7 @@ export class Engine {
   private queue: { step: number; time: number; length: number }[] = []
 
   /** Counts of what has been scheduled, for the status line and for tests. */
-  readonly stats = { notes: 0, drums: 0, robot: 0, edits: 0 }
+  readonly stats = { notes: 0, drums: 0, robot: 0 }
   /** Called as a drum fires or a robot acts, with the item and the audio time, so it can flash. */
   onDrum: ((itemId: number, time: number) => void) | null = null
   /** Called when a robot changes the song. */
@@ -550,6 +714,7 @@ export class Engine {
     clip.curve = clipCurve(1.6)
     clip.oversample = '2x'
     clip.connect(limiter).connect(out).connect(ctx.destination)
+    this.master = out
     this.fxIn = ctx.createGain()
     this.pedals = this.buildPedals(ctx, this.fxIn, clip)
 
@@ -614,7 +779,7 @@ export class Engine {
     const drivePre = ctx.createGain()
     const driveShape = ctx.createWaveShaper()
     driveShape.curve = driveCurve(0)
-    driveShape.oversample = '4x'
+    driveShape.oversample = '2x'
     const driveWet = ctx.createGain()
     driveWet.gain.value = 0
     filter.connect(driveDry).connect(afterDrive)
@@ -637,8 +802,16 @@ export class Engine {
     echoFeedback.gain.value = 0
     const echoReturn = ctx.createGain()
     echoReturn.gain.value = 0.7
-    afterCrush.connect(output)
-    afterCrush.connect(echoSend).connect(echo)
+    // Pitch sits after the crush, so the echo and the reverb repeat the shifted sound.
+    const afterPitch = ctx.createGain()
+    const pitchDry = ctx.createGain()
+    const pitchWet = ctx.createGain()
+    pitchWet.gain.value = 0
+    afterCrush.connect(pitchDry).connect(afterPitch)
+    pitchWet.connect(afterPitch)
+
+    afterPitch.connect(output)
+    afterPitch.connect(echoSend).connect(echo)
     echo.connect(echoFeedback).connect(echo)
     echo.connect(echoReturn).connect(output)
 
@@ -660,8 +833,7 @@ export class Engine {
       hall.buffer = impulse
       const send = ctx.createGain()
       send.gain.value = 0
-      afterCrush.connect(send)
-      echo.connect(send)
+      // Rooms stay unplugged until first played: a convolver costs CPU even when nothing reaches it.
       send.connect(hall).connect(hallTone)
       return send
     })
@@ -683,7 +855,14 @@ export class Engine {
       echoSend,
       echoFeedback,
       hallSends,
+      hallPlugged: hallSends.map(() => false),
+      hallFeeds: [afterPitch, echo],
       hallTone,
+      shifter: null,
+      pitchFeed: afterCrush,
+      pitchOut: pitchWet,
+      pitchDry,
+      pitchWet,
     }
   }
 
@@ -749,6 +928,10 @@ export class Engine {
       }
       case 'Reverb':
         // The variant is the size of the room; across is how much of it; up is brighter.
+        if (on && !p.hallPlugged[option]) {
+          for (const feed of p.hallFeeds) feed.connect(p.hallSends[option])
+          p.hallPlugged[option] = true
+        }
         p.hallSends.forEach((send, i) => send.gain.setTargetAtTime(on && i === option ? 0.05 + amount * 1.3 : 0, t, ease))
         p.hallTone.frequency.setTargetAtTime(900 * 2 ** (up * 4), t, ease)
         return name
@@ -756,12 +939,28 @@ export class Engine {
         // The variant is the character; across is the mix; up pushes it harder.
         if (on && option !== p.driveKind) {
           p.driveShape.curve = driveCurve(option)
+          // Fuzz and Fold are steep enough to alias, so they get the heavier oversampling.
+          p.driveShape.oversample = option >= 2 ? '4x' : '2x'
           p.driveKind = option
         }
         p.drivePre.gain.setTargetAtTime(1 + up * 30, t, ease)
         p.driveWet.gain.setTargetAtTime(on ? amount * 0.85 : 0, t, ease)
         p.driveDry.gain.setTargetAtTime(on ? 1 - amount * 0.85 : 1, t, ease)
         return name
+      case 'Pitch': {
+        // Up shifts higher, down lower, an octave either way; the variant snaps it; across is the mix.
+        const st = pitchShift(y, option)
+        if (on && !p.shifter) {
+          p.shifter = new PitchShifter(this.ctx)
+          p.pitchFeed.connect(p.shifter.input)
+          p.shifter.output.connect(p.pitchOut)
+        }
+        p.shifter?.set(st, t)
+        const wet = on ? amount : 0
+        p.pitchWet.gain.setTargetAtTime(wet, t, ease)
+        p.pitchDry.gain.setTargetAtTime(1 - wet, t, ease)
+        return `${st > 0 ? '+' : ''}${st} st`
+      }
       case 'Crush': {
         // The variant sets how broken it starts; up breaks it further; across is the mix.
         const base = [12, 6, 3, 2][option] ?? 6
@@ -776,6 +975,17 @@ export class Engine {
         return `${name} ${levels} steps`
       }
     }
+  }
+
+  /** The finished mix as a stream, for recording, and a way to unplug it when the recording ends. */
+  recordTap(): { stream: MediaStream; release: () => void } {
+    if (!this.ctx) {
+      this.ctx = this.build()
+      this.syncVoices()
+    }
+    const tap = this.ctx.createMediaStreamDestination()
+    this.master.connect(tap)
+    return { stream: tap.stream, release: () => this.master.disconnect(tap) }
   }
 
   async start(): Promise<void> {
@@ -797,7 +1007,7 @@ export class Engine {
     this.timer = null
     this.queue = []
     const now = this.now
-    for (const { voices } of this.voices.values()) for (const voice of voices) voice.stop(now)
+    for (const { voices } of this.voices.values()) for (const voice of voices) voice.halt(now)
     for (const bot of this.bots.values()) bot.voice?.hush(now)
   }
 
@@ -820,30 +1030,11 @@ export class Engine {
     }
   }
 
-  /** How open the chords and arpeggios are, 0 close to 1 wide. The face's mouth drives it. */
-  private spread = 0
-
-  setSpread(spread: number): void {
-    this.spread = Math.max(0, Math.min(1, spread))
-  }
-
-  /**
-   * The rows the current chord stacks on a line's note. An arpeggio with no chord climbs octaves.
-   * Spread opens the voicing: upper notes rise an octave, then alternate ones a second.
-   */
+  /** The rows the current chord stacks on a line's note. An arpeggio with no chord climbs octaves. */
   private chordShape(): number[] {
     const size = SCALES[this.settings.scale].length
     const chord = this.settings.arp !== 'Off' && this.settings.chord === 'Off' ? 'Octaves' : this.settings.chord
-    const s = this.spread
-    return chordRows(chord, size).map((r, i) => (i === 0 ? r : r + size * Math.round(s * (1 + (i % 2)))))
-  }
-
-  /** The arpeggio's notes: the chord, repeated up one to three octaves as the spread widens. */
-  private arpShape(): number[] {
-    const size = SCALES[this.settings.scale].length
-    const base = this.chordShape()
-    const octaves = 1 + Math.round(this.spread * 2)
-    return Array.from({ length: octaves }, (_, o) => base.map((r) => r + o * size)).flat()
+    return chordRows(chord, size)
   }
 
   private indexDrums(): void {
@@ -949,7 +1140,7 @@ export class Engine {
       } else {
         // One voice plucks the chord's notes in turn, several times a step when the rate is fast.
         const per = ARP_RATES[this.settings.arpRate]
-        const notes = this.arpShape()
+        const notes = this.chordShape()
         const order = arpOrder(arp, notes.length)
         let n = this.arpStep.get(id) ?? 0
         for (let k = 0; k < per; k++) {
@@ -976,7 +1167,7 @@ export class Engine {
     this.simTime = time
     const { key, scale } = this.settings
     for (const [id, bot] of this.bots) {
-      bot.body = walk(bot.body, dt, this.aspect)
+      bot.body = walk(bot.body, dt, this.aspect, Math.random, GAITS[bot.type])
       bot.trail.push({ t: time, body: bot.body })
       if (bot.trail.length > 8) bot.trail.shift()
       // Keep about four seconds of where it has been, one point every other step.

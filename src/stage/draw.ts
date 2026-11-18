@@ -6,6 +6,7 @@ import {
   midiForRow,
   noteName,
   drumX,
+  DRUM_GRIDS,
   type Blob,
   type BotType,
   type Drum,
@@ -56,6 +57,13 @@ export const DRUM_INK: Record<Drum, string> = {
 export const FONT = "'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif"
 
 const toPx = (r: Rect, p: Point): Point => ({ x: r.x + p.x * r.w, y: r.y + p.y * r.h })
+
+/** Soft drop shadows are the costliest part of drawing ink; ghost copies switch them off. */
+let shadows = true
+export function setShadows(on: boolean): void {
+  shadows = on
+}
+const shadowOf = () => (shadows ? SHADOW : 'transparent')
 
 /** The outline of each drum's sticker, in a box from -1 to 1. */
 function stickerPath(ctx: CanvasRenderingContext2D, drum: Drum): void {
@@ -117,7 +125,7 @@ export function drawSticker(
   ctx.scale(radius, radius)
   ctx.lineJoin = 'round'
   stickerPath(ctx, drum)
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 8
   ctx.shadowOffsetY = 3
   ctx.strokeStyle = WHITE
@@ -133,9 +141,16 @@ export function blobRadius(grid: Rect, size: number): number {
   return Math.max(9 + 5 * size, (0.016 + 0.026 * size) * Math.min(grid.h, grid.w * 0.7))
 }
 
-export function drawBlob(ctx: CanvasRenderingContext2D, grid: Rect, blob: Blob, scale: number, timing: DrumGrid): void {
+export function drawBlob(
+  ctx: CanvasRenderingContext2D,
+  grid: Rect,
+  blob: Blob,
+  scale: number,
+  timing: DrumGrid,
+  alpha = 1,
+): void {
   const p = toPx(grid, { x: drumX(blob.x, timing), y: blob.y })
-  drawSticker(ctx, drumFromY(blob.y), p.x, p.y, blobRadius(grid, blob.size) * scale)
+  drawSticker(ctx, drumFromY(blob.y), p.x, p.y, blobRadius(grid, blob.size) * scale, alpha)
 }
 
 const FRAME = 256
@@ -191,7 +206,7 @@ export function drawWalker(
   ctx.save()
   ctx.translate(x, y)
   ctx.scale(facing, 1)
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 8
   ctx.shadowOffsetY = 3
   ctx.drawImage(sheet, (frame % WALK_FRAMES) * FRAME, 0, FRAME, FRAME, -height / 2, -height / 2, height, height)
@@ -223,7 +238,7 @@ export function drawHand(ctx: CanvasRenderingContext2D, joints: Point[], parts: 
   const size = Math.hypot(joints[0].x - joints[9].x, joints[0].y - joints[9].y)
   const girth = Math.max(9, Math.min(26, size * 0.13))
   ctx.save()
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 5
   ctx.shadowOffsetY = 2
   for (const [a, b] of BONES) {
@@ -265,7 +280,7 @@ export function drawLine(
     const p = toPx(grid, points[i])
     ctx.lineTo(p.x, p.y)
   }
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 8
   ctx.shadowOffsetY = 3
   ctx.strokeStyle = WHITE
@@ -285,14 +300,20 @@ export function drawGlint(ctx: CanvasRenderingContext2D, x: number, y: number, r
   ctx.scale(radius, radius)
   stickerPath(ctx, 'hat')
   ctx.fillStyle = WHITE
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 6
   ctx.fill()
   ctx.restore()
 }
 
-export function drawGrid(ctx: CanvasRenderingContext2D, grid: Rect): void {
+export function drawGrid(ctx: CanvasRenderingContext2D, grid: Rect, timing: DrumGrid = '1/16'): void {
   ctx.save()
+  // Quantize guides: faint columns where drums snap to, when snapping is coarser than the grid.
+  const every = DRUM_GRIDS[timing]
+  if (every > 1) {
+    ctx.fillStyle = 'oklch(0.27 0.09 340 / 0.07)'
+    for (let s = 0; s < STEPS; s += every) ctx.fillRect(grid.x + (s / STEPS) * grid.w - 2, grid.y, 4, grid.h)
+  }
   // Registration ticks at every beat and row, dots between.
   for (let s = 0; s <= STEPS; s++) {
     const x = grid.x + (s / STEPS) * grid.w
@@ -354,7 +375,9 @@ export function drawNoteNames(
   ctx.lineWidth = 4
   ctx.strokeStyle = WHITE
   ctx.fillStyle = PLUM
-  const x = grid.x + grid.w + (ctx.canvas.clientWidth - grid.x - grid.w) / 2
+  // The canvas's width in CSS pixels; an offscreen layer has no clientWidth, so it comes from the scale.
+  const width = ctx.canvas.width / ctx.getTransform().a
+  const x = grid.x + grid.w + (width - grid.x - grid.w) / 2
   const row = grid.h / ROWS
   const every = row < size * 1.15 ? 2 : 1
   for (let r = 0; r < ROWS; r += every) {
@@ -388,7 +411,7 @@ export function drawCursor(
   ink = PLUM,
 ): void {
   ctx.save()
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 6
   ctx.shadowOffsetY = 2
   const ring = (radius: number) => {
@@ -455,7 +478,7 @@ export function drawPad(
   ctx.lineTo(p.x, grid.y + grid.h)
   ctx.stroke()
   ctx.setLineDash([])
-  ctx.shadowColor = SHADOW
+  ctx.shadowColor = shadowOf()
   ctx.shadowBlur = 8
   ctx.shadowOffsetY = 3
   ctx.beginPath()
@@ -545,7 +568,7 @@ export function drawTipLabels(
     const h = size * 1.75
     ctx.beginPath()
     ctx.roundRect(x - w / 2, y - h / 2, w, h, h / 2)
-    ctx.shadowColor = SHADOW
+    ctx.shadowColor = shadowOf()
     ctx.shadowBlur = 6
     ctx.shadowOffsetY = 2
     ctx.fillStyle = fill

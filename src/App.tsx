@@ -57,6 +57,8 @@ import {
   type HandTracker,
 } from "@/tracking/handTracker";
 import type { FaceState, Wink } from "@/tracking/face";
+import { FaceHud } from "./FaceHud";
+import { CLIP_SECONDS } from "./stage/recorder";
 import { HowTo } from "./HowTo";
 
 type Camera = "off" | "loading" | "on" | "blocked" | "failed";
@@ -99,8 +101,13 @@ export default function App() {
   const [settings, setSettings] = useState<Settings>(START);
   const [items, setItems] = useState<Item[]>([]);
   const [past, setPast] = useState<Item[][]>([]);
-  const [started, setStarted] = useState(false);
-  const [playing, setPlaying] = useState(false);
+  /** The transport: never started yet (the welcome shows), playing, or stopped after playing. */
+  const [transport, setTransport] = useState<"ready" | "playing" | "stopped">(
+    "ready",
+  );
+  const playing = transport === "playing";
+  /** Seconds into the clip being recorded, or null when not recording. */
+  const [recordSeconds, setRecordSeconds] = useState<number | null>(null);
   const [mode, setMode] = useState<Mode>("draw");
   const [effectsHand, setEffectsHand] = useState<PedalHands>("left");
   const [pedalBySide, setPedalBySide] = useState<Record<Side, EffectName>>({
@@ -323,11 +330,6 @@ export default function App() {
     () => ({ found: false, left: 0, right: 0, mouth: 0 }),
     [],
   );
-  const [faceView, setFaceView] = useState<FaceState>({ ...face });
-  useEffect(() => {
-    const id = window.setInterval(() => setFaceView({ ...face }), 120);
-    return () => window.clearInterval(id);
-  }, [face]);
 
   const addRobot = useCallback(
     (bot: BotType, at?: Point) => {
@@ -364,13 +366,12 @@ export default function App() {
 
   const play = useCallback(async () => {
     await engine.start();
-    setStarted(true);
-    setPlaying(true);
+    setTransport("playing");
   }, [engine]);
 
   const stop = useCallback(() => {
     engine.stop();
-    setPlaying(false);
+    setTransport("stopped");
   }, [engine]);
 
   const cameraOff = useCallback(() => {
@@ -387,8 +388,9 @@ export default function App() {
     try {
       media = await navigator.mediaDevices.getUserMedia({
         video: {
-          width: { ideal: 1280 },
-          height: { ideal: 720 },
+          // 960 wide is plenty for hand keypoints and keeps the tracker's frames light.
+          width: { ideal: 960 },
+          height: { ideal: 540 },
           facingMode: "user",
         },
         audio: false,
@@ -605,16 +607,6 @@ export default function App() {
           </Button>
         ))}
       </div>
-      <Select
-        label="Quantize drums"
-        value={settings.drumGrid}
-        options={options(Object.keys(DRUM_GRIDS), (v) =>
-          v === "Free" ? "Off" : v,
-        )}
-        onValueChange={(v) =>
-          setSettings((s) => ({ ...s, drumGrid: v as DrumGrid }))
-        }
-      />
       {chordsPanel}
       <DropdownMenu
         label="Add a robot"
@@ -713,38 +705,39 @@ export default function App() {
               }
             />
           </div>
+          <SegmentedControl
+            label="Quantize drums"
+            value={settings.drumGrid}
+            onValueChange={(v) =>
+              setSettings((s) => ({ ...s, drumGrid: v as DrumGrid }))
+            }
+            options={(Object.keys(DRUM_GRIDS) as DrumGrid[]).map((v) => ({
+              value: v,
+              label: v === "Free" ? "Drums free" : v,
+            }))}
+          />
           <Switch
             label={camera === "loading" ? "Starting camera" : "Camera"}
             checked={withCamera}
             disabled={camera === "loading"}
             onCheckedChange={(on) => (on ? void cameraOn() : cameraOff())}
           />
-          {withCamera && faceOn && (
-            <span
-              className="facehud"
-              title="What the camera reads off your face"
-              aria-label={faceView.found ? "Face found" : "No face found"}
-            >
-              <span
-                className="orb"
-                data-on={faceView.left > 0.42 || undefined}
-                aria-hidden="true"
-              />
-              <span
-                className="orb"
-                data-on={faceView.right > 0.42 || undefined}
-                aria-hidden="true"
-              />
-              <span className="mouth" aria-hidden="true">
-                <span
-                  style={{ width: `${Math.round(faceView.mouth * 100)}%` }}
-                />
-              </span>
-              {!faceView.found && (
-                <span className="text-[15px] font-medium">No face</span>
-              )}
-            </span>
-          )}
+          {withCamera && faceOn && <FaceHud face={face} />}
+          <Button
+            variant={recordSeconds === null ? "secondary" : "primary"}
+            className="min-w-32 tabular-nums"
+            onClick={() =>
+              recordSeconds === null
+                ? (void play(), setRecordSeconds(0))
+                : setRecordSeconds(null)
+            }
+            aria-pressed={recordSeconds !== null}
+          >
+            <span className="orb" data-on={recordSeconds !== null || undefined} aria-hidden="true" />
+            {recordSeconds === null
+              ? "Record 30s"
+              : `Stop ${CLIP_SECONDS - recordSeconds}s`}
+          </Button>
           <Dialog>
             <DialogTrigger asChild>
               <Button variant="ghost">How to play</Button>
@@ -787,8 +780,21 @@ export default function App() {
           onErase={erase}
           onRecolor={recolor}
           onNextPen={nextPen}
+          recording={recordSeconds !== null}
+          onRecordProgress={(seconds, done) => {
+            if (done) {
+              setRecordSeconds(null);
+              say("Clip saved to your downloads.");
+            } else setRecordSeconds(Math.min(CLIP_SECONDS, seconds));
+          }}
+          onSwat={() => {
+            if (itemsRef.current.some((i) => i.kind !== "walker")) {
+              change(itemsRef.current.filter((i) => i.kind === "walker"));
+              say("Board wiped. Undo brings it back.");
+            }
+          }}
         >
-          {!started && (
+          {transport === "ready" && (
             <div className="absolute inset-0 grid place-items-center p-6">
               <div className="flex flex-col items-center gap-4">
                 <p className="pill">
@@ -827,7 +833,7 @@ export default function App() {
               {toast}
             </p>
           )}
-          {started && (items.length < 3 || mode === "effects") && (
+          {transport !== "ready" && (items.length < 3 || mode === "effects") && (
             <p className="pill pointer-events-none absolute inset-x-0 bottom-5 mx-auto">
               {hint}
             </p>

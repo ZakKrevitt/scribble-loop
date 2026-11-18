@@ -13,8 +13,37 @@ export interface BotBody {
   facing: 1 | -1
 }
 
-/** Grid widths per second. */
+/** Grid widths per second, for a robot with an ordinary gait. */
 export const WALK_SPEED = 0.034
+
+/** How a kind of robot moves. */
+export interface Gait {
+  /** Multiplies the walking speed. */
+  speed: number
+  /** How restlessly it changes direction. */
+  wander: number
+  /** 0 keeps it walking across; 1 lets it climb and dive as freely. */
+  climb: number
+  /** The sharpest it may turn, in radians per second. */
+  maxTurn: number
+  /** A sideways zigzag laid over its path, 0 for none. */
+  zigzag: number
+}
+
+export const GAITS: Record<BotType, Gait> = {
+  // The singer swoops up and down, so its held note keeps moving.
+  singer: { speed: 1.1, wander: 1.4, climb: 1, maxTurn: 1.1, zigzag: 0 },
+  // The swapper darts.
+  swapper: { speed: 2.4, wander: 1.8, climb: 0.3, maxTurn: 1.6, zigzag: 0 },
+  // The eater crawls.
+  eater: { speed: 0.4, wander: 0.5, climb: 0.2, maxTurn: 0.4, zigzag: 0 },
+  // The dropper sweeps in long, wide arcs.
+  dropper: { speed: 1, wander: 0.6, climb: 0.5, maxTurn: 0.5, zigzag: 0 },
+  // The bumper hops along in a zigzag.
+  bumper: { speed: 1.3, wander: 0.9, climb: 0.3, maxTurn: 0.9, zigzag: 1 },
+}
+
+const STEADY: Gait = { speed: 1, wander: 0.9, climb: 0, maxTurn: 0.7, zigzag: 0 }
 /** Grid widths per frame of the twelve-frame walk cycle, so the feet keep pace with the ground. */
 export const STRIDE = 0.011
 
@@ -27,18 +56,28 @@ const BOTTOM = 0.9
  * walking across rather than up and down, and it turns back from the edges of the grid.
  * `aspect` is grid width over height, so vertical travel looks as fast as horizontal.
  */
-export function walk(body: BotBody, dt: number, aspect: number, random: () => number = Math.random): BotBody {
+export function walk(
+  body: BotBody,
+  dt: number,
+  aspect: number,
+  random: () => number = Math.random,
+  gait: Gait = STEADY,
+): BotBody {
   let { heading, turn } = body
   // Long, lazy curves: small nudges to the turn, slowly damped, never a sharp change.
-  turn += (random() - 0.5) * 0.9 * Math.sqrt(dt)
-  // A gentle pull back toward walking sideways, the way the robot is drawn.
-  turn -= Math.sin(2 * heading) * 0.25 * dt
+  turn += (random() - 0.5) * gait.wander * Math.sqrt(dt)
+  // A pull back toward walking sideways, the way the robots are drawn, unless the gait climbs.
+  turn -= Math.sin(2 * heading) * 0.25 * (1 - gait.climb) * dt
   turn *= Math.exp(-0.6 * dt)
-  turn = Math.max(-0.7, Math.min(0.7, turn))
+  turn = Math.max(-gait.maxTurn, Math.min(gait.maxTurn, turn))
   heading += turn * dt
 
-  let x = body.x + Math.cos(heading) * WALK_SPEED * dt
-  let y = body.y + Math.sin(heading) * WALK_SPEED * dt * aspect * 0.6
+  const speed = WALK_SPEED * gait.speed
+  const walked = body.walked + speed * dt
+  // A zigzag rides on the path as a sideways wobble that follows distance walked.
+  const zig = gait.zigzag * Math.cos(walked * 90) * speed * 1.6
+  let x = body.x + (Math.cos(heading) * speed - Math.sin(heading) * zig) * dt
+  let y = body.y + (Math.sin(heading) * speed + Math.cos(heading) * zig) * dt * aspect * (0.6 + 0.6 * gait.climb)
   if ((x < MARGIN_X && Math.cos(heading) < 0) || (x > 1 - MARGIN_X && Math.cos(heading) > 0)) {
     heading = Math.PI - heading
     turn = 0
@@ -51,7 +90,7 @@ export function walk(body: BotBody, dt: number, aspect: number, random: () => nu
   y = Math.max(0, Math.min(1, y))
   const c = Math.cos(heading)
   const facing = c > 0.3 ? 1 : c < -0.3 ? -1 : body.facing
-  return { x, y, heading, turn, walked: body.walked + WALK_SPEED * dt, facing }
+  return { x, y, heading, turn, walked, facing }
 }
 
 export function startBody(x: number, y: number, random: () => number = Math.random): BotBody {
@@ -59,11 +98,11 @@ export function startBody(x: number, y: number, random: () => number = Math.rand
   return { x, y, heading: right ? 0 : Math.PI, turn: 0, walked: 0, facing: right ? 1 : -1 }
 }
 
-/** What each robot does, in a few words, for its menu entry. */
-export const BOT_INFO: Record<BotType, { name: string; does: string }> = {
-  singer: { name: 'Singer', does: 'Glides a held note as it walks' },
-  swapper: { name: 'Swapper', does: 'Swaps a line’s sound' },
-  eater: { name: 'Eater', does: 'Eats what it walks over' },
-  dropper: { name: 'Dropper', does: 'Leaves notes and drums' },
-  bumper: { name: 'Bumper', does: 'Sounds when you hit it' },
+/** Each robot's name, for menus and messages. */
+export const BOT_INFO: Record<BotType, { name: string }> = {
+  singer: { name: 'Singer' },
+  swapper: { name: 'Swapper' },
+  eater: { name: 'Eater' },
+  dropper: { name: 'Dropper' },
+  bumper: { name: 'Bumper' },
 }

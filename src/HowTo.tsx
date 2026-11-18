@@ -8,6 +8,7 @@ const CONTROLS: Record<EffectName, { up: string; twist: string }> = {
   Reverb: { up: 'Brighter', twist: 'Nothing' },
   Drive: { up: 'Pushes it harder', twist: 'Nothing' },
   Crush: { up: 'Breaks it further', twist: 'Nothing' },
+  Pitch: { up: 'Shifts the whole song up, an octave at the top; down goes lower', twist: 'Nothing' },
 }
 
 
@@ -85,7 +86,10 @@ export function HowTo({ writingHand }: HowToProps) {
       <section className="grid gap-2">
         <h3>Timing, chords and robots</h3>
         <ul>
-          <li>Quantize, in the bar, snaps drums to 1/16, 1/8 or 1/4, or turns snapping off.</li>
+          <li>
+            Quantize, in the top bar, snaps drums to 1/16, 1/8 or 1/4; faint columns on the stage show where they land.
+            Drums free leaves them where you put them.
+          </li>
           <li>Chords and arp stacks every note into a chord, and the arpeggiator plays it one note at a time.</li>
           <li>
             With the camera on, wink your left eye to turn the arpeggiator on or off, and your right eye for chords.
@@ -97,11 +101,17 @@ export function HowTo({ writingHand }: HowToProps) {
             robot.
           </li>
           <li>
-            Robots walk the grid by themselves. The Singer glides a held note, the Swapper changes sounds, the Eater
-            eats notes, the Dropper leaves some behind, and the Bumper shouts when you hit it.
+            Robots walk the grid by themselves, each with its own body and way of moving. The Singer, a swaying head,
+            swoops up and down gliding a held note. The Swapper, the full walker, darts about changing sounds. The
+            Eater, a claw, crawls slowly eating notes. The Dropper, crouched low, sweeps wide arcs leaving notes
+            behind. The Bumper, a hopping leg, zigzags and shouts when you hit it.
           </li>
         </ul>
-        <p>Space starts and stops. Cmd or Ctrl and Z undoes.</p>
+        <p>
+          Swat an open hand fast across the screen to wipe the board; Undo brings it back. Space starts and stops. Cmd or
+          Ctrl and Z undoes.
+        </p>
+        <p>Record 30s films the stage with its sound and saves the clip to your downloads.</p>
       </section>
     </div>
   )

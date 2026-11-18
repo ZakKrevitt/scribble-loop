@@ -58,8 +58,8 @@ export interface FaceReading {
   jaw: number
   /** Head tilt in radians as the player sees it on screen: negative leans left, positive right. */
   tilt: number
-  /** The nose tip, in camera image fractions. */
-  nose: Point
+  /** The middle of the mouth, between the lips, in camera image fractions. */
+  mouth: Point
 }
 
 export interface FaceTracker {
@@ -103,7 +103,7 @@ export async function createFaceTracker(): Promise<FaceTracker> {
         blinkRight: score('eyeBlinkRight'),
         jaw: score('jawOpen'),
         tilt,
-        nose: { x: points[1].x, y: points[1].y },
+        mouth: { x: (points[13].x + points[14].x) / 2, y: (points[13].y + points[14].y) / 2 },
       }
     },
     close() {

@@ -162,3 +162,66 @@ export class Smoother {
     this.dx = 0
   }
 }
+
+/** How far (in grid widths) and how fast an open hand must sweep sideways to wipe the board. */
+const SWAT_DISTANCE = 0.6
+const SWAT_WINDOW_MS = 320
+const SWAT_COOLDOWN_MS = 1500
+
+/**
+ * Spots a swat: an open, flat hand sweeping sideways across a good part of the stage in a moment.
+ * Fires once, then rests, so one swat clears once.
+ */
+export class SwatReader {
+  private trail: { x: number; y: number; t: number }[] = []
+  private restUntil = 0
+
+  /** `x` and `y` are the palm in grid fractions; `open` is whether the hand is flat and open. */
+  read(x: number, y: number, open: boolean, timeMs: number): boolean {
+    if (!open) {
+      this.trail = []
+      return false
+    }
+    this.trail.push({ x, y, t: timeMs })
+    while (this.trail.length && timeMs - this.trail[0].t > SWAT_WINDOW_MS) this.trail.shift()
+    if (timeMs < this.restUntil || this.trail.length < 4) return false
+    const first = this.trail[0]
+    const dx = x - first.x
+    const dy = y - first.y
+    // The whole sweep must head one way: a hand moving to a new spot slows at the end, a swat does not.
+    const last = this.trail[this.trail.length - 2]
+    const stillGoing = Math.sign(x - last.x) === Math.sign(dx) && Math.abs(x - last.x) > 0.02
+    if (Math.abs(dx) >= SWAT_DISTANCE && Math.abs(dx) > Math.abs(dy) * 2 && stillGoing) {
+      this.trail = []
+      this.restUntil = timeMs + SWAT_COOLDOWN_MS
+      return true
+    }
+    return false
+  }
+
+  reset(): void {
+    this.trail = []
+  }
+}
+
+/**
+ * Smooths all 21 keypoints of a hand, so the overlay and every gesture read from a steadier hand.
+ * Each coordinate gets its own One Euro filter: still points barely move, fast moves stay quick.
+ */
+export class HandSmoother {
+  private filters: Smoother[] = []
+
+  next(points: Point[], timeMs: number): Point[] {
+    if (this.filters.length !== points.length * 2) {
+      this.filters = Array.from({ length: points.length * 2 }, () => new Smoother(1.2, 0.05))
+    }
+    return points.map((p, i) => ({
+      x: this.filters[i * 2].next(p.x, timeMs),
+      y: this.filters[i * 2 + 1].next(p.y, timeMs),
+    }))
+  }
+
+  reset(): void {
+    for (const f of this.filters) f.reset()
+  }
+}

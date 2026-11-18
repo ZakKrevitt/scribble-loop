@@ -14,10 +14,11 @@ import {
   type Line,
   type Point,
 } from '@/model/score'
-import { Smoother, readHand, type Pose, type Touch } from '@/tracking/gestures'
+import { HandSmoother, Smoother, SwatReader, readHand, type Pose, type Touch } from '@/tracking/gestures'
 import type { FaceTracker, HandTracker } from '@/tracking/handTracker'
 import { MouthReader, TiltReader, WinkReader, mouthOpen, type FaceState, type Wink } from '@/tracking/face'
 import { FxLayer } from './fx'
+import { Recorder } from './recorder'
 import {
   BOT_TINT,
   LEAD_INK,
@@ -44,18 +45,30 @@ import {
 export type Mode = 'draw' | 'erase' | 'effects'
 
 export type Side = 'left' | 'right'
-
-/** The four fingers that press against the thumb, in the order their variants and sounds are listed. */
-const FINGERS: readonly Touch[] = ['index', 'middle', 'ring', 'pinky']
 /** Which hands play pedals. With both, neither hand writes; the mouse still can. */
 export type PedalHands = Side | 'both'
 
-/** Frames a new gesture must hold on the effects hand before it changes pedal. */
+/**
+ * What a hand or the mouse is doing right now. One state at a time: a hand cannot be drawing and
+ * pressing a pedal at once, and every way out of a state goes through `finish` below.
+ */
+type Action = { kind: 'idle' } | { kind: 'draw' } | { kind: 'erase' } | { kind: 'pedal'; name: EffectName }
+const IDLE: Action = { kind: 'idle' }
+
+/** The four fingers that press against the thumb, in the order their pedal variants are listed. */
+const FINGERS: readonly Touch[] = ['index', 'middle', 'ring', 'pinky']
+
+/** Frames a new press must hold before it counts, so one flickering frame changes nothing. */
 const GESTURE_FRAMES = 3
 /** How close a pointing fingertip must come to a line to change its sound. */
 const POINT_REACH = 0.035
 /** Pointing at empty space this long changes the sound for the next line. */
 const POINT_HOLD_MS = 700
+/** A wrist that jumps this far between frames is a different hand, not the same one moving. */
+const SWAPPED_HAND = 0.18
+
+/** How big each robot is drawn, against the walker. */
+const BOT_SIZE: Record<BotType, number> = { swapper: 1, dropper: 0.95, bumper: 0.85, eater: 0.75, singer: 0.7 }
 
 /** How far the eraser reaches, as a fraction of the grid's height. */
 const ERASE_RADIUS = 0.06
@@ -67,7 +80,7 @@ interface StageProps {
   settings: Settings
   engine: Engine
   mode: Mode
-  /** Which hand plays the effects. The other one writes. */
+  /** Which hands play pedals. Any other hand writes. */
   effectsHand: PedalHands
   /** The pedal each hand is holding. A fist moves that hand on to the next one. */
   pedalBySide: Record<Side, EffectName>
@@ -77,16 +90,15 @@ interface StageProps {
   hold: boolean
   stream: MediaStream | null
   tracker: HandTracker | null
-  /** Face controls: winks toggle chords and the arpeggiator, the open mouth spreads them. */
+  /** Face controls: winks toggle chords and the arpeggiator, the mouth drops robots, a tilt picks one. */
   faceTracker: FaceTracker | null
   faceOn: boolean
   onWink: (eye: Wink) => void
-  /** Place a stroke. A hand's pinch passes the sound of the finger it pinched with. */
   onPlace: (draft: Draft, lead?: LeadName) => void
   onErase: (at: Point, radius: number, aspect: number) => void
   /** Step one line to the next sound. */
   onRecolor: (lineId: number) => void
-  /** The robot an open mouth drops, where the face is on the stage. Tilting the head picks it. */
+  /** The robot an open mouth drops, where the mouth is on the stage. Tilting the head picks it. */
   deployBot: BotType
   onDeploy: (at: Point, bot: BotType) => void
   onTilt: (side: Wink) => void
@@ -94,55 +106,73 @@ interface StageProps {
   face: FaceState
   /** Step the sound that new lines get. */
   onNextPen: () => void
+  /** A swat of an open hand: clear the board. */
+  onSwat: () => void
+  /** True while a clip is being recorded. */
+  recording: boolean
+  /** Called each second of a recording, and once more with `done` when the file is ready. */
+  onRecordProgress: (seconds: number, done: boolean) => void
   children?: ReactNode
 }
 
 interface HandSlot {
   role: 'write' | 'effects' | null
+  action: Action
   pen: Pen
   /** Smooths the effects hand's twist. */
-  st: Smoother
-  sx: Smoother
-  sy: Smoother
-  /** The pose as read this frame. */
+  twist: Smoother
+  smooth: HandSmoother
+  swat: SwatReader
   pose: Pose
-  /** Whether the hand is pinching, after the debounce. */
-  pinching: boolean
-  pinchFrames: number
-  openFrames: number
-  /** Whether this hand is pressing the effects pad. */
-  padding: boolean
+  /** Where the hand points, in grid fractions, or null when no hand is in this slot. */
   point: Point | null
   wrist: Point | null
   /** The 21 keypoints in stage pixels, for the robot hand drawn over the player's own. */
   joints: Point[]
-  lastSeen: number
-  /** Robots this hand is touching, so a bump sounds once on contact rather than every frame. */
-  touching: Set<number>
-  /** The finger pressed to the thumb: on the effects hand it picks the pedal's variant, on the writing hand the sound. */
-  gesture: Touch | null
-  pending: Touch | null | undefined
-  pendingFrames: number
-  /** The fingertip pressed to the thumb last frame, so the press has some stickiness. */
-  touch: Touch | null
-  /** The fingertips and palm in grid fractions, for labelling each finger. */
   tips: Record<Touch, Point> | null
   palm: Point | null
   side: Side
-  /** Frames in a row showing a fist, so a fist on the effects hand moves on one pedal, once. */
+  lastSeen: number
+  /** Robots this hand is touching, so a bump sounds once on contact rather than every frame. */
+  touching: Set<number>
+  /** The finger pressed to the thumb, after a few frames' agreement, and a different one waiting. */
+  press: Touch | null
+  pending: Touch | null | undefined
+  pendingFrames: number
+  /** The raw finger pressed last frame, so a press has some stickiness. */
+  rawTouch: Touch | null
   fistFrames: number
   /** The sound this hand's current stroke is drawing with. */
   lead: LeadName
-  /** The pedal this hand is pressing, and its last reading. */
-  pedal: EffectName | null
+  /** The pedal's last reading, for letting go. */
   pedalAt: { x: number; y: number }
-  /** On the writing hand: frames spent pointing, the line under the fingertip, and since when it has pointed at nothing. */
   pointFrames: number
   pointLine: number | null
   pointIdleSince: number | null
 }
 
 const clamp01 = (v: number) => Math.min(1, Math.max(0, v))
+
+/** An offscreen canvas that is redrawn only when its key changes. */
+class Layer {
+  readonly canvas = document.createElement('canvas')
+  readonly ctx = this.canvas.getContext('2d')!
+  private key = ''
+
+  /** Redraw through `paint` if `key` changed; returns the canvas either way. */
+  get(key: string, w: number, h: number, dpr: number, paint: (ctx: CanvasRenderingContext2D) => void): HTMLCanvasElement {
+    const full = `${key}|${w}|${h}|${dpr}`
+    if (full !== this.key) {
+      this.key = full
+      this.canvas.width = Math.round(w * dpr)
+      this.canvas.height = Math.round(h * dpr)
+      this.ctx.setTransform(dpr, 0, 0, dpr, 0, 0)
+      this.ctx.clearRect(0, 0, w, h)
+      paint(this.ctx)
+    }
+    return this.canvas
+  }
+}
 
 export function Stage(props: StageProps) {
   const wrapRef = useRef<HTMLDivElement>(null)
@@ -168,6 +198,7 @@ export function Stage(props: StageProps) {
     let grid: Rect = { x: 0, y: 0, w: 1, h: 1 }
     let width = 0
     let height = 0
+    let dpr = 1
     const aspect = () => grid.w / grid.h
 
     const stepsCache = new WeakMap<Line, (number | null)[]>()
@@ -188,40 +219,47 @@ export function Stage(props: StageProps) {
       return at !== undefined && clock >= at && clock < at + FLASH_SECONDS && !still.matches
     }
 
-    const slots: HandSlot[] = [0, 1].map(() => ({
+    const newSlot = (): HandSlot => ({
       role: null,
+      action: IDLE,
       pen: new Pen(aspect, HAND_FEEL),
-      st: new Smoother(1, 0.01),
-      sx: new Smoother(),
-      sy: new Smoother(),
+      twist: new Smoother(1, 0.01),
+      smooth: new HandSmoother(),
+      swat: new SwatReader(),
       pose: 'open',
-      pinching: false,
-      pinchFrames: 0,
-      openFrames: 0,
-      padding: false,
       point: null,
       wrist: null,
       joints: [],
-      lastSeen: 0,
-      touching: new Set(),
-      gesture: null,
-      pending: undefined,
-      pendingFrames: 0,
-      touch: null,
       tips: null,
       palm: null,
-      side: 'right' as Side,
+      side: 'right',
+      lastSeen: 0,
+      touching: new Set(),
+      press: null,
+      pending: undefined,
+      pendingFrames: 0,
+      rawTouch: null,
       fistFrames: 0,
-      lead: 'Supersaw' as LeadName,
-      pedal: null,
+      lead: 'Supersaw',
       pedalAt: { x: 0.5, y: 0.5 },
       pointFrames: 0,
       pointLine: null,
       pointIdleSince: null,
-    }))
+    })
+    const slots: HandSlot[] = [newSlot(), newSlot()]
+    const mouse = { pen: new Pen(aspect, MOUSE_FEEL), point: null as Point | null, action: IDLE }
 
     const fx = new FxLayer()
+    const recorder = new Recorder()
     let lastFrame = performance.now()
+
+    // Cached layers: the grid, the note names, and the score at rest. Each redraws only when what it
+    // shows changes, so a frame mostly stamps three images and draws what moves.
+    const gridLayer = new Layer()
+    const namesLayer = new Layer()
+    const inkLayer = new Layer()
+    let inkItems: Item[] | null = null
+    let inkVersion = 0
 
     /** Where each pressed pedal is drawn, in grid fractions. */
     const marks = new Map<EffectName, Point>()
@@ -234,36 +272,30 @@ export function Stage(props: StageProps) {
       live.current.engine.setEffect(name, value.x, value.y, false)
     }
 
-    // One tinted sticker sheet of the walk cycle per kind of robot.
+    // Each kind of robot has its own body, cut from the AnyMachine Stilt, as a tinted sticker sheet.
     const sheets = new Map<BotType, HTMLCanvasElement>()
-    const strip = new Image()
-    strip.onload = () => {
-      for (const bot of BOTS) sheets.set(bot, stickerSheet(strip, 8, BOT_TINT[bot]))
+    for (const bot of BOTS) {
+      const strip = new Image()
+      strip.onload = () => sheets.set(bot, stickerSheet(strip, 8, BOT_TINT[bot]))
+      strip.src = `/sprites/bot-${bot}.webp`
     }
-    strip.src = '/sprites/stilt-walk.webp'
-
     let parts: HTMLCanvasElement | null = null
     const partsStrip = new Image()
     partsStrip.onload = () => {
       parts = stickerSheet(partsStrip, 5)
     }
     partsStrip.src = '/sprites/stilt-parts.webp'
+
     let lastVideoTime = -1
     const winks = new WinkReader()
     const mouth = new MouthReader()
     const tilts = new TiltReader()
     let faceFrame = 0
 
-    const mouse = {
-      pen: new Pen(aspect, MOUSE_FEEL),
-      point: null as Point | null,
-      erasing: false,
-      padding: false,
-    }
-
     const layout = () => {
       const rect = wrap.getBoundingClientRect()
-      const dpr = Math.min(2, window.devicePixelRatio || 1)
+      // 1.5x is sharp enough for stickers and saves almost half the pixels of a retina canvas.
+      dpr = Math.min(1.5, window.devicePixelRatio || 1)
       if (rect.width !== width || rect.height !== height) {
         width = rect.width
         height = rect.height
@@ -290,6 +322,10 @@ export function Stage(props: StageProps) {
       const dh = video.videoHeight * scale
       return { x: (width - dw) / 2 + (1 - p.x) * dw, y: (height - dh) / 2 + p.y * dh }
     }
+    const toStage = (p: Point) => {
+      const at = fromVideo(p)
+      return toGrid(at.x, at.y)
+    }
 
     const place = (draft: Draft | null, lead?: LeadName) => {
       if (draft) live.current.onPlace(draft, lead)
@@ -309,85 +345,131 @@ export function Stage(props: StageProps) {
       return undefined
     }
 
-    /** A press begins: what it does depends on the mode. */
-    const press = (pen: Pen, p: Point, now: number): 'pen' | 'pad' | 'erase' => {
-      const mode = live.current.mode
-      if (mode === 'effects') {
-        pedal(live.current.mousePedal, p, p)
-        return 'pad'
-      }
-      if (mode === 'erase') {
-        erase(p)
-        return 'erase'
-      }
-      pen.down(p, now)
-      return 'pen'
+    /** Leave whatever a pen is doing: place its stroke, or release its pedal. */
+    const finish = (action: Action, pen: Pen, now: number, at: { x: number; y: number }, lead?: LeadName): Action => {
+      if (action.kind === 'draw' && pen.active) place(pen.up(now), lead)
+      if (action.kind === 'pedal') letGo(action.name, at)
+      return IDLE
     }
 
-    const releasePad = (p: Point) => letGo(live.current.mousePedal, p)
-
-    /** Let go of whatever this hand was doing: finish its stroke and release its pedal. */
-    const drop = (slot: HandSlot, now: number) => {
-      if (slot.pen.active) place(slot.pen.up(now), slot.lead)
-      if (slot.pedal) letGo(slot.pedal, slot.pedalAt)
-      slot.pedal = null
-      slot.gesture = null
-      slot.pending = undefined
-      slot.pendingFrames = 0
-      slot.touch = null
-      slot.tips = null
-      slot.palm = null
-      slot.fistFrames = 0
-      slot.pinching = false
-      slot.pinchFrames = 0
-      slot.openFrames = 0
-      slot.padding = false
-      slot.st.reset()
-    }
-
-    const forget = (slot: HandSlot, now: number) => {
-      drop(slot, now)
+    /** Clear everything a hand slot knows, as when a hand leaves or a different hand takes its place. */
+    const reset = (slot: HandSlot, now: number) => {
+      slot.action = finish(slot.action, slot.pen, now, slot.pedalAt, slot.lead)
       slot.role = null
-      slot.pinching = false
-      slot.pinchFrames = 0
-      slot.openFrames = 0
+      slot.smooth.reset()
+      slot.swat.reset()
+      slot.twist.reset()
       slot.point = null
       slot.wrist = null
       slot.joints = []
+      slot.tips = null
+      slot.palm = null
       slot.pose = 'open'
       slot.touching.clear()
-      slot.sx.reset()
-      slot.sy.reset()
+      slot.press = null
+      slot.pending = undefined
+      slot.pendingFrames = 0
+      slot.rawTouch = null
+      slot.fistFrames = 0
+      slot.pointFrames = 0
+    }
+
+    const readFace = (now: number) => {
+      const { faceTracker, faceOn } = live.current
+      // The face is read every other frame; winks and the mouth do not need full speed.
+      if (!faceTracker || !faceOn || faceFrame++ % 2 !== 0) return
+      const face = faceTracker.detect(video, now)
+      if (canvas.dataset.face !== String(Boolean(face))) canvas.dataset.face = String(Boolean(face))
+      const state = live.current.face
+      state.found = Boolean(face)
+      if (!face) return
+      const open = mouthOpen(face.jaw)
+      state.left = face.blinkLeft
+      state.right = face.blinkRight
+      state.mouth = open
+      const wink = winks.read(face.blinkLeft, face.blinkRight)
+      if (wink) live.current.onWink(wink)
+      const tilt = tilts.read(face.tilt)
+      if (tilt) live.current.onTilt(tilt)
+      // An open mouth drops a robot right where the mouth is on the stage.
+      if (mouth.read(open)) live.current.onDeploy(toStage(face.mouth), live.current.deployBot)
+    }
+
+    /** The pedal hand: a fist moves on to the next pedal; a finger pressed to the thumb plays it. */
+    const playPedals = (slot: HandSlot, point: Point, twistRaw: number, fist: boolean, now: number) => {
+      slot.fistFrames = fist ? slot.fistFrames + 1 : 0
+      if (slot.fistFrames === GESTURE_FRAMES) live.current.onCyclePedal(slot.side)
+      const name = live.current.pedalBySide[slot.side]
+      if (slot.action.kind === 'pedal' && (slot.action.name !== name || !slot.press)) {
+        slot.action = finish(slot.action, slot.pen, now, slot.pedalAt)
+      }
+      if (!slot.press) return
+      // Played like an XY pad: across is the amount, up is the pedal's main move, the finger picks
+      // its variant and twist is one extra.
+      slot.action = { kind: 'pedal', name }
+      slot.pedalAt = { x: point.x, y: point.y }
+      const twist = clamp01((slot.twist.next(twistRaw, now) + 1) / 2)
+      pedal(name, slot.pedalAt, point, FINGERS.indexOf(slot.press), twist)
+    }
+
+    /** The writing hand: thumb and index draw, a fist steps the sound, pointing recolours a line. */
+    const write = (slot: HandSlot, point: Point, pinchAt: Point, pose: Pose, now: number) => {
+      const { engine, mode, items } = live.current
+      const touched = robotAt(point)
+      if (touched !== undefined && !slot.touching.has(touched)) engine.hit(touched)
+      slot.touching = new Set(touched === undefined ? [] : [touched])
+
+      const pinched = slot.press === 'index'
+      if (slot.action.kind === 'idle' && pinched) {
+        slot.lead = live.current.settings.lead
+        if (mode === 'erase') {
+          slot.action = { kind: 'erase' }
+          erase(pinchAt)
+        } else {
+          slot.action = { kind: 'draw' }
+          slot.pen.down(pinchAt, now)
+        }
+      } else if (slot.action.kind !== 'idle' && !pinched) {
+        slot.action = finish(slot.action, slot.pen, now, slot.pedalAt, slot.lead)
+      } else if (slot.action.kind === 'draw') {
+        slot.pen.move(pinchAt, now)
+      } else if (slot.action.kind === 'erase') {
+        erase(pinchAt)
+      }
+      if (slot.action.kind !== 'idle') slot.point = pinchAt
+
+      // A fist moves on to the next sound, once per fist.
+      slot.fistFrames = slot.action.kind === 'idle' && pose === 'fist' ? slot.fistFrames + 1 : 0
+      if (slot.fistFrames === GESTURE_FRAMES) live.current.onNextPen()
+
+      // Pointing at a line steps it to the next sound; pointing at nothing for a moment steps the pen.
+      slot.pointFrames = slot.action.kind === 'idle' && pose === 'point' ? slot.pointFrames + 1 : 0
+      if (slot.pointFrames < GESTURE_FRAMES) {
+        slot.pointLine = null
+        slot.pointIdleSince = null
+        return
+      }
+      const line = lineNear(items, point, POINT_REACH, aspect())
+      if (line) {
+        if (slot.pointLine !== line.id) live.current.onRecolor(line.id)
+        slot.pointLine = line.id
+        slot.pointIdleSince = null
+      } else {
+        slot.pointLine = null
+        slot.pointIdleSince ??= now
+        if (now - slot.pointIdleSince >= POINT_HOLD_MS) {
+          live.current.onNextPen()
+          slot.pointIdleSince = now
+        }
+      }
     }
 
     const trackHands = (now: number) => {
-      const { tracker, stream, engine } = live.current
+      const { tracker, stream } = live.current
       const ready = tracker && stream && video.readyState >= 2 && video.videoWidth > 0
       if (ready && video.currentTime !== lastVideoTime) {
         lastVideoTime = video.currentTime
-        // The face is read every other frame; winks and the mouth do not need full speed.
-        const { faceTracker, faceOn } = live.current
-        if (faceTracker && faceOn && faceFrame++ % 2 === 0) {
-          const face = faceTracker.detect(video, now)
-          if (canvas.dataset.face !== String(Boolean(face))) canvas.dataset.face = String(Boolean(face))
-          const state = live.current.face
-          state.found = Boolean(face)
-          if (face) {
-            const open = mouthOpen(face.jaw)
-            state.left = face.blinkLeft
-            state.right = face.blinkRight
-            state.mouth = open
-            const wink = winks.read(face.blinkLeft, face.blinkRight)
-            if (wink) live.current.onWink(wink)
-            const tilt = tilts.read(face.tilt)
-            if (tilt) live.current.onTilt(tilt)
-            // An open mouth drops a robot where the face is on the stage.
-            if (mouth.read(open)) {
-              const nose = fromVideo(face.nose)
-              live.current.onDeploy(toGrid(nose.x, nose.y), live.current.deployBot)
-            }
-          }
-        }
+        readFace(now)
         const hands = tracker.detect(video, now)
         const videoAspect = video.videoWidth / video.videoHeight
         const free = new Set(slots)
@@ -404,130 +486,71 @@ export function Stage(props: StageProps) {
           }
           if (!slot) continue
           free.delete(slot)
-          const reading = readHand(hand.landmarks, videoAspect, slot.pinching ? 'pinch' : slot.pose, slot.touch)
-          const px = fromVideo(reading.point)
-          const point = toGrid(slot.sx.next(px.x, now), slot.sy.next(px.y, now))
+          // A wrist that leapt is a different hand: forget the old one, or its swipe history and
+          // smoothing would read the leap as a swat or a lurch.
+          if (slot.wrist && best > SWAPPED_HAND) reset(slot, now)
+
+          // Every keypoint is smoothed once, so gestures and the overlay read a steadier hand.
+          const landmarks = slot.smooth.next(hand.landmarks, now)
+          const reading = readHand(landmarks, videoAspect, slot.press === 'index' ? 'pinch' : slot.pose, slot.rawTouch)
+          const point = toStage(reading.point)
+          const palm = toStage(reading.palm)
           slot.wrist = wrist
-          slot.joints = hand.landmarks.map(fromVideo)
+          slot.joints = landmarks.map(fromVideo)
           slot.lastSeen = now
           slot.point = point
           slot.pose = reading.pose
-
-          // Which hand is this? Trust the model; failing that, the side of the screen it is on.
-          const palmPx = fromVideo(reading.palm)
-          const side: Side = hand.side ?? (palmPx.x < width / 2 ? 'left' : 'right')
-          const pedals = live.current.effectsHand
-          const role = pedals === 'both' || side === pedals ? 'effects' : 'write'
-          if (slot.role !== role) {
-            drop(slot, now)
-            slot.role = role
-          }
-          slot.side = side
-          slot.touch = reading.touch
-          const toStage = (p: Point) => {
-            const at = fromVideo(p)
-            return toGrid(at.x, at.y)
-          }
+          slot.palm = palm
           slot.tips = {
             index: toStage(reading.tips.index),
             middle: toStage(reading.tips.middle),
             ring: toStage(reading.tips.ring),
             pinky: toStage(reading.tips.pinky),
           }
-          slot.palm = toGrid(palmPx.x, palmPx.y)
 
-          // Which finger is pressed to the thumb. A change must hold a few frames before it counts,
-          // so one flickering frame neither starts nor ends anything.
-          const press = reading.touch
-          if (press === slot.gesture) {
+          // Which hand is this? Trust the model; failing that, the side of the screen it is on.
+          const side: Side = hand.side ?? (palm.x < 0.5 ? 'left' : 'right')
+          const pedals = live.current.effectsHand
+          const role = pedals === 'both' || side === pedals ? 'effects' : 'write'
+          if (slot.role !== role) {
+            slot.action = finish(slot.action, slot.pen, now, slot.pedalAt, slot.lead)
+            slot.role = role
+          }
+          slot.side = side
+
+          // A fast sideways sweep of a flat, open hand wipes the board.
+          if (slot.swat.read(palm.x, palm.y, reading.pose === 'open' && !reading.touch, now)) live.current.onSwat()
+
+          // Which finger is pressed to the thumb. A change must hold a few frames before it counts.
+          slot.rawTouch = reading.touch
+          if (reading.touch === slot.press) {
             slot.pending = undefined
             slot.pendingFrames = 0
-          } else if (press === slot.pending) {
+          } else if (reading.touch === slot.pending) {
             slot.pendingFrames++
           } else {
-            slot.pending = press
+            slot.pending = reading.touch
             slot.pendingFrames = 1
           }
           if (slot.pending !== undefined && slot.pendingFrames >= GESTURE_FRAMES) {
-            slot.gesture = slot.pending
+            slot.press = slot.pending
             slot.pending = undefined
             slot.pendingFrames = 0
           }
 
           if (role === 'effects') {
-            // A fist moves this hand on to its next pedal, once per fist.
-            slot.fistFrames = reading.pose === 'fist' ? slot.fistFrames + 1 : 0
-            if (slot.fistFrames === GESTURE_FRAMES) live.current.onCyclePedal(side)
-            const name = live.current.pedalBySide[side]
-            if (slot.pedal && (slot.pedal !== name || !slot.gesture)) {
-              letGo(slot.pedal, slot.pedalAt)
-              slot.pedal = null
-            }
-            if (slot.gesture) {
-              // Played like an XY pad: across is the amount, up is the pedal's main move, the finger
-              // picks its variant and twist is one extra.
-              slot.pedal = name
-              slot.pedalAt = { x: point.x, y: point.y }
-              const twist = clamp01((slot.st.next(reading.twist, now) + 1) / 2)
-              pedal(name, slot.pedalAt, point, FINGERS.indexOf(slot.gesture), twist)
-            }
-            continue
-          }
-
-          // Touching a robot bumps it, once per contact.
-          const touched = robotAt(point)
-          if (touched !== undefined && !slot.touching.has(touched)) engine.hit(touched)
-          slot.touching = new Set(touched === undefined ? [] : [touched])
-
-          // Thumb and index pinched together draw in the current sound.
-          const pinched = slot.gesture === 'index'
-          const at = pinched
-            ? toStage({
-                x: (reading.thumb.x + reading.tips.index.x) / 2,
-                y: (reading.thumb.y + reading.tips.index.y) / 2,
-              })
-            : point
-          if (!slot.pinching && pinched) {
-            slot.pinching = true
-            slot.lead = live.current.settings.lead
-            if (live.current.mode === 'erase') erase(at)
-            else slot.pen.down(at, now)
-          } else if (slot.pinching && !pinched) {
-            slot.pinching = false
-            if (slot.pen.active) place(slot.pen.up(now), slot.lead)
-          } else if (slot.pinching) {
-            if (slot.pen.active) slot.pen.move(at, now)
-            else if (live.current.mode === 'erase') erase(at)
-          }
-          if (slot.pinching) slot.point = at
-          // A fist moves on to the next sound, once per fist.
-          slot.fistFrames = !slot.pinching && reading.pose === 'fist' ? slot.fistFrames + 1 : 0
-          if (slot.fistFrames === GESTURE_FRAMES) live.current.onNextPen()
-
-          // Pointing at a line steps it to the next sound; pointing at nothing for a moment steps the pen.
-          slot.pointFrames = !slot.pinching && reading.pose === 'point' ? slot.pointFrames + 1 : 0
-          if (slot.pointFrames >= GESTURE_FRAMES) {
-            const line = lineNear(live.current.items, point, POINT_REACH, aspect())
-            if (line) {
-              if (slot.pointLine !== line.id) live.current.onRecolor(line.id)
-              slot.pointLine = line.id
-              slot.pointIdleSince = null
-            } else {
-              slot.pointLine = null
-              slot.pointIdleSince ??= now
-              if (now - slot.pointIdleSince >= POINT_HOLD_MS) {
-                live.current.onNextPen()
-                slot.pointIdleSince = now
-              }
-            }
+            playPedals(slot, point, reading.twist, reading.pose === 'fist', now)
           } else {
-            slot.pointLine = null
-            slot.pointIdleSince = null
+            const pinchAt = toStage({
+              x: (reading.thumb.x + reading.tips.index.x) / 2,
+              y: (reading.thumb.y + reading.tips.index.y) / 2,
+            })
+            write(slot, point, pinchAt, reading.pose, now)
           }
         }
       }
       for (const slot of slots) {
-        if (slot.point && (!ready || now - slot.lastSeen > HAND_LOST_MS)) forget(slot, now)
+        if (slot.point && (!ready || now - slot.lastSeen > HAND_LOST_MS)) reset(slot, now)
       }
     }
 
@@ -538,25 +561,32 @@ export function Stage(props: StageProps) {
       const animate = !still.matches
       if (animate) fx.update(Math.min(0.1, (now - lastFrame) / 1000), engine.effects, grid)
       lastFrame = now
+
+      const position = engine.position()
+      const playing = position !== null
+      const step = playing ? Math.min(STEPS - 1, Math.floor(position * STEPS)) : -1
+      // Lines at rest are dimmed a touch while the loop plays, so the sounding ones stand out.
+      const rest = playing ? 0.84 : 1
+
       ctx.save()
       if (animate) {
         const shake = fx.shake()
         ctx.translate(shake.x, shake.y)
       }
-      drawGrid(ctx, grid)
+      ctx.drawImage(
+        gridLayer.get(settings.drumGrid, width, height, dpr, (c) => drawGrid(c, grid, settings.drumGrid)),
+        0,
+        0,
+        width,
+        height,
+      )
       if (animate) {
         fx.drawBack(ctx)
         fx.drawEchoes(ctx, grid, items, settings.drumGrid)
       }
 
-      const position = engine.position()
-      const step = position === null ? -1 : Math.min(STEPS - 1, Math.floor(position * STEPS))
-      const rest = position === null ? 1 : 0.84
-      const glints: Point[] = []
-
       // Robots walk under what the player placed, so placed ink always stays readable.
       const tall = walkerHeight(grid)
-      // The singers' trails go under every robot, so a robot never hides behind another's ribbon.
       for (const item of items) {
         if (item.kind === 'walker' && item.bot === 'singer') {
           drawTrail(ctx, grid, engine.botPath(item.id), 'oklch(0.8 0.15 185)')
@@ -573,26 +603,59 @@ export function Stage(props: StageProps) {
           grid.x + (pose?.x ?? item.x) * grid.w,
           grid.y + (pose?.y ?? item.y) * grid.h,
           // A small lift when a robot does something, not a jump.
-          tall * (flashing(item.id) ? 1.08 : 1),
-          pose?.frame ?? 0,
+          tall * BOT_SIZE[item.bot] * (flashing(item.id) ? 1.08 : 1),
+          // Walkers step with the ground they cover; the head and the claw keep their own time while
+          // the loop plays, and hold still when it stops or motion is reduced.
+          item.bot === 'singer' || item.bot === 'eater'
+            ? playing && animate
+              ? Math.floor(now / 140)
+              : 0
+            : (pose?.frame ?? 0),
           pose?.facing ?? 1,
         )
       }
 
-      for (const item of items) {
-        if (item.kind !== 'line') continue
-        const y = step >= 0 ? stepsOf(item)[step] : null
-        const sounding = y !== null && y !== undefined && position !== null
-        // A sounding line swells for the first half of every step, in one jump.
-        const onBeat = sounding && !still.matches && (position * STEPS) % 1 < 0.5
-        drawLine(ctx, grid, item.points, LEAD_INK[item.lead], sounding ? 1 : rest, onBeat ? 1.45 : 1)
-        if (onBeat) glints.push({ x: grid.x + position * grid.w, y: grid.y + y * grid.h })
+      // The score at rest is one cached image, redrawn only when the items change.
+      if (items !== inkItems) {
+        inkItems = items
+        inkVersion++
       }
-      for (const item of items) {
-        if (item.kind !== 'blob') continue
-        drawBlob(ctx, grid, item, flashing(item.id) ? 1.35 : 1, settings.drumGrid)
+      ctx.drawImage(
+        inkLayer.get(`${inkVersion}|${settings.drumGrid}|${rest}`, width, height, dpr, (c) => {
+          for (const item of items) {
+            if (item.kind === 'line') drawLine(c, grid, item.points, LEAD_INK[item.lead], rest)
+            else if (item.kind === 'blob') drawBlob(c, grid, item, 1, settings.drumGrid)
+          }
+        }),
+        0,
+        0,
+        width,
+        height,
+      )
+      // Over it, only what is sounding: the lines under the playhead swell, the drums it hits flash.
+      const glints: Point[] = []
+      if (playing) {
+        const onBeat = !still.matches && (position * STEPS) % 1 < 0.5
+        for (const item of items) {
+          if (item.kind !== 'line') continue
+          const y = stepsOf(item)[step]
+          if (y === null || y === undefined) continue
+          drawLine(ctx, grid, item.points, LEAD_INK[item.lead], 1, onBeat ? 1.45 : 1)
+          if (onBeat) glints.push({ x: grid.x + position * grid.w, y: grid.y + y * grid.h })
+        }
+        for (const item of items) {
+          if (item.kind === 'blob' && flashing(item.id)) drawBlob(ctx, grid, item, 1.35, settings.drumGrid)
+        }
       }
-      drawNoteNames(ctx, grid, settings.key, settings.scale, 15)
+      ctx.drawImage(
+        namesLayer.get(`${settings.key}|${settings.scale}`, width, height, dpr, (c) =>
+          drawNoteNames(c, grid, settings.key, settings.scale, 15),
+        ),
+        0,
+        0,
+        width,
+        height,
+      )
 
       const drafts: [Draft | null, LeadName][] = [
         [mouse.pen.draft(now), settings.lead],
@@ -611,7 +674,7 @@ export function Stage(props: StageProps) {
           )
       }
 
-      if (position !== null) drawPlayhead(ctx, grid, position)
+      if (playing) drawPlayhead(ctx, grid, position)
       for (const g of glints) drawGlint(ctx, g.x, g.y, 18)
       if (animate) fx.drawFront(ctx)
       ctx.restore()
@@ -627,39 +690,51 @@ export function Stage(props: StageProps) {
         drawHand(ctx, slot.joints, parts)
         if (slot.role === 'effects' && slot.tips && slot.palm) {
           const name = live.current.pedalBySide[slot.side]
-          drawTipLabels(ctx, grid, slot.tips, PEDAL_OPTIONS[name], slot.gesture, slot.palm, name)
+          drawTipLabels(ctx, grid, slot.tips, PEDAL_OPTIONS[name], slot.press, slot.palm, name)
           continue
         }
         if (slot.role !== 'write') continue
         // The writing hand shows its current sound on the palm, in that sound's ink.
-        if (slot.palm && !slot.pen.active) {
-          drawTipLabels(ctx, grid, slot.tips ?? { index: slot.palm, middle: slot.palm, ring: slot.palm, pinky: slot.palm }, [], null, slot.palm, settings.lead, undefined, LEAD_INK[settings.lead])
+        if (slot.palm && slot.tips && slot.action.kind === 'idle') {
+          drawTipLabels(ctx, grid, slot.tips, [], null, slot.palm, settings.lead, undefined, LEAD_INK[settings.lead])
         }
         const kind =
-          slot.pinching && mode === 'erase'
+          slot.action.kind === 'erase'
             ? 'erase'
-            : slot.pinching
+            : slot.action.kind === 'draw'
               ? 'draw'
               : slot.pointFrames >= GESTURE_FRAMES
                 ? 'point'
                 : 'hover'
         drawCursor(ctx, grid.x + slot.point.x * grid.w, grid.y + slot.point.y * grid.h, kind, reach, LEAD_INK[settings.lead])
       }
-      if (mouse.point && (mode === 'erase' || mouse.erasing)) {
+      if (mouse.point && (mode === 'erase' || mouse.action.kind === 'erase')) {
         drawCursor(ctx, grid.x + mouse.point.x * grid.w, grid.y + mouse.point.y * grid.h, 'erase', reach)
       }
     }
 
     let raf = 0
-    let seen = -1
+    let seenHands = -1
+    let wasRecording = false
     const frame = () => {
       const now = performance.now()
       layout()
       trackHands(now)
       render(now)
+
+      // Recording: composite the camera, the booth wash and the stage into one frame.
+      const { recording, engine, stream } = live.current
+      if (recording && !wasRecording) {
+        recorder.start(engine, width, height, (seconds, done) => live.current.onRecordProgress(seconds, done))
+      } else if (!recording && wasRecording) {
+        recorder.stop()
+      }
+      wasRecording = recording
+      if (recording) recorder.frame(stream ? video : null, canvas)
+
       const hands = slots.filter((s) => s.point).length
-      if (hands !== seen) {
-        seen = hands
+      if (hands !== seenHands) {
+        seenHands = hands
         canvas.dataset.hands = String(hands)
       }
       raf = requestAnimationFrame(frame)
@@ -676,49 +751,45 @@ export function Stage(props: StageProps) {
       canvas.setPointerCapture(e.pointerId)
       const p = local(e)
       mouse.point = p
-      const { mode, engine } = live.current
+      const { mode, engine, items } = live.current
       // Alt-clicking a line steps it to the next sound.
-      if (mode === 'draw' && e.altKey) {
-        const line = lineNear(live.current.items, p, POINT_REACH, aspect())
-        if (line) {
-          live.current.onRecolor(line.id)
-          return
-        }
+      const onInk = lineNear(items, p, POINT_REACH, aspect())
+      if (mode === 'draw' && e.altKey && onInk) {
+        live.current.onRecolor(onInk.id)
+        return
       }
       // Clicking a robot bumps it, unless there is placed ink right there to draw against.
-      const onInk = lineNear(live.current.items, p, POINT_REACH, aspect())
       const bumped = mode === 'draw' && !onInk ? robotAt(p) : undefined
       if (bumped !== undefined) {
         engine.hit(bumped)
         return
       }
-      if (e.button === 2) {
-        mouse.erasing = true
+      if (e.button === 2 || mode === 'erase') {
+        mouse.action = { kind: 'erase' }
         erase(p)
-        return
+      } else if (mode === 'effects') {
+        mouse.action = { kind: 'pedal', name: live.current.mousePedal }
+        pedal(live.current.mousePedal, p, p)
+      } else {
+        mouse.action = { kind: 'draw' }
+        mouse.pen.down(p, performance.now())
       }
-      const did = press(mouse.pen, p, performance.now())
-      mouse.erasing = did === 'erase'
-      mouse.padding = did === 'pad'
     }
     const move = (e: PointerEvent) => {
       if (!e.isPrimary) return
       const p = local(e)
       mouse.point = p
-      if (mouse.erasing) erase(p)
-      else if (mouse.padding) pedal(live.current.mousePedal, p, p)
-      else if (mouse.pen.active) mouse.pen.move(p, performance.now())
+      const action = mouse.action
+      if (action.kind === 'erase') erase(p)
+      else if (action.kind === 'pedal') pedal(action.name, p, p)
+      else if (action.kind === 'draw') mouse.pen.move(p, performance.now())
     }
     const up = (e: PointerEvent) => {
       if (!e.isPrimary) return
-      if (mouse.erasing) mouse.erasing = false
-      else if (mouse.padding) {
-        mouse.padding = false
-        releasePad(local(e))
-      } else if (mouse.pen.active) place(mouse.pen.up(performance.now()))
+      mouse.action = finish(mouse.action, mouse.pen, performance.now(), local(e))
     }
     const leave = () => {
-      if (!mouse.pen.active && !mouse.erasing && !mouse.padding) mouse.point = null
+      if (mouse.action.kind === 'idle') mouse.point = null
     }
     const menu = (e: Event) => e.preventDefault()
 
@@ -731,6 +802,7 @@ export function Stage(props: StageProps) {
 
     return () => {
       cancelAnimationFrame(raf)
+      recorder.stop()
       canvas.removeEventListener('pointerdown', down)
       canvas.removeEventListener('pointermove', move)
       canvas.removeEventListener('pointerup', up)

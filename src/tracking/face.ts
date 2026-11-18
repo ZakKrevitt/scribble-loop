@@ -1,7 +1,8 @@
 export type Wink = 'left' | 'right'
 
 /** A wink is one eye shut clearly more than the other, held this many frames. */
-const WINK_SHUT = 0.42
+/** An eye counts as shut above this blink score; the face readout uses it too. */
+export const WINK_SHUT = 0.42
 const WINK_GAP = 0.25
 const EYES_OPEN = 0.25
 const HOLD_FRAMES = 3

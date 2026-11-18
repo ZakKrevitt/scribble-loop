@@ -1,5 +1,5 @@
 import { describe, expect, it } from 'vitest'
-import { STRIDE, WALK_SPEED, startBody, walk } from './bots'
+import { GAITS, STRIDE, WALK_SPEED, startBody, walk } from './bots'
 
 function seeded(seed: number) {
   return () => (seed = (seed * 16807) % 2147483647) / 2147483647
@@ -65,3 +65,26 @@ describe('walk', () => {
     expect(flips).toBeLessThan(12)
   })
 })
+
+describe('gaits', () => {
+  const travel = (bot: keyof typeof GAITS) => {
+    const random = seeded(21)
+    let body = startBody(0.5, 0.5, random)
+    let vertical = 0
+    for (let i = 0; i < 3000; i++) {
+      const next = walk(body, 0.094, 1.6, random, GAITS[bot])
+      vertical += Math.abs(next.y - body.y)
+      body = next
+    }
+    return { walked: body.walked, vertical }
+  }
+  it('makes the swapper fast, the eater a crawl and the singer the most up and down', () => {
+    const swapper = travel('swapper')
+    const eater = travel('eater')
+    const singer = travel('singer')
+    const dropper = travel('dropper')
+    expect(swapper.walked).toBeGreaterThan(eater.walked * 4)
+    expect(singer.vertical / singer.walked).toBeGreaterThan(dropper.vertical / dropper.walked)
+  })
+})
+

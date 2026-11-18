@@ -1,6 +1,6 @@
-import type { EffectName } from '@/audio/engine'
+import { pitchShift, type EffectName } from '@/audio/engine'
 import type { Item } from '@/model/score'
-import { LEAD_INK, drawBlob, drawLine, type Rect } from './draw'
+import { LEAD_INK, drawBlob, drawLine, setShadows, type Rect } from './draw'
 import type { DrumGrid } from '@/model/score'
 
 const WHITE = 'oklch(0.995 0.005 345)'
@@ -10,7 +10,7 @@ const RISE = 1.2
 const FALL = 0.7
 
 interface Particle {
-  kind: 'bubble' | 'cloud' | 'spark' | 'block'
+  kind: 'bubble' | 'cloud' | 'spark' | 'block' | 'diamond'
   x: number
   y: number
   vx: number
@@ -28,6 +28,72 @@ const BLOCK_INKS = ['oklch(0.27 0.09 340)', 'oklch(0.68 0.25 357)', 'oklch(0.8 0
 
 const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.length)]
 
+/** Sprites are drawn once at this size and stamped scaled, instead of drawn shape by shape each frame. */
+const SPRITE = 64
+const sprites = new Map<string, HTMLCanvasElement>()
+
+/** A prerendered particle sprite: bubble, spark, diamond or cloud, in one colour. */
+function sprite(kind: 'bubble' | 'spark' | 'diamond' | 'cloud', color: string): HTMLCanvasElement {
+  const key = `${kind}|${color}`
+  const cached = sprites.get(key)
+  if (cached) return cached
+  const c = document.createElement('canvas')
+  c.width = c.height = SPRITE
+  const g = c.getContext('2d')!
+  const m = SPRITE / 2
+  g.translate(m, m)
+  if (kind === 'bubble') {
+    const r = m - 5
+    g.beginPath()
+    g.arc(0, 0, r, 0, Math.PI * 2)
+    g.lineWidth = 9
+    g.strokeStyle = WHITE
+    g.stroke()
+    g.lineWidth = 5
+    g.strokeStyle = color
+    g.stroke()
+    g.beginPath()
+    g.arc(-r * 0.35, -r * 0.35, r * 0.18, 0, Math.PI * 2)
+    g.fillStyle = WHITE
+    g.fill()
+  } else if (kind === 'spark') {
+    const r = m - 5
+    g.beginPath()
+    for (let i = 0; i < 8; i++) {
+      const rr = i % 2 === 0 ? r : r * 0.35
+      const a = (i * Math.PI) / 4
+      g.lineTo(Math.cos(a) * rr, Math.sin(a) * rr)
+    }
+    g.closePath()
+    g.lineWidth = 7
+    g.strokeStyle = WHITE
+    g.stroke()
+    g.fillStyle = color
+    g.fill()
+  } else if (kind === 'diamond') {
+    const r = (m - 6) * 0.72
+    g.rotate(Math.PI / 4)
+    g.lineWidth = 7
+    g.strokeStyle = WHITE
+    g.strokeRect(-r, -r, 2 * r, 2 * r)
+    g.fillStyle = color
+    g.fillRect(-r, -r, 2 * r, 2 * r)
+  } else {
+    g.fillStyle = color
+    for (const [dx, dy, rr] of [
+      [0, 0, 0.5],
+      [-0.33, 0.1, 0.36],
+      [0.33, 0.08, 0.38],
+    ]) {
+      g.beginPath()
+      g.arc(dx * SPRITE, dy * SPRITE, rr * SPRITE * 0.6, 0, Math.PI * 2)
+      g.fill()
+    }
+  }
+  sprites.set(key, c)
+  return c
+}
+
 /**
  * The stage's reaction to the pedals. Each pedal has its own 2D animation, which creeps in as the
  * pedal is pressed and grows with its amount: rising bubbles for the filter, ghost copies of the
@@ -36,12 +102,12 @@ const pick = <T,>(list: readonly T[]) => list[Math.floor(Math.random() * list.le
  */
 export class FxLayer {
   /** How strongly each pedal's animation is showing, 0 to 1, eased toward its target. */
-  readonly level: Record<EffectName, number> = { Filter: 0, Echo: 0, Reverb: 0, Drive: 0, Crush: 0 }
+  readonly level: Record<EffectName, number> = { Filter: 0, Echo: 0, Reverb: 0, Drive: 0, Crush: 0, Pitch: 0 }
   private particles: Particle[] = []
-  private due: Record<EffectName, number> = { Filter: 0, Echo: 0, Reverb: 0, Drive: 0, Crush: 0 }
+  private due: Record<EffectName, number> = { Filter: 0, Echo: 0, Reverb: 0, Drive: 0, Crush: 0, Pitch: 0 }
   private blockClock = 0
 
-  update(dt: number, effects: Partial<Record<EffectName, { x: number }>>, grid: Rect): void {
+  update(dt: number, effects: Partial<Record<EffectName, { x: number; y: number; option: number }>>, grid: Rect): void {
     for (const name of Object.keys(this.level) as EffectName[]) {
       const pressed = effects[name]
       // Even a light touch shows something; the amount takes it the rest of the way.
@@ -83,6 +149,22 @@ export class FxLayer {
       phase: 0,
       color: 'oklch(0.66 0.21 305)',
     }))
+    // Pitch: diamonds drift up when the shift heard is up and fall when it is down; none at no shift.
+    const pressed = effects.Pitch
+    const shift = pressed ? pitchShift(pressed.y, pressed.option) : 0
+    const pitchUp = shift > 0
+    spawn('Pitch', shift === 0 ? 0 : 10, () => ({
+      kind: 'diamond',
+      x: x + Math.random() * w,
+      y: pitchUp ? y + h + 10 : y - 10,
+      vx: 0,
+      vy: (pitchUp ? -1 : 1) * (90 + Math.random() * 90),
+      size: 5 + Math.random() * 6,
+      age: 0,
+      life: 4,
+      phase: Math.random() * Math.PI,
+      color: pick(BUBBLE_INKS),
+    }))
     spawn('Drive', 26, () => {
       const angle = -Math.PI / 2 + (Math.random() - 0.5) * 1.6
       const speed = 160 + Math.random() * 260
@@ -106,7 +188,7 @@ export class FxLayer {
       p.x += p.vx * dt
       p.y += p.vy * dt
     }
-    this.particles = this.particles.filter((p) => p.age < p.life && p.y > y - 120)
+    this.particles = this.particles.filter((p) => p.age < p.life && p.y > y - 120 && p.y < y + h + 120)
 
     // Crush blocks are redrawn in steps, not eased, so they read as a broken picture.
     this.blockClock += dt
@@ -139,15 +221,14 @@ export class FxLayer {
     for (let k = 1; k <= 3; k++) {
       ctx.save()
       ctx.translate(k * 26 * level, 0)
+      // Ghosts skip the soft shadow, which is the expensive part of drawing ink.
+      setShadows(false)
       const alpha = level * (0.32 - k * 0.08)
       for (const item of items) {
         if (item.kind === 'line') drawLine(ctx, grid, item.points, LEAD_INK[item.lead], alpha)
-        else if (item.kind === 'blob') {
-          ctx.globalAlpha = alpha
-          drawBlob(ctx, grid, item, 1, drumGrid)
-          ctx.globalAlpha = 1
-        }
+        else if (item.kind === 'blob') drawBlob(ctx, grid, item, 1, drumGrid, alpha)
       }
+      setShadows(true)
       ctx.restore()
     }
   }
@@ -159,58 +240,35 @@ export class FxLayer {
       const fade = Math.min(1, p.age / 0.6, (p.life - p.age) / 1.2)
       if (p.kind === 'cloud') {
         ctx.globalAlpha = 0.2 * fade * this.level.Reverb
-        ctx.fillStyle = p.color
-        for (const [dx, dy, r] of [
-          [0, 0, 1],
-          [-0.55, 0.15, 0.7],
-          [0.55, 0.12, 0.75],
-        ]) {
-          ctx.beginPath()
-          ctx.arc(p.x + dx * p.size, p.y + dy * p.size, r * p.size * 0.6, 0, Math.PI * 2)
-          ctx.fill()
-        }
+        ctx.drawImage(sprite('cloud', p.color), p.x - p.size, p.y - p.size, p.size * 2, p.size * 2)
       } else if (p.kind === 'bubble') {
         const wobble = Math.sin(p.age * 3 + p.phase) * 14
         ctx.globalAlpha = 0.85 * fade * Math.max(0.3, this.level.Filter)
-        ctx.beginPath()
-        ctx.arc(p.x + wobble, p.y, p.size, 0, Math.PI * 2)
-        ctx.lineWidth = 4
-        ctx.strokeStyle = WHITE
-        ctx.stroke()
-        ctx.lineWidth = 2.5
-        ctx.strokeStyle = p.color
-        ctx.stroke()
-        ctx.beginPath()
-        ctx.arc(p.x + wobble - p.size * 0.35, p.y - p.size * 0.35, p.size * 0.18, 0, Math.PI * 2)
-        ctx.fillStyle = WHITE
-        ctx.fill()
+        const r = p.size * 1.15
+        ctx.drawImage(sprite('bubble', p.color), p.x + wobble - r, p.y - r, r * 2, r * 2)
       }
     }
     ctx.restore()
   }
 
-  /** Sparks and glitch blocks, drawn over the score. */
+  /** Sparks, diamonds and glitch blocks, drawn over the score. */
   drawFront(ctx: CanvasRenderingContext2D): void {
     ctx.save()
     for (const p of this.particles) {
-      if (p.kind === 'spark') {
-        ctx.globalAlpha = Math.min(1, (p.life - p.age) / 0.4) * Math.max(0.4, this.level.Drive)
-        ctx.save()
-        ctx.translate(p.x, p.y)
-        ctx.rotate(p.phase + p.age * 6)
-        ctx.beginPath()
-        for (let i = 0; i < 8; i++) {
-          const r = i % 2 === 0 ? p.size : p.size * 0.35
-          const a = (i * Math.PI) / 4
-          ctx.lineTo(Math.cos(a) * r, Math.sin(a) * r)
+      if (p.kind === 'spark' || p.kind === 'diamond') {
+        const level = p.kind === 'spark' ? this.level.Drive : this.level.Pitch
+        const tail = p.kind === 'spark' ? 0.4 : 0.8
+        ctx.globalAlpha = Math.min(1, (p.life - p.age) / tail) * Math.max(0.4, level)
+        const r = p.size * 1.3
+        if (p.kind === 'spark') {
+          ctx.save()
+          ctx.translate(p.x, p.y)
+          ctx.rotate(p.phase + p.age * 6)
+          ctx.drawImage(sprite('spark', p.color), -r, -r, r * 2, r * 2)
+          ctx.restore()
+        } else {
+          ctx.drawImage(sprite('diamond', p.color), p.x - r, p.y - r, r * 2, r * 2)
         }
-        ctx.closePath()
-        ctx.lineWidth = 3
-        ctx.strokeStyle = WHITE
-        ctx.stroke()
-        ctx.fillStyle = p.color
-        ctx.fill()
-        ctx.restore()
       } else if (p.kind === 'block') {
         ctx.globalAlpha = 0.55 * this.level.Crush
         ctx.fillStyle = p.color
