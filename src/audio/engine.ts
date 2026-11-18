@@ -490,6 +490,7 @@ class LeadVoice {
       oscillators.push(mod)
     }
     const mix = 1 / Math.sqrt(p.detunes.length)
+    const unison: OscillatorNode[] = []
     p.detunes.forEach((cents, i) => {
       const osc = ctx.createOscillator()
       osc.type = p.wave
@@ -504,6 +505,7 @@ class LeadVoice {
       pan.pan.value = (t * 2 - 1) * p.spread
       osc.connect(gain).connect(pan).connect(this.filter)
       oscillators.push(osc)
+      unison.push(osc)
     })
     if (p.sub) {
       const sub = ctx.createOscillator()
@@ -517,7 +519,9 @@ class LeadVoice {
       oscillators.push(sub)
     }
     const at = Math.max(time, ctx.currentTime)
-    for (const osc of oscillators) osc.start(at)
+    // Unison voices start a few milliseconds apart, so they begin out of phase. Started together
+    // they add up into one hard spike at the start of every phrase.
+    for (const osc of oscillators) osc.start(unison.length > 1 && unison.includes(osc) ? at + Math.random() * 0.006 : at)
     pitch.start(at)
     return { pitch, oscillators, modDepth }
   }
@@ -595,6 +599,27 @@ class LeadVoice {
   }
 }
 
+/**
+ * Gain staging for the mix. Every saturation stage boosts quiet signals as it colours them, so each
+ * one has a trim in front of it; the master limiter should only catch peaks, not hold the mix down.
+ */
+const MIX = {
+  /** Into the lead drive, before the per-line auto level: hot enough that the drive adds grit. */
+  lead: 1,
+  leadDrive: 2,
+  /** After the lead drive, back down to a level the mix can hold. */
+  leadTrim: 0.95,
+  /** How far each kick pushes the leads down, as a gain. */
+  duck: 0.3,
+  drums: 0.5,
+  drumDrive: 2.4,
+  /** The master clipper's drive, and the level into it. */
+  clip: 1.25,
+  bus: 0.7,
+  /** Reverbs only take what is above this, so the low end stays dry and tight. */
+  verbLowCut: 280,
+}
+
 const LOOKAHEAD = 0.12
 const TICK_MS = 25
 
@@ -611,6 +636,7 @@ export class Engine {
   private noise!: AudioBuffer
   private fxIn!: GainNode
   private master!: GainNode
+  private limiter!: DynamicsCompressorNode
   private pedals!: Pedals
   /** Which pedals are pressed right now, with their amount, height and variant, for the screen and for tests. */
   readonly effects: Partial<Record<EffectName, { x: number; y: number; option: number; detail: string }>> = {}
@@ -690,6 +716,11 @@ export class Engine {
     this.settings = { ...settings }
   }
 
+  /** How many decibels the master limiter is pulling down right now, for tests and tuning. */
+  get limiting(): number {
+    return this.limiter?.reduction ?? 0
+  }
+
   get running(): boolean {
     return this.timer !== null
   }
@@ -703,20 +734,28 @@ export class Engine {
     const ctx = new AudioContext({ latencyHint: 'interactive' })
 
     const out = ctx.createGain()
-    out.gain.value = 0.85
+    out.gain.value = 0.9
+    // A peak limiter: fast, hard and high, so it touches only the loudest hits.
     const limiter = ctx.createDynamicsCompressor()
-    limiter.threshold.value = -9
-    limiter.knee.value = 4
-    limiter.ratio.value = 14
-    limiter.attack.value = 0.002
-    limiter.release.value = 0.12
+    limiter.threshold.value = -4
+    limiter.knee.value = 2
+    limiter.ratio.value = 20
+    limiter.attack.value = 0.001
+    limiter.release.value = 0.08
+    const bus = ctx.createGain()
+    bus.gain.value = MIX.bus
     const clip = ctx.createWaveShaper()
-    clip.curve = clipCurve(1.6)
+    clip.curve = clipCurve(MIX.clip)
     clip.oversample = '2x'
-    clip.connect(limiter).connect(out).connect(ctx.destination)
+    // Nothing below 25 Hz: it is felt as mush, not heard.
+    const rumble = ctx.createBiquadFilter()
+    rumble.type = 'highpass'
+    rumble.frequency.value = 25
+    bus.connect(rumble).connect(clip).connect(limiter).connect(out).connect(ctx.destination)
     this.master = out
+    this.limiter = limiter
     this.fxIn = ctx.createGain()
-    this.pedals = this.buildPedals(ctx, this.fxIn, clip)
+    this.pedals = this.buildPedals(ctx, this.fxIn, bus)
 
     // A short bright room, built from decaying noise.
     const seconds = 1.4
@@ -731,25 +770,31 @@ export class Engine {
     convolver.buffer = impulse
     this.reverb = ctx.createGain()
     this.reverb.gain.value = 1
+    const verbCut = ctx.createBiquadFilter()
+    verbCut.type = 'highpass'
+    verbCut.frequency.value = MIX.verbLowCut
     const wet = ctx.createGain()
     wet.gain.value = 0.22
-    this.reverb.connect(convolver).connect(wet).connect(this.fxIn)
+    this.reverb.connect(verbCut).connect(convolver).connect(wet).connect(this.fxIn)
 
     // Leads run through a drive stage, then get pushed down by every kick.
     this.leadBus = ctx.createGain()
+    this.leadBus.gain.value = MIX.lead
     const drive = ctx.createWaveShaper()
-    drive.curve = clipCurve(2.4)
+    drive.curve = clipCurve(MIX.leadDrive)
     drive.oversample = '2x'
     this.duck = ctx.createGain()
-    this.leadBus.connect(drive).connect(this.duck).connect(this.fxIn)
+    const leadTrim = ctx.createGain()
+    leadTrim.gain.value = MIX.leadTrim
+    this.leadBus.connect(drive).connect(leadTrim).connect(this.duck).connect(this.fxIn)
     const leadSend = ctx.createGain()
     leadSend.gain.value = 0.5
     this.duck.connect(leadSend).connect(this.reverb)
 
     this.drumBus = ctx.createGain()
-    this.drumBus.gain.value = 0.9
+    this.drumBus.gain.value = MIX.drums
     const drumDrive = ctx.createWaveShaper()
-    drumDrive.curve = clipCurve(3)
+    drumDrive.curve = clipCurve(MIX.drumDrive)
     drumDrive.oversample = '2x'
     this.drumBus.connect(drumDrive).connect(this.fxIn)
 
@@ -820,9 +865,12 @@ export class Engine {
     const hallTone = ctx.createBiquadFilter()
     hallTone.type = 'lowpass'
     hallTone.frequency.value = 6000
+    const hallCut = ctx.createBiquadFilter()
+    hallCut.type = 'highpass'
+    hallCut.frequency.value = MIX.verbLowCut
     const hallReturn = ctx.createGain()
     hallReturn.gain.value = 0.8
-    hallTone.connect(hallReturn).connect(output)
+    hallTone.connect(hallCut).connect(hallReturn).connect(output)
     const hallSends = [0.8, 2.2, 4.5, 9].map((seconds) => {
       const impulse = ctx.createBuffer(2, Math.floor(ctx.sampleRate * seconds), ctx.sampleRate)
       for (let ch = 0; ch < 2; ch++) {
@@ -1095,7 +1143,12 @@ export class Engine {
         entry = { voices: [], lead: line.lead }
         this.voices.set(id, entry)
       }
-      while (entry.voices.length < size) entry.voices.push(new LeadVoice(this.ctx, PRESETS[line.lead], this.leadBus))
+      while (entry.voices.length < size) {
+        // Only the chord's root voice carries the sub; stacked subs only muddy the low end.
+        const preset = PRESETS[line.lead]
+        const root = entry.voices.length === 0
+        entry.voices.push(new LeadVoice(this.ctx, root ? preset : { ...preset, sub: false }, this.leadBus))
+      }
       while (entry.voices.length > size) entry.voices.pop()!.dispose()
     }
   }
@@ -1116,6 +1169,11 @@ export class Engine {
     const length = 60 / this.settings.bpm / 4
     const shape = this.chordShape()
     const { arp } = this.settings
+    // The leads level themselves by how many lines sound at once, so a crowded loop stays clear
+    // instead of piling into the drive and the limiter.
+    let sounding = 0
+    for (const line of this.lines.values()) if (line.steps[step] !== null) sounding++
+    this.leadBus.gain.setTargetAtTime(MIX.lead / Math.sqrt(Math.max(1, sounding)), time, 0.03)
     for (const [id, line] of this.lines) {
       const voices = this.voices.get(id)?.voices
       if (!voices || voices.length === 0) continue
@@ -1364,7 +1422,7 @@ export class Engine {
         click.frequency.value = 3000
         this.burst(time, 0.02).connect(click).connect(env(level * 0.5, 0.012)).connect(this.drumBus)
         // The kick shoves the leads out of the way, then lets them swell back.
-        this.duck.gain.setTargetAtTime(0.12, time, 0.003)
+        this.duck.gain.setTargetAtTime(MIX.duck, time, 0.003)
         this.duck.gain.setTargetAtTime(1, time + 0.05, 0.07)
         break
       }
