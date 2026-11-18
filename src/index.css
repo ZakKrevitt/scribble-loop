@@ -256,7 +256,6 @@
   background: var(--surface);
   padding: 1rem;
   box-shadow: var(--glow);
-  border-top: 2px solid var(--neon);
 }
 .panel h2 {
   display: grid;
@@ -290,7 +289,6 @@
     align-items: center;
     gap: 0.5rem;
     padding: 0.5rem;
-    border-top-width: 1px;
   }
   .side .panel > .grid {
     display: flex;

@@ -1,143 +1,45 @@
 {
   "schemaVersion": 2,
-  "generatedAt": "2026-11-17T23:59:00+00:00",
+  "generatedAt": "2026-11-17T12:00:00+00:00",
   "title": "Design System: Scribble Loop",
   "extensions": {
     "colorMeta": {
-      "bar-candy-pink": {
-        "role": "primary",
-        "displayName": "Candy pink",
-        "canonical": "oklch(0.8 0.15 352)",
+      "chrome-plum-black": {
+        "role": "neutral",
+        "displayName": "Chrome plum black",
+        "canonical": "oklch(0.15 0.045 340)",
         "tonalRamp": [
-          "oklch(0.15 0.15 352)",
-          "oklch(0.27 0.15 352)",
-          "oklch(0.4 0.15 352)",
-          "oklch(0.52 0.15 352)",
-          "oklch(0.64 0.15 352)",
-          "oklch(0.76 0.15 352)",
-          "oklch(0.87 0.15 352)",
-          "oklch(0.95 0.15 352)"
+          "oklch(0.15 0.045 340)",
+          "oklch(0.27 0.045 340)",
+          "oklch(0.4 0.045 340)",
+          "oklch(0.52 0.045 340)",
+          "oklch(0.64 0.045 340)",
+          "oklch(0.76 0.045 340)",
+          "oklch(0.87 0.045 340)",
+          "oklch(0.95 0.045 340)"
         ],
-        "hexApproximation": "#f58fbf",
-        "purpose": "The control bar only (--bar)."
+        "purpose": "--chrome and Arc --background: the page and the field under the web."
       },
-      "plum-ink": {
-        "role": "primary",
-        "displayName": "Plum ink",
-        "canonical": "oklch(0.27 0.09 340)",
+      "web-glow": {
+        "role": "neutral",
+        "displayName": "Web glow",
+        "canonical": "oklch(0.32 0.14 352 / 0.55)",
         "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
+          "oklch(0.15 0.14 352)",
+          "oklch(0.27 0.14 352)",
+          "oklch(0.4 0.14 352)",
+          "oklch(0.52 0.14 352)",
+          "oklch(0.64 0.14 352)",
+          "oklch(0.76 0.14 352)",
+          "oklch(0.87 0.14 352)",
+          "oklch(0.95 0.14 352)"
         ],
-        "hexApproximation": "#3b1230",
-        "purpose": "Arc --foreground, --accent, --control-on, --focus-ring."
+        "purpose": "Radial pink glow behind the stage in the .booth frame (src/index.css line 100)."
       },
-      "pen-pink": {
-        "role": "secondary",
-        "displayName": "Pen pink",
-        "canonical": "oklch(0.68 0.25 357)",
-        "tonalRamp": [
-          "oklch(0.15 0.2 357)",
-          "oklch(0.27 0.2 357)",
-          "oklch(0.4 0.2 357)",
-          "oklch(0.52 0.2 357)",
-          "oklch(0.64 0.2 357)",
-          "oklch(0.76 0.2 357)",
-          "oklch(0.87 0.2 357)",
-          "oklch(0.95 0.2 357)"
-        ],
-        "purpose": "Supersaw lines."
-      },
-      "pen-mint": {
-        "role": "secondary",
-        "displayName": "Pen mint",
-        "canonical": "oklch(0.8 0.15 185)",
-        "tonalRamp": [
-          "oklch(0.15 0.12 185)",
-          "oklch(0.27 0.12 185)",
-          "oklch(0.4 0.12 185)",
-          "oklch(0.52 0.12 185)",
-          "oklch(0.64 0.12 185)",
-          "oklch(0.76 0.12 185)",
-          "oklch(0.87 0.12 185)",
-          "oklch(0.95 0.12 185)"
-        ],
-        "purpose": "Rubber lines, the pop drum, the Singer robot and its ribbon, the pedal ring's second-control arc."
-      },
-      "pen-glass": {
-        "role": "secondary",
-        "displayName": "Pen gold",
-        "canonical": "oklch(0.86 0.17 92)",
-        "tonalRamp": [
-          "oklch(0.15 0.15 92)",
-          "oklch(0.27 0.15 92)",
-          "oklch(0.4 0.15 92)",
-          "oklch(0.52 0.15 92)",
-          "oklch(0.64 0.15 92)",
-          "oklch(0.76 0.15 92)",
-          "oklch(0.87 0.15 92)",
-          "oklch(0.95 0.15 92)"
-        ],
-        "purpose": "Glass lines."
-      },
-      "pen-yellow": {
-        "role": "secondary",
-        "displayName": "Snare yellow",
-        "canonical": "oklch(0.9 0.17 98)",
-        "tonalRamp": [
-          "oklch(0.15 0.15 98)",
-          "oklch(0.27 0.15 98)",
-          "oklch(0.4 0.15 98)",
-          "oklch(0.52 0.15 98)",
-          "oklch(0.64 0.15 98)",
-          "oklch(0.76 0.15 98)",
-          "oklch(0.87 0.15 98)",
-          "oklch(0.95 0.15 98)"
-        ],
-        "purpose": "The snare sticker."
-      },
-      "pen-lilac": {
-        "role": "secondary",
-        "displayName": "Pen lilac",
-        "canonical": "oklch(0.66 0.21 305)",
-        "tonalRamp": [
-          "oklch(0.15 0.18 305)",
-          "oklch(0.27 0.18 305)",
-          "oklch(0.4 0.18 305)",
-          "oklch(0.52 0.18 305)",
-          "oklch(0.64 0.18 305)",
-          "oklch(0.76 0.18 305)",
-          "oklch(0.87 0.18 305)",
-          "oklch(0.95 0.18 305)"
-        ],
-        "purpose": "Chip lines and the Dropper robot."
-      },
-      "drum-kick-red": {
-        "role": "secondary",
-        "displayName": "Kick red",
-        "canonical": "oklch(0.62 0.24 22)",
-        "tonalRamp": [
-          "oklch(0.15 0.2 22)",
-          "oklch(0.27 0.2 22)",
-          "oklch(0.4 0.2 22)",
-          "oklch(0.52 0.2 22)",
-          "oklch(0.64 0.2 22)",
-          "oklch(0.76 0.2 22)",
-          "oklch(0.87 0.2 22)",
-          "oklch(0.95 0.2 22)"
-        ],
-        "purpose": "The kick sticker and the Eater robot."
-      },
-      "drum-clap-pink": {
-        "role": "secondary",
-        "displayName": "Clap pink",
-        "canonical": "oklch(0.72 0.22 352)",
+      "web-line": {
+        "role": "neutral",
+        "displayName": "Web line",
+        "canonical": "oklch(0.7 0.2 352 / 0.09)",
         "tonalRamp": [
           "oklch(0.15 0.2 352)",
           "oklch(0.27 0.2 352)",
@@ -148,294 +50,311 @@
           "oklch(0.87 0.2 352)",
           "oklch(0.95 0.2 352)"
         ],
-        "purpose": "The clap sticker."
+        "purpose": "The 60 and -60 degree web lines every 47px (src/index.css lines 101 to 102)."
       },
-      "drum-zap-blue": {
-        "role": "secondary",
-        "displayName": "Zap blue",
-        "canonical": "oklch(0.68 0.18 255)",
-        "tonalRamp": [
-          "oklch(0.15 0.15 255)",
-          "oklch(0.27 0.15 255)",
-          "oklch(0.4 0.15 255)",
-          "oklch(0.52 0.15 255)",
-          "oklch(0.64 0.15 255)",
-          "oklch(0.76 0.15 255)",
-          "oklch(0.87 0.15 255)",
-          "oklch(0.95 0.15 255)"
-        ],
-        "purpose": "The zap sticker and the Bumper robot."
-      },
-      "drum-hat-orange": {
-        "role": "secondary",
-        "displayName": "Hat orange",
-        "canonical": "oklch(0.78 0.17 62)",
-        "tonalRamp": [
-          "oklch(0.15 0.15 62)",
-          "oklch(0.27 0.15 62)",
-          "oklch(0.4 0.15 62)",
-          "oklch(0.52 0.15 62)",
-          "oklch(0.64 0.15 62)",
-          "oklch(0.76 0.15 62)",
-          "oklch(0.87 0.15 62)",
-          "oklch(0.95 0.15 62)"
-        ],
-        "purpose": "The hat sticker and the Swapper robot."
-      },
-      "mint-highlight": {
-        "role": "tertiary",
-        "displayName": "Mint highlight",
-        "canonical": "oklch(0.88 0.1 185)",
-        "tonalRamp": [
-          "oklch(0.15 0.1 185)",
-          "oklch(0.27 0.1 185)",
-          "oklch(0.4 0.1 185)",
-          "oklch(0.52 0.1 185)",
-          "oklch(0.64 0.1 185)",
-          "oklch(0.76 0.1 185)",
-          "oklch(0.87 0.1 185)",
-          "oklch(0.95 0.1 185)"
-        ],
-        "purpose": "Text selection only."
-      },
-      "booth-backdrop": {
+      "web-line-faint": {
         "role": "neutral",
-        "displayName": "Booth backdrop",
-        "canonical": "oklch(0.93 0.045 326)",
+        "displayName": "Web line faint",
+        "canonical": "oklch(0.7 0.2 352 / 0.06)",
         "tonalRamp": [
-          "oklch(0.15 0.045 326)",
-          "oklch(0.27 0.045 326)",
-          "oklch(0.4 0.045 326)",
-          "oklch(0.52 0.045 326)",
-          "oklch(0.64 0.045 326)",
-          "oklch(0.76 0.045 326)",
-          "oklch(0.87 0.045 326)",
-          "oklch(0.95 0.045 326)"
+          "oklch(0.15 0.2 352)",
+          "oklch(0.27 0.2 352)",
+          "oklch(0.4 0.2 352)",
+          "oklch(0.52 0.2 352)",
+          "oklch(0.64 0.2 352)",
+          "oklch(0.76 0.2 352)",
+          "oklch(0.87 0.2 352)",
+          "oklch(0.95 0.2 352)"
         ],
-        "purpose": "Arc --background; page, stage, and text on primary buttons."
+        "purpose": "The horizontal web line every 81px (src/index.css line 103)."
       },
-      "sticker-paper": {
-        "role": "neutral",
-        "displayName": "Sticker paper",
-        "canonical": "oklch(0.985 0.012 345)",
-        "tonalRamp": [
-          "oklch(0.15 0.012 345)",
-          "oklch(0.27 0.012 345)",
-          "oklch(0.4 0.012 345)",
-          "oklch(0.52 0.012 345)",
-          "oklch(0.64 0.012 345)",
-          "oklch(0.76 0.012 345)",
-          "oklch(0.87 0.012 345)",
-          "oklch(0.95 0.012 345)"
-        ],
-        "purpose": "Arc --surface, --surface-raised, --accent-foreground."
-      },
-      "pen-white": {
-        "role": "neutral",
-        "displayName": "Pen white",
-        "canonical": "oklch(0.995 0.005 345)",
-        "tonalRamp": [
-          "oklch(0.15 0.005 345)",
-          "oklch(0.27 0.005 345)",
-          "oklch(0.4 0.005 345)",
-          "oklch(0.52 0.005 345)",
-          "oklch(0.64 0.005 345)",
-          "oklch(0.76 0.005 345)",
-          "oklch(0.87 0.005 345)",
-          "oklch(0.95 0.005 345)"
-        ],
-        "purpose": "Canvas cut edges, playhead core, effects-hand fingertip pills, halos."
-      },
-      "blush-muted": {
-        "role": "neutral",
-        "displayName": "Blush",
-        "canonical": "oklch(0.9 0.06 348)",
-        "tonalRamp": [
-          "oklch(0.15 0.06 348)",
-          "oklch(0.27 0.06 348)",
-          "oklch(0.4 0.06 348)",
-          "oklch(0.52 0.06 348)",
-          "oklch(0.64 0.06 348)",
-          "oklch(0.76 0.06 348)",
-          "oklch(0.87 0.06 348)",
-          "oklch(0.95 0.06 348)"
-        ],
-        "purpose": "Arc --control-track; switch and slider tracks."
-      },
-      "plum-soft": {
-        "role": "neutral",
-        "displayName": "Soft plum",
-        "canonical": "oklch(0.4 0.09 340)",
-        "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
-        ],
-        "purpose": "Arc --text-secondary; ghost buttons, table headers."
-      },
-      "plum-hairline": {
-        "role": "neutral",
-        "displayName": "Plum hairline",
-        "canonical": "oklch(0.27 0.09 340 / 0.16)",
-        "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
-        ],
-        "purpose": "Arc --border."
-      },
-      "booth-wash": {
-        "role": "neutral",
-        "displayName": "Booth wash",
-        "canonical": "oklch(0.8 0.11 335)",
-        "tonalRamp": [
-          "oklch(0.15 0.11 335)",
-          "oklch(0.27 0.11 335)",
-          "oklch(0.4 0.11 335)",
-          "oklch(0.52 0.11 335)",
-          "oklch(0.64 0.11 335)",
-          "oklch(0.76 0.11 335)",
-          "oklch(0.87 0.11 335)",
-          "oklch(0.95 0.11 335)"
-        ]
-      },
-      "plum-deep": {
+      "neon": {
         "role": "primary",
-        "displayName": "Plum deep",
-        "canonical": "oklch(0.2 0.07 340)",
+        "displayName": "Neon",
+        "canonical": "oklch(0.78 0.21 352)",
         "tonalRamp": [
-          "oklch(0.15 0.07 340)",
-          "oklch(0.27 0.07 340)",
-          "oklch(0.4 0.07 340)",
-          "oklch(0.52 0.07 340)",
-          "oklch(0.64 0.07 340)",
-          "oklch(0.76 0.07 340)",
-          "oklch(0.87 0.07 340)",
-          "oklch(0.95 0.07 340)"
+          "oklch(0.15 0.21 352)",
+          "oklch(0.27 0.21 352)",
+          "oklch(0.4 0.21 352)",
+          "oklch(0.52 0.21 352)",
+          "oklch(0.64 0.21 352)",
+          "oklch(0.76 0.21 352)",
+          "oklch(0.87 0.21 352)",
+          "oklch(0.95 0.21 352)"
         ],
-        "purpose": "Arc --accent-strong; keyboard focus outline at 72%."
+        "purpose": "--neon, Arc --border-strong and --control-on: panel headings, lit edges, on switch."
       },
-      "blush-wash": {
-        "role": "neutral",
-        "displayName": "Blush wash",
-        "canonical": "oklch(0.94 0.04 345)",
+      "neon-dim": {
+        "role": "primary",
+        "displayName": "Neon dim",
+        "canonical": "oklch(0.62 0.19 352 / 0.5)",
         "tonalRamp": [
-          "oklch(0.15 0.04 345)",
-          "oklch(0.27 0.04 345)",
-          "oklch(0.4 0.04 345)",
-          "oklch(0.52 0.04 345)",
-          "oklch(0.64 0.04 345)",
-          "oklch(0.76 0.04 345)",
-          "oklch(0.87 0.04 345)",
-          "oklch(0.95 0.04 345)"
+          "oklch(0.15 0.19 352)",
+          "oklch(0.27 0.19 352)",
+          "oklch(0.4 0.19 352)",
+          "oklch(0.52 0.19 352)",
+          "oklch(0.64 0.19 352)",
+          "oklch(0.76 0.19 352)",
+          "oklch(0.87 0.19 352)",
+          "oklch(0.95 0.19 352)"
         ],
-        "purpose": "Arc --surface-muted; segmented well, hover and highlight fills."
+        "purpose": "--neon-dim and Arc --border: resting plate edges, stage inset ring, unlit orb rim."
       },
-      "blush-track-hover": {
-        "role": "neutral",
-        "displayName": "Blush track hover",
-        "canonical": "oklch(0.86 0.07 348)",
+      "neon-hairline": {
+        "role": "primary",
+        "displayName": "Neon hairline",
+        "canonical": "oklch(0.62 0.19 352 / 0.25)",
         "tonalRamp": [
-          "oklch(0.15 0.07 348)",
-          "oklch(0.27 0.07 348)",
-          "oklch(0.4 0.07 348)",
-          "oklch(0.52 0.07 348)",
-          "oklch(0.64 0.07 348)",
-          "oklch(0.76 0.07 348)",
-          "oklch(0.87 0.07 348)",
-          "oklch(0.95 0.07 348)"
+          "oklch(0.15 0.19 352)",
+          "oklch(0.27 0.19 352)",
+          "oklch(0.4 0.19 352)",
+          "oklch(0.52 0.19 352)",
+          "oklch(0.64 0.19 352)",
+          "oklch(0.76 0.19 352)",
+          "oklch(0.87 0.19 352)",
+          "oklch(0.95 0.19 352)"
         ],
-        "purpose": "Arc --control-track-hover."
+        "purpose": "Arc --border-subtle: How to play table rules."
       },
-      "plum-muted": {
-        "role": "neutral",
-        "displayName": "Muted plum",
-        "canonical": "oklch(0.47 0.08 340)",
+      "lit-pink": {
+        "role": "primary",
+        "displayName": "Lit pink",
+        "canonical": "oklch(0.83 0.17 352)",
         "tonalRamp": [
-          "oklch(0.15 0.08 340)",
-          "oklch(0.27 0.08 340)",
-          "oklch(0.4 0.08 340)",
-          "oklch(0.52 0.08 340)",
-          "oklch(0.64 0.08 340)",
-          "oklch(0.76 0.08 340)",
-          "oklch(0.87 0.08 340)",
-          "oklch(0.95 0.08 340)"
+          "oklch(0.15 0.17 352)",
+          "oklch(0.27 0.17 352)",
+          "oklch(0.4 0.17 352)",
+          "oklch(0.52 0.17 352)",
+          "oklch(0.64 0.17 352)",
+          "oklch(0.76 0.17 352)",
+          "oklch(0.87 0.17 352)",
+          "oklch(0.95 0.17 352)"
         ],
-        "purpose": "Arc --text-muted; unselected segments, chevrons."
+        "purpose": "Arc --accent: the solid lit plate, slider fill, selection, alert band."
       },
-      "plum-hairline-subtle": {
-        "role": "neutral",
-        "displayName": "Plum hairline subtle",
-        "canonical": "oklch(0.27 0.09 340 / 0.09)",
+      "lit-pink-edge": {
+        "role": "primary",
+        "displayName": "Lit pink edge",
+        "canonical": "oklch(0.9 0.12 352)",
         "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
+          "oklch(0.15 0.12 352)",
+          "oklch(0.27 0.12 352)",
+          "oklch(0.4 0.12 352)",
+          "oklch(0.52 0.12 352)",
+          "oklch(0.64 0.12 352)",
+          "oklch(0.76 0.12 352)",
+          "oklch(0.87 0.12 352)",
+          "oklch(0.95 0.12 352)"
         ],
-        "purpose": "Arc --border-subtle."
+        "purpose": "Arc --accent-strong: the lit plate edge."
       },
-      "plum-rule-strong": {
-        "role": "neutral",
-        "displayName": "Plum rule strong",
-        "canonical": "oklch(0.27 0.09 340 / 0.32)",
+      "lit-pink-tint": {
+        "role": "primary",
+        "displayName": "Lit pink tint",
+        "canonical": "oklch(0.78 0.21 352 / 0.18)",
         "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
-        ],
-        "purpose": "Arc --border-strong."
-      },
-      "plum-tint": {
-        "role": "neutral",
-        "displayName": "Plum tint",
-        "canonical": "oklch(0.27 0.09 340 / 0.1)",
-        "tonalRamp": [
-          "oklch(0.15 0.09 340)",
-          "oklch(0.27 0.09 340)",
-          "oklch(0.4 0.09 340)",
-          "oklch(0.52 0.09 340)",
-          "oklch(0.64 0.09 340)",
-          "oklch(0.76 0.09 340)",
-          "oklch(0.87 0.09 340)",
-          "oklch(0.95 0.09 340)"
+          "oklch(0.15 0.21 352)",
+          "oklch(0.27 0.21 352)",
+          "oklch(0.4 0.21 352)",
+          "oklch(0.52 0.21 352)",
+          "oklch(0.64 0.21 352)",
+          "oklch(0.76 0.21 352)",
+          "oklch(0.87 0.21 352)",
+          "oklch(0.95 0.21 352)"
         ],
         "purpose": "Arc --accent-subtle."
       },
-      "thumb-white": {
-        "role": "neutral",
-        "displayName": "Thumb white",
-        "canonical": "oklch(100% 0 0)",
+      "lit-plate-text": {
+        "role": "primary",
+        "displayName": "Lit plate text",
+        "canonical": "oklch(0.17 0.06 340)",
         "tonalRamp": [
-          "oklch(0.15 0 0)",
-          "oklch(0.27 0 0)",
-          "oklch(0.4 0 0)",
-          "oklch(0.52 0 0)",
-          "oklch(0.64 0 0)",
-          "oklch(0.76 0 0)",
-          "oklch(0.87 0 0)",
-          "oklch(0.95 0 0)"
+          "oklch(0.15 0.06 340)",
+          "oklch(0.27 0.06 340)",
+          "oklch(0.4 0.06 340)",
+          "oklch(0.52 0.06 340)",
+          "oklch(0.64 0.06 340)",
+          "oklch(0.76 0.06 340)",
+          "oklch(0.87 0.06 340)",
+          "oklch(0.95 0.06 340)"
         ],
-        "purpose": "Arc --control-thumb; switch and slider thumbs."
+        "purpose": "Arc --accent-foreground: text on the lit plate."
+      },
+      "plate": {
+        "role": "neutral",
+        "displayName": "Plate",
+        "canonical": "oklch(0.22 0.075 345 / 0.84)",
+        "tonalRamp": [
+          "oklch(0.15 0.075 345)",
+          "oklch(0.27 0.075 345)",
+          "oklch(0.4 0.075 345)",
+          "oklch(0.52 0.075 345)",
+          "oklch(0.64 0.075 345)",
+          "oklch(0.76 0.075 345)",
+          "oklch(0.87 0.075 345)",
+          "oklch(0.95 0.075 345)"
+        ],
+        "purpose": "Arc --surface: translucent plates for secondary buttons, triggers, hand panels."
+      },
+      "plate-raised": {
+        "role": "neutral",
+        "displayName": "Plate raised",
+        "canonical": "oklch(0.19 0.065 343 / 0.97)",
+        "tonalRamp": [
+          "oklch(0.15 0.065 343)",
+          "oklch(0.27 0.065 343)",
+          "oklch(0.4 0.065 343)",
+          "oklch(0.52 0.065 343)",
+          "oklch(0.64 0.065 343)",
+          "oklch(0.76 0.065 343)",
+          "oklch(0.87 0.065 343)",
+          "oklch(0.95 0.065 343)"
+        ],
+        "purpose": "Arc --surface-raised: menus, lists, popovers, dialog, messages over the stage."
+      },
+      "plate-hover": {
+        "role": "neutral",
+        "displayName": "Plate hover",
+        "canonical": "oklch(0.32 0.12 350 / 0.7)",
+        "tonalRamp": [
+          "oklch(0.15 0.12 350)",
+          "oklch(0.27 0.12 350)",
+          "oklch(0.4 0.12 350)",
+          "oklch(0.52 0.12 350)",
+          "oklch(0.64 0.12 350)",
+          "oklch(0.76 0.12 350)",
+          "oklch(0.87 0.12 350)",
+          "oklch(0.95 0.12 350)"
+        ],
+        "purpose": "Arc --surface-muted: hover, open and highlight fills, segmented well."
+      },
+      "console-text": {
+        "role": "neutral",
+        "displayName": "Console text",
+        "canonical": "oklch(0.94 0.05 350)",
+        "tonalRamp": [
+          "oklch(0.15 0.05 350)",
+          "oklch(0.27 0.05 350)",
+          "oklch(0.4 0.05 350)",
+          "oklch(0.52 0.05 350)",
+          "oklch(0.64 0.05 350)",
+          "oklch(0.76 0.05 350)",
+          "oklch(0.87 0.05 350)",
+          "oklch(0.95 0.05 350)"
+        ],
+        "purpose": "Arc --foreground and focus ring: every word in the chrome."
+      },
+      "console-text-soft": {
+        "role": "neutral",
+        "displayName": "Console text soft",
+        "canonical": "oklch(0.82 0.09 350)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 350)",
+          "oklch(0.27 0.09 350)",
+          "oklch(0.4 0.09 350)",
+          "oklch(0.52 0.09 350)",
+          "oklch(0.64 0.09 350)",
+          "oklch(0.76 0.09 350)",
+          "oklch(0.87 0.09 350)",
+          "oklch(0.95 0.09 350)"
+        ],
+        "purpose": "Arc --text-secondary: panel subtitles, field labels, ghost buttons."
+      },
+      "console-text-muted": {
+        "role": "neutral",
+        "displayName": "Console text muted",
+        "canonical": "oklch(0.72 0.11 350)",
+        "tonalRamp": [
+          "oklch(0.15 0.11 350)",
+          "oklch(0.27 0.11 350)",
+          "oklch(0.4 0.11 350)",
+          "oklch(0.52 0.11 350)",
+          "oklch(0.64 0.11 350)",
+          "oklch(0.76 0.11 350)",
+          "oklch(0.87 0.11 350)",
+          "oklch(0.95 0.11 350)"
+        ],
+        "purpose": "Arc --text-muted: chevrons and disabled text."
+      },
+      "track": {
+        "role": "neutral",
+        "displayName": "Track",
+        "canonical": "oklch(0.3 0.09 345)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 345)",
+          "oklch(0.27 0.09 345)",
+          "oklch(0.4 0.09 345)",
+          "oklch(0.52 0.09 345)",
+          "oklch(0.64 0.09 345)",
+          "oklch(0.76 0.09 345)",
+          "oklch(0.87 0.09 345)",
+          "oklch(0.95 0.09 345)"
+        ],
+        "purpose": "Arc --control-track."
+      },
+      "track-hover": {
+        "role": "neutral",
+        "displayName": "Track hover",
+        "canonical": "oklch(0.36 0.11 348)",
+        "tonalRamp": [
+          "oklch(0.15 0.11 348)",
+          "oklch(0.27 0.11 348)",
+          "oklch(0.4 0.11 348)",
+          "oklch(0.52 0.11 348)",
+          "oklch(0.64 0.11 348)",
+          "oklch(0.76 0.11 348)",
+          "oklch(0.87 0.11 348)",
+          "oklch(0.95 0.11 348)"
+        ],
+        "purpose": "Arc --control-track-hover."
+      },
+      "thumb-pearl": {
+        "role": "neutral",
+        "displayName": "Thumb pearl",
+        "canonical": "oklch(0.96 0.03 350)",
+        "tonalRamp": [
+          "oklch(0.15 0.03 350)",
+          "oklch(0.27 0.03 350)",
+          "oklch(0.4 0.03 350)",
+          "oklch(0.52 0.03 350)",
+          "oklch(0.64 0.03 350)",
+          "oklch(0.76 0.03 350)",
+          "oklch(0.87 0.03 350)",
+          "oklch(0.95 0.03 350)"
+        ],
+        "purpose": "Arc --control-thumb and --control-thumb-on."
+      },
+      "orb-off": {
+        "role": "neutral",
+        "displayName": "Orb off",
+        "canonical": "oklch(0.2 0.06 345)",
+        "tonalRamp": [
+          "oklch(0.15 0.06 345)",
+          "oklch(0.27 0.06 345)",
+          "oklch(0.4 0.06 345)",
+          "oklch(0.52 0.06 345)",
+          "oklch(0.64 0.06 345)",
+          "oklch(0.76 0.06 345)",
+          "oklch(0.87 0.06 345)",
+          "oklch(0.95 0.06 345)"
+        ],
+        "purpose": "Unlit orb core."
+      },
+      "orb-rim-lit": {
+        "role": "neutral",
+        "displayName": "Orb rim lit",
+        "canonical": "oklch(0.97 0.02 350)",
+        "tonalRamp": [
+          "oklch(0.15 0.02 350)",
+          "oklch(0.27 0.02 350)",
+          "oklch(0.4 0.02 350)",
+          "oklch(0.52 0.02 350)",
+          "oklch(0.64 0.02 350)",
+          "oklch(0.76 0.02 350)",
+          "oklch(0.87 0.02 350)",
+          "oklch(0.95 0.02 350)"
+        ],
+        "purpose": "Lit orb rim (src/index.css line 172)."
       },
       "dialog-scrim": {
         "role": "neutral",
@@ -451,288 +370,431 @@
           "oklch(0.87 0 0)",
           "oklch(0.95 0 0)"
         ],
-        "purpose": "Arc's dim layer behind the How to play dialog, with a 7px backdrop blur."
+        "purpose": "Arc's dim layer behind the dialog, with a 7px blur."
+      },
+      "booth-backdrop": {
+        "role": "neutral",
+        "displayName": "Booth backdrop",
+        "canonical": "oklch(0.93 0.045 326)",
+        "tonalRamp": [
+          "oklch(0.15 0.045 326)",
+          "oklch(0.27 0.045 326)",
+          "oklch(0.4 0.045 326)",
+          "oklch(0.52 0.045 326)",
+          "oklch(0.64 0.045 326)",
+          "oklch(0.76 0.045 326)",
+          "oklch(0.87 0.045 326)",
+          "oklch(0.95 0.045 326)"
+        ],
+        "purpose": "--stage: the stage; at 25% the camera veil."
+      },
+      "booth-wash": {
+        "role": "neutral",
+        "displayName": "Booth wash",
+        "canonical": "oklch(0.8 0.11 335)",
+        "tonalRamp": [
+          "oklch(0.15 0.11 335)",
+          "oklch(0.27 0.11 335)",
+          "oklch(0.4 0.11 335)",
+          "oklch(0.52 0.11 335)",
+          "oklch(0.64 0.11 335)",
+          "oklch(0.76 0.11 335)",
+          "oklch(0.87 0.11 335)",
+          "oklch(0.95 0.11 335)"
+        ],
+        "purpose": "Screened over the live camera image."
+      },
+      "plum-ink": {
+        "role": "neutral",
+        "displayName": "Plum ink",
+        "canonical": "oklch(0.27 0.09 340)",
+        "tonalRamp": [
+          "oklch(0.15 0.09 340)",
+          "oklch(0.27 0.09 340)",
+          "oklch(0.4 0.09 340)",
+          "oklch(0.52 0.09 340)",
+          "oklch(0.64 0.09 340)",
+          "oklch(0.76 0.09 340)",
+          "oklch(0.87 0.09 340)",
+          "oklch(0.95 0.09 340)"
+        ],
+        "purpose": "Canvas only: ticks, cursor, pedal ring, robot hand, pressed pills, sticker shadow."
+      },
+      "pen-white": {
+        "role": "neutral",
+        "displayName": "Pen white",
+        "canonical": "oklch(0.995 0.005 345)",
+        "tonalRamp": [
+          "oklch(0.15 0.005 345)",
+          "oklch(0.27 0.005 345)",
+          "oklch(0.4 0.005 345)",
+          "oklch(0.52 0.005 345)",
+          "oklch(0.64 0.005 345)",
+          "oklch(0.76 0.005 345)",
+          "oklch(0.87 0.005 345)",
+          "oklch(0.95 0.005 345)"
+        ],
+        "purpose": "Canvas only: cut edges, playhead core, glint, guides, halos."
+      },
+      "pen-pink": {
+        "role": "secondary",
+        "displayName": "Pen pink",
+        "canonical": "oklch(0.68 0.25 357)",
+        "tonalRamp": [
+          "oklch(0.15 0.25 357)",
+          "oklch(0.27 0.25 357)",
+          "oklch(0.4 0.25 357)",
+          "oklch(0.52 0.25 357)",
+          "oklch(0.64 0.25 357)",
+          "oklch(0.76 0.25 357)",
+          "oklch(0.87 0.25 357)",
+          "oklch(0.95 0.25 357)"
+        ],
+        "purpose": "Supersaw lines and orb."
+      },
+      "pen-mint": {
+        "role": "secondary",
+        "displayName": "Pen mint",
+        "canonical": "oklch(0.8 0.15 185)",
+        "tonalRamp": [
+          "oklch(0.15 0.15 185)",
+          "oklch(0.27 0.15 185)",
+          "oklch(0.4 0.15 185)",
+          "oklch(0.52 0.15 185)",
+          "oklch(0.64 0.15 185)",
+          "oklch(0.76 0.15 185)",
+          "oklch(0.87 0.15 185)",
+          "oklch(0.95 0.15 185)"
+        ],
+        "purpose": "Rubber lines and orb, pop drum, Singer, ribbon, pedal ring arc."
+      },
+      "pen-glass": {
+        "role": "secondary",
+        "displayName": "Pen glass",
+        "canonical": "oklch(0.86 0.17 92)",
+        "tonalRamp": [
+          "oklch(0.15 0.17 92)",
+          "oklch(0.27 0.17 92)",
+          "oklch(0.4 0.17 92)",
+          "oklch(0.52 0.17 92)",
+          "oklch(0.64 0.17 92)",
+          "oklch(0.76 0.17 92)",
+          "oklch(0.87 0.17 92)",
+          "oklch(0.95 0.17 92)"
+        ],
+        "purpose": "Glass lines and orb."
+      },
+      "pen-lilac": {
+        "role": "secondary",
+        "displayName": "Pen lilac",
+        "canonical": "oklch(0.66 0.21 305)",
+        "tonalRamp": [
+          "oklch(0.15 0.21 305)",
+          "oklch(0.27 0.21 305)",
+          "oklch(0.4 0.21 305)",
+          "oklch(0.52 0.21 305)",
+          "oklch(0.64 0.21 305)",
+          "oklch(0.76 0.21 305)",
+          "oklch(0.87 0.21 305)",
+          "oklch(0.95 0.21 305)"
+        ],
+        "purpose": "Chip lines and orb, Dropper."
+      },
+      "pen-yellow": {
+        "role": "secondary",
+        "displayName": "Pen yellow",
+        "canonical": "oklch(0.9 0.17 98)",
+        "tonalRamp": [
+          "oklch(0.15 0.17 98)",
+          "oklch(0.27 0.17 98)",
+          "oklch(0.4 0.17 98)",
+          "oklch(0.52 0.17 98)",
+          "oklch(0.64 0.17 98)",
+          "oklch(0.76 0.17 98)",
+          "oklch(0.87 0.17 98)",
+          "oklch(0.95 0.17 98)"
+        ],
+        "purpose": "Snare sticker."
+      },
+      "drum-kick-red": {
+        "role": "secondary",
+        "displayName": "Drum kick red",
+        "canonical": "oklch(0.62 0.24 22)",
+        "tonalRamp": [
+          "oklch(0.15 0.24 22)",
+          "oklch(0.27 0.24 22)",
+          "oklch(0.4 0.24 22)",
+          "oklch(0.52 0.24 22)",
+          "oklch(0.64 0.24 22)",
+          "oklch(0.76 0.24 22)",
+          "oklch(0.87 0.24 22)",
+          "oklch(0.95 0.24 22)"
+        ],
+        "purpose": "Kick sticker, Eater."
+      },
+      "drum-clap-pink": {
+        "role": "secondary",
+        "displayName": "Drum clap pink",
+        "canonical": "oklch(0.72 0.22 352)",
+        "tonalRamp": [
+          "oklch(0.15 0.22 352)",
+          "oklch(0.27 0.22 352)",
+          "oklch(0.4 0.22 352)",
+          "oklch(0.52 0.22 352)",
+          "oklch(0.64 0.22 352)",
+          "oklch(0.76 0.22 352)",
+          "oklch(0.87 0.22 352)",
+          "oklch(0.95 0.22 352)"
+        ],
+        "purpose": "Clap sticker."
+      },
+      "drum-zap-blue": {
+        "role": "secondary",
+        "displayName": "Drum zap blue",
+        "canonical": "oklch(0.68 0.18 255)",
+        "tonalRamp": [
+          "oklch(0.15 0.18 255)",
+          "oklch(0.27 0.18 255)",
+          "oklch(0.4 0.18 255)",
+          "oklch(0.52 0.18 255)",
+          "oklch(0.64 0.18 255)",
+          "oklch(0.76 0.18 255)",
+          "oklch(0.87 0.18 255)",
+          "oklch(0.95 0.18 255)"
+        ],
+        "purpose": "Zap sticker, Bumper."
+      },
+      "drum-hat-orange": {
+        "role": "secondary",
+        "displayName": "Drum hat orange",
+        "canonical": "oklch(0.78 0.17 62)",
+        "tonalRamp": [
+          "oklch(0.15 0.17 62)",
+          "oklch(0.27 0.17 62)",
+          "oklch(0.4 0.17 62)",
+          "oklch(0.52 0.17 62)",
+          "oklch(0.64 0.17 62)",
+          "oklch(0.76 0.17 62)",
+          "oklch(0.87 0.17 62)",
+          "oklch(0.95 0.17 62)"
+        ],
+        "purpose": "Hat sticker, Swapper."
       }
     },
     "typographyMeta": {
-      "wordmark": {
-        "displayName": "Wordmark",
-        "purpose": "Product name from 1700px wide and the How to play section headings, 800 weight."
+      "heading": {
+        "displayName": "Heading",
+        "purpose": "Panel hand names and How to play headings in neon; tempo readout. Chakra Petch 700."
       },
-      "label": {
-        "displayName": "Label",
-        "purpose": "Tempo readout, Pedal hand heading, message bubbles, fingertip pills, canvas note names and pedal readout, 700 weight."
+      "control": {
+        "displayName": "Control",
+        "purpose": "Buttons, triggers, menu items, options, messages over the stage. Chakra Petch 600."
       },
       "body": {
         "displayName": "Body",
-        "purpose": "Every Arc control, option and menu item, panel field labels, dialog body and table, alert band, 500 weight."
+        "purpose": "Panel subtitles, field labels, dialog body, alert band. Chakra Petch 500."
+      },
+      "canvas-label": {
+        "displayName": "Canvas label",
+        "purpose": "Fingertip and palm pills, note names, pedal readout, the carried robot label. M PLUS Rounded 1c 700."
       }
     },
     "shadows": [
       {
-        "name": "sticker",
-        "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 8, shadowOffsetY 3",
-        "purpose": "Under lines, drum stickers, walking robots and the pedal ring on the stage."
+        "name": "glow",
+        "value": "0 0 0 1px oklch(0.62 0.19 352 / 0.5), 0 0 18px oklch(0.7 0.22 352 / 0.28)",
+        "purpose": "--glow and Arc --shadow-raised: hand panels, messages over the stage. Console chrome only."
       },
       {
-        "name": "sticker-tight",
-        "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 5 (hand) or 6 (cursor), shadowOffsetY 2",
-        "purpose": "Robot hand overlay, hand cursor and fingertip pills."
+        "name": "glow-strong",
+        "value": "0 0 0 1px oklch(0.78 0.21 352), 0 0 22px oklch(0.75 0.22 352 / 0.55)",
+        "purpose": "--glow-strong: an active plate. Console chrome only."
       },
       {
-        "name": "lift",
-        "value": "0 3px 10px oklch(0.27 0.09 340 / 0.25)",
-        "purpose": "Message bubbles over the stage."
+        "name": "lit-plate",
+        "value": "inset 0 1px 0 oklch(1 0 0 / 0.45), 0 0 18px oklch(0.78 0.21 352 / 0.55)",
+        "purpose": "The chosen item (primary button)."
+      },
+      {
+        "name": "plate-sheen",
+        "value": "inset 0 1px 0 oklch(0.95 0.05 350 / 0.12)",
+        "purpose": "Secondary plates and triggers."
       },
       {
         "name": "floating",
-        "value": "0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08)",
-        "purpose": "Arc --shadow-floating retuned to plum: select lists, dropdown menus, popovers, the dialog."
+        "value": "0 0 0 1px oklch(0.62 0.19 352 / 0.5), 0 0 18px oklch(0.7 0.22 352 / 0.28), 0 24px 48px oklch(0.08 0.03 340 / 0.6)",
+        "purpose": "Arc --shadow-floating: lists, menus, popovers, the dialog."
       },
       {
-        "name": "resting",
-        "value": "0 1px 2px oklch(0% 0 0 / .035)",
-        "purpose": "Arc --shadow-resting: hover on secondary buttons and the dropdown trigger, the selected segment."
+        "name": "orb-light",
+        "value": "0 0 10px var(--orb)",
+        "purpose": "A lit orb, in its own ink."
+      },
+      {
+        "name": "sticker",
+        "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 8, shadowOffsetY 3",
+        "purpose": "Stage only: lines, drum stickers, walking robots, the pedal ring."
+      },
+      {
+        "name": "sticker-tight",
+        "value": "canvas shadowColor oklch(0.27 0.09 340 / 0.35), shadowBlur 5 (hand) or 6 (cursor, pills), shadowOffsetY 2",
+        "purpose": "Stage only: robot hand, cursor, fingertip pills."
       }
     ],
     "motion": [
       {
         "name": "beat-flash",
         "value": "90ms, scale 1.35 drum stickers, 1.08 lift for a robot that acts, no easing",
-        "purpose": "A drum sticker jumps when the playhead fires it; a robot lifts when it does something."
+        "purpose": "Stage: a drum or robot jumps on its beat."
       },
       {
         "name": "beat-swell",
         "value": "first half of each sixteenth step, line width 1.45x, no easing",
-        "purpose": "A sounding melody line swells on the beat, with a white sparkle glint at the playhead."
+        "purpose": "Stage: a sounding line swells."
       },
       {
-        "name": "reduced-motion",
-        "value": "prefers-reduced-motion: reduce",
-        "purpose": "Flash and swell stop; the playhead keeps moving. Arc components drop their transitions."
+        "name": "carried-robot",
+        "value": "walk cycle frame every 90ms at 70% opacity",
+        "purpose": "The robot a fist carries until the hand opens."
       },
       {
         "name": "duration-instant / fast / standard / considered / spring",
         "value": "100ms / 150ms / 200ms / 360ms / 440ms",
-        "purpose": "Arc duration tokens for chrome state changes and panel entrances."
+        "purpose": "Arc chrome durations."
       },
       {
         "name": "ease-standard",
         "value": "cubic-bezier(.22,1,.36,1)",
-        "purpose": "Arc default easing for chrome state changes."
+        "purpose": "Arc chrome state changes."
       },
       {
-        "name": "ease-enter",
-        "value": "cubic-bezier(.16,1,.3,1)",
-        "purpose": "Select lists and the dialog rising in."
-      },
-      {
-        "name": "ease-spring",
-        "value": "linear() spring curve from 0 to 1 with no overshoot",
-        "purpose": "Dropdown menus, popovers and the dialog settling; never overshoots."
-      },
-      {
-        "name": "spring snappy / smooth / morph",
-        "value": "visualDuration 0.2s / 0.3s / 0.3s, bounce 0",
-        "purpose": "motion-tokens.ts springs for presses, panels and the segmented selection tile."
+        "name": "reduced-motion",
+        "value": "prefers-reduced-motion: reduce",
+        "purpose": "Beat jumps stop, playhead remains; Arc drops transitions."
       }
     ],
     "breakpoints": [
       {
-        "name": "wordmark",
-        "value": "1700px",
-        "note": "Below this the wordmark is screen-reader only."
-      },
-      {
-        "name": "bar-two-rows",
-        "value": "1280px",
-        "note": "The bar is two rows, 104px tall, at 1280 to 1440px and wider; each row wraps on its own below that, seven rows at 390px."
+        "name": "lg",
+        "value": "1024px",
+        "note": "Three columns at and above; below, one column with the stage first (min 55dvh), bars under it, then right and left hand strips that scroll sideways."
       },
       {
         "name": "sm",
         "value": "640px",
-        "note": "Stage gutters narrow to 34px and 42px; Arc raises typed text to 16px."
+        "note": "Stage gutters narrow to 34px and 42px."
       }
     ],
     "focus": {
-      "value": "outline: 2px solid color-mix(in oklab, oklch(0.2 0.07 340) 72%, transparent); outline-offset: 2px",
-      "purpose": "Arc's keyboard :focus-visible outline on the retuned accent; pointer focus draws no ring."
+      "global": "outline: 2px solid oklch(0.94 0.05 350); outline-offset: 2px",
+      "plates": "outline: none; box-shadow: inset 0 0 0 2px oklch(0.94 0.05 350)",
+      "purpose": "Notched plates clip outside outlines, so their focus draws inside."
     },
-    "radii": [
-      {
-        "name": "control-inner",
-        "value": "10px",
-        "token": "calc(var(--radius-control) - 4px)",
-        "purpose": "Segments and select options."
-      },
-      {
-        "name": "control",
-        "value": "14px",
-        "token": "--radius-control",
-        "purpose": "Buttons, select triggers, segmented well, dropdown items."
-      },
-      {
-        "name": "control-lg",
-        "value": "16px",
-        "token": "calc(var(--radius-control) + 2px)",
-        "purpose": "Large buttons and select lists."
-      },
-      {
-        "name": "panel",
-        "value": "20px",
-        "token": "--radius-panel",
-        "purpose": "Dropdown menus and popovers."
-      },
-      {
-        "name": "surface",
-        "value": "24px",
-        "token": "--radius-surface",
-        "purpose": "The dialog and message bubbles."
-      },
-      {
-        "name": "pill",
-        "value": "9999px",
-        "token": "--radius-pill",
-        "purpose": "Tracks, thumbs, fingertip pills, dots."
-      }
-    ],
-    "controlHeights": [
-      {
-        "name": "sm",
-        "value": "32px",
-        "purpose": "Segments, dialog close."
-      },
-      {
-        "name": "md",
-        "value": "40px",
-        "purpose": "Every bar control."
-      },
-      {
-        "name": "lg",
-        "value": "44px",
-        "purpose": "Start buttons."
-      }
-    ]
+    "notch": {
+      "value": "clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px));",
+      "token": "--cut: 9px",
+      "purpose": "Top-left and bottom-right corners cut at 45 degrees on every console plate."
+    },
+    "webGrid": {
+      "value": "radial-gradient(ellipse at 50% 40%, oklch(0.32 0.14 352 / 0.55), transparent 65%), repeating-linear-gradient(60deg, transparent 0 46px, oklch(0.7 0.2 352 / 0.09) 46px 47px), repeating-linear-gradient(-60deg, transparent 0 46px, oklch(0.7 0.2 352 / 0.09) 46px 47px), repeating-linear-gradient(0deg, transparent 0 80px, oklch(0.7 0.2 352 / 0.06) 80px 81px), oklch(0.15 0.045 340)",
+      "purpose": "The console frame's background; allowed by the owner's pinned Xbox dashboard direction, chrome only."
+    }
   },
   "components": [
     {
-      "name": "Primary button",
+      "name": "Lit plate (primary button)",
       "kind": "button",
       "refersTo": "button-primary",
-      "description": "Plum fill with backdrop text; Play and Stop.",
+      "description": "The chosen item: Play or Stop, the chosen pedal or sound, Start with camera.",
       "html": "<button class=\"ds-btn-primary\">Play</button>",
-      "css": ".ds-btn-primary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control, 14px); cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms cubic-bezier(.22,1,.36,1), opacity 150ms cubic-bezier(.22,1,.36,1); min-width: 80px; background: var(--foreground, oklch(0.27 0.09 340)); border-color: var(--foreground, oklch(0.27 0.09 340)); color: var(--background, oklch(0.93 0.045 326)); } .ds-btn-primary:hover { opacity: .91; box-shadow: 0 1px 2px oklch(0% 0 0 / .035); } .ds-btn-primary:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
+      "css": ".ds-btn-primary { display: inline-flex; align-items: center; gap: 10px; font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.01em; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), border-color 150ms cubic-bezier(.22,1,.36,1); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); background: var(--accent, oklch(0.83 0.17 352)); color: var(--accent-foreground, oklch(0.17 0.06 340)); border-color: var(--accent-strong, oklch(0.9 0.12 352)); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.45), 0 0 18px oklch(0.78 0.21 352 / 0.55); } .ds-btn-primary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--foreground, oklch(0.94 0.05 350)); }"
     },
     {
-      "name": "Secondary button",
+      "name": "Plate (secondary button)",
       "kind": "button",
       "refersTo": "button-secondary",
-      "description": "Paper with a plum hairline; Chords and arp, Pedals, How to play.",
+      "description": "Translucent notched plate with a lit edge on hover.",
       "html": "<button class=\"ds-btn-secondary\">Chords and arp</button>",
-      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control, 14px); cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms cubic-bezier(.22,1,.36,1), opacity 150ms cubic-bezier(.22,1,.36,1); background: var(--surface, oklch(0.985 0.012 345)); border-color: var(--border, oklch(0.27 0.09 340 / 0.16)); color: var(--foreground, oklch(0.27 0.09 340)); } .ds-btn-secondary:hover { background: var(--surface-muted, oklch(0.94 0.04 345)); box-shadow: 0 1px 2px oklch(0% 0 0 / .035); } .ds-btn-secondary:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
+      "css": ".ds-btn-secondary { display: inline-flex; align-items: center; gap: 10px; font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.01em; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), border-color 150ms cubic-bezier(.22,1,.36,1); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); background: var(--surface, oklch(0.22 0.075 345 / 0.84)); border-color: var(--neon-dim, oklch(0.62 0.19 352 / 0.5)); color: var(--foreground, oklch(0.94 0.05 350)); box-shadow: inset 0 1px 0 oklch(0.95 0.05 350 / 0.12); } .ds-btn-secondary:hover { border-color: var(--neon, oklch(0.78 0.21 352)); background: var(--surface-muted, oklch(0.32 0.12 350 / 0.7)); } .ds-btn-secondary:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--foreground, oklch(0.94 0.05 350)); }"
     },
     {
       "name": "Ghost button",
       "kind": "button",
       "refersTo": "button-ghost",
-      "description": "Soft plum text, no fill; Undo and Clear.",
+      "description": "No plate, soft text: How to play, Undo, Clear.",
       "html": "<button class=\"ds-btn-ghost\">Undo</button>",
-      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; justify-content: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: var(--radius-control, 14px); cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), color 150ms cubic-bezier(.22,1,.36,1), opacity 150ms cubic-bezier(.22,1,.36,1); background: transparent; color: var(--text-secondary, oklch(0.4 0.09 340)); } .ds-btn-ghost:hover { background: var(--surface-muted, oklch(0.94 0.04 345)); color: var(--foreground, oklch(0.27 0.09 340)); } .ds-btn-ghost:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; } .ds-btn-ghost:disabled { color: var(--text-muted, oklch(0.47 0.08 340)); cursor: default; }"
+      "css": ".ds-btn-ghost { display: inline-flex; align-items: center; gap: 10px; font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.01em; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), border-color 150ms cubic-bezier(.22,1,.36,1); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); background: transparent; color: var(--text-secondary, oklch(0.82 0.09 350)); } .ds-btn-ghost:hover { background: var(--surface-muted, oklch(0.32 0.12 350 / 0.7)); color: var(--foreground, oklch(0.94 0.05 350)); } .ds-btn-ghost:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--foreground, oklch(0.94 0.05 350)); }"
     },
     {
-      "name": "Segmented control",
-      "kind": "chip",
-      "refersTo": "segmented-control",
-      "description": "Draw, Erase or Effects; the selected item sits on a paper tile.",
-      "html": "<div class=\"ds-seg\" role=\"radiogroup\" aria-label=\"What the mouse does\"><button class=\"ds-seg-item\" role=\"radio\" aria-checked=\"true\">Draw</button><button class=\"ds-seg-item\" role=\"radio\" aria-checked=\"false\">Erase</button><button class=\"ds-seg-item\" role=\"radio\" aria-checked=\"false\">Effects</button></div>",
-      "css": ".ds-seg { display: inline-flex; gap: 2px; padding: 3px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: var(--radius-control, 14px); background: var(--surface-muted, oklch(0.94 0.04 345)); } .ds-seg-item { font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 32px; padding: 0 12px; border: 1px solid transparent; border-radius: 10px; background: transparent; color: var(--text-muted, oklch(0.47 0.08 340)); cursor: pointer; transition: color 150ms cubic-bezier(.22,1,.36,1); } .ds-seg-item[aria-checked=\"true\"] { background: var(--surface, oklch(0.985 0.012 345)); border-color: var(--border, oklch(0.27 0.09 340 / 0.16)); color: var(--foreground, oklch(0.27 0.09 340)); box-shadow: 0 1px 2px oklch(0% 0 0 / .035); } .ds-seg-item:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
-    },
-    {
-      "name": "Select",
+      "name": "Select trigger",
       "kind": "input",
       "refersTo": "select-trigger",
-      "description": "Paper trigger naming its own value, with its list open.",
-      "html": "<div class=\"ds-select-wrap\"><button class=\"ds-select\" aria-label=\"Key\">Key A<span class=\"ds-chev\"><svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></span></button><div class=\"ds-list\" role=\"listbox\"><div class=\"ds-opt\" role=\"option\">Key G</div><div class=\"ds-opt ds-opt-hl\" role=\"option\" aria-selected=\"true\">Key A</div><div class=\"ds-opt\" role=\"option\">Key B</div></div></div>",
-      "css": ".ds-select-wrap { display: grid; gap: 6px; width: 160px; } .ds-select { display: flex; align-items: center; justify-content: space-between; gap: 12px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; min-height: 40px; padding: 0 12px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: var(--radius-control, 14px); background: var(--surface, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); cursor: pointer; } .ds-select:hover { border-color: var(--border-strong, oklch(0.27 0.09 340 / 0.32)); background: var(--surface-muted, oklch(0.94 0.04 345)); } .ds-select:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; } .ds-chev { display: inline-flex; color: var(--text-muted, oklch(0.47 0.08 340)); } .ds-list { padding: 6px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: 16px; background: var(--surface-raised, oklch(0.985 0.012 345)); box-shadow: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; color: var(--foreground, oklch(0.27 0.09 340)); } .ds-opt { display: flex; align-items: center; min-height: 36px; padding: 0 34px 0 11px; border-radius: 10px; } .ds-opt:hover, .ds-opt-hl { background: var(--surface-muted, oklch(0.94 0.04 345)); }"
+      "description": "Notched plate naming its own value.",
+      "html": "<button class=\"ds-select\" aria-label=\"Key\">Key A<svg width=\"16\" height=\"16\" viewBox=\"0 0 24 24\" fill=\"none\" stroke=\"currentColor\" stroke-width=\"2\" stroke-linecap=\"round\" stroke-linejoin=\"round\"><path d=\"m6 9 6 6 6-6\"/></svg></button>",
+      "css": ".ds-select { display: inline-flex; align-items: center; gap: 10px; font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.01em; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), border-color 150ms cubic-bezier(.22,1,.36,1); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); justify-content: space-between; width: 160px; padding: 0 12px; background: var(--surface, oklch(0.22 0.075 345 / 0.84)); border-color: var(--neon-dim, oklch(0.62 0.19 352 / 0.5)); color: var(--foreground, oklch(0.94 0.05 350)); box-shadow: inset 0 1px 0 oklch(0.95 0.05 350 / 0.12); } .ds-select svg { color: var(--text-muted, oklch(0.72 0.11 350)); } .ds-select:hover { border-color: var(--neon, oklch(0.78 0.21 352)); background: var(--surface-muted, oklch(0.32 0.12 350 / 0.7)); } .ds-select:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--foreground, oklch(0.94 0.05 350)); }"
     },
     {
-      "name": "Robots menu",
+      "name": "Hand panel",
+      "kind": "card",
+      "refersTo": "hand-panel",
+      "description": "The panel on each side of the screen, owned by that hand; one lit choice, orbs before each.",
+      "html": "<section class=\"ds-panel\"><h2>Left hand<span>Pedals. A fist moves to the next one.</span></h2><button class=\"ds-pbtn ds-pbtn-on\"><span class=\"ds-orb ds-orb-on\"></span>Filter</button><button class=\"ds-pbtn\"><span class=\"ds-orb\"></span>Echo</button><button class=\"ds-pbtn\"><span class=\"ds-orb\"></span>Reverb</button></section>",
+      "css": ".ds-panel { display: grid; gap: 12px; width: 216px; padding: 16px; background: var(--surface, oklch(0.22 0.075 345 / 0.84)); color: var(--foreground, oklch(0.94 0.05 350)); font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; box-shadow: 0 0 0 1px oklch(0.62 0.19 352 / 0.5), 0 0 18px oklch(0.7 0.22 352 / 0.28); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); } .ds-panel h2 { display: grid; gap: 2px; margin: 0; font-size: 15px; font-weight: 700; color: var(--neon, oklch(0.78 0.21 352)); } .ds-panel h2 span { font-weight: 500; color: var(--text-secondary, oklch(0.82 0.09 350)); } .ds-pbtn { display: inline-flex; align-items: center; gap: 10px; font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.01em; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), border-color 150ms cubic-bezier(.22,1,.36,1); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); justify-content: flex-start; background: oklch(0.22 0.075 345 / 0.84); border-color: oklch(0.62 0.19 352 / 0.5); color: inherit; } .ds-pbtn:hover { border-color: oklch(0.78 0.21 352); } .ds-pbtn-on { background: oklch(0.83 0.17 352); color: oklch(0.17 0.06 340); border-color: oklch(0.9 0.12 352); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.45), 0 0 18px oklch(0.78 0.21 352 / 0.55); } .ds-orb { width: 14px; height: 14px; flex: none; border-radius: 50%; border: 1.5px solid oklch(0.62 0.19 352 / 0.5); background: oklch(0.2 0.06 345); } .ds-orb-on { border-color: oklch(0.97 0.02 350); background: radial-gradient(circle at 35% 30%, oklch(1 0 0 / 0.9) 0 18%, oklch(0.78 0.21 352) 45%); box-shadow: 0 0 10px oklch(0.78 0.21 352); } .ds-pbtn:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--foreground, oklch(0.94 0.05 350)); }"
+    },
+    {
+      "name": "Sound orbs",
       "kind": "custom",
-      "refersTo": "dropdown-menu",
-      "description": "Arc dropdown menu; each robot leads with a dot in its tint.",
-      "html": "<div class=\"ds-dd\" role=\"menu\"><div class=\"ds-dd-item ds-dd-hl\" role=\"menuitem\"><span class=\"ds-dot\" style=\"background: oklch(0.8 0.15 185)\"></span>Singer</div><div class=\"ds-dd-item\" role=\"menuitem\"><span class=\"ds-dot\" style=\"background: oklch(0.78 0.17 62)\"></span>Swapper</div><div class=\"ds-dd-item\" role=\"menuitem\"><span class=\"ds-dot\" style=\"background: oklch(0.62 0.24 22)\"></span>Eater</div></div>",
-      "css": ".ds-dd { min-width: 192px; width: max-content; padding: 5px; border: 1px solid var(--border, oklch(0.27 0.09 340 / 0.16)); border-radius: var(--radius-panel, 20px); background: var(--surface-raised, oklch(0.985 0.012 345)); box-shadow: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; color: var(--foreground, oklch(0.27 0.09 340)); } .ds-dd-item { display: flex; align-items: center; gap: 10px; min-height: 36px; padding: 0 11px; border-radius: 14px; cursor: pointer; } .ds-dd-item:hover, .ds-dd-hl { background: var(--surface-muted, oklch(0.94 0.04 345)); } .ds-dot { width: 14px; height: 14px; border-radius: 9999px; flex: none; }"
+      "refersTo": "orb",
+      "description": "Each sound's orb lit in its own pen ink.",
+      "html": "<div class=\"ds-orbs\"><span class=\"ds-o\" style=\"--orb: oklch(0.68 0.25 357)\"></span><span class=\"ds-o\" style=\"--orb: oklch(0.8 0.15 185)\"></span><span class=\"ds-o\" style=\"--orb: oklch(0.86 0.17 92)\"></span><span class=\"ds-o\" style=\"--orb: oklch(0.66 0.21 305)\"></span></div>",
+      "css": ".ds-orbs { display: flex; gap: 16px; background: oklch(0.15 0.045 340); padding: 16px; } .ds-o { width: 14px; height: 14px; border-radius: 50%; border: 1.5px solid oklch(0.97 0.02 350); background: radial-gradient(circle at 35% 30%, oklch(1 0 0 / 0.9) 0 18%, var(--orb) 45%); box-shadow: 0 0 10px var(--orb); }"
     },
     {
-      "name": "Switch",
-      "kind": "input",
-      "refersTo": "switch-track",
-      "description": "Blush track, plum when on, white thumb; Camera and Hold pedals on.",
-      "html": "<button class=\"ds-switch\" role=\"switch\" aria-checked=\"true\"><span class=\"ds-track\"><span class=\"ds-thumb\"></span></span>Camera</button>",
-      "css": ".ds-switch { display: inline-flex; align-items: center; gap: 12px; min-height: 40px; padding: 0; border: 0; background: transparent; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 500; color: var(--foreground, oklch(0.27 0.09 340)); cursor: pointer; } .ds-track { display: flex; width: 42px; height: 24px; box-sizing: border-box; padding: 3px; border-radius: 9999px; background: var(--control-track, oklch(0.9 0.06 348)); transition: background-color 150ms cubic-bezier(.22,1,.36,1); } .ds-switch:hover .ds-track { background: var(--control-track-hover, oklch(0.86 0.07 348)); } .ds-switch[aria-checked=\"true\"] .ds-track { background: var(--control-on, oklch(0.27 0.09 340)); justify-content: flex-end; } .ds-thumb { width: 18px; height: 18px; border-radius: 9999px; background: oklch(100% 0 0); box-shadow: 0 0 0 .5px oklch(0% 0 0 / .07), 0 1px 2px oklch(0% 0 0 / .14); } .ds-switch:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
-    },
-    {
-      "name": "Tempo slider",
-      "kind": "input",
-      "refersTo": "slider-track",
-      "description": "Blush track, plum fill, white thumb, value beside it in tabular figures.",
-      "html": "<div class=\"ds-slider\"><div class=\"ds-rail\" role=\"slider\" tabindex=\"0\" aria-label=\"Tempo\" aria-valuemin=\"90\" aria-valuemax=\"200\" aria-valuenow=\"160\"><span class=\"ds-fill\"><span class=\"ds-knob\"></span></span></div><span class=\"ds-val\">160 bpm</span></div>",
-      "css": ".ds-slider { display: inline-flex; align-items: center; gap: 8px; font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; font-variant-numeric: tabular-nums; color: var(--foreground, oklch(0.27 0.09 340)); } .ds-rail { position: relative; width: 112px; height: 6px; border-radius: 9999px; background: var(--control-track, oklch(0.9 0.06 348)); } .ds-fill { position: absolute; inset: 0 35% 0 0; border-radius: inherit; background: var(--control-fill, oklch(0.27 0.09 340)); } .ds-knob { position: absolute; right: -11px; top: 50%; width: 22px; height: 22px; translate: 0 -50%; border-radius: 9999px; background: oklch(100% 0 0); box-shadow: 0 0 0 .5px oklch(0% 0 0 / .07), 0 1px 2px oklch(0% 0 0 / .14), 0 2px 6px oklch(0% 0 0 / .06); } .ds-rail:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; } .ds-val { width: 72px; }"
-    },
-    {
-      "name": "Control bar",
+      "name": "Console frame",
       "kind": "nav",
       "refersTo": "bar",
-      "description": "Candy pink bar of two deliberate rows, 104px tall on laptops.",
-      "html": "<header class=\"ds-bar\"><div class=\"ds-row\"><button class=\"ds-b ds-b-p\">Play</button><button class=\"ds-b ds-b-s\">Key A</button><button class=\"ds-b ds-b-s\">Chords and arp</button></div><div class=\"ds-row\"><button class=\"ds-b ds-b-s\">Pedals</button><button class=\"ds-b ds-b-g\">Undo</button><button class=\"ds-b ds-b-s ds-end\">How to play</button></div></header>",
-      "css": ".ds-bar { display: grid; gap: 8px; padding: 8px 16px; background: var(--bar, oklch(0.8 0.15 352)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; } .ds-row { display: flex; flex-wrap: wrap; align-items: center; gap: 8px; } .ds-b { min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 14px; font: inherit; font-weight: 500; cursor: pointer; } .ds-b-p { background: oklch(0.27 0.09 340); color: oklch(0.93 0.045 326); } .ds-b-s { background: oklch(0.985 0.012 345); border-color: oklch(0.27 0.09 340 / 0.16); color: inherit; } .ds-b-g { background: transparent; color: oklch(0.4 0.09 340); } .ds-end { margin-left: auto; } .ds-b:focus-visible { outline: 2px solid color-mix(in oklab, var(--accent-strong, oklch(0.2 0.07 340)) 72%, transparent); outline-offset: 2px; }"
+      "description": "The plum-black field with its faint web of pink lines, under an unfilled bar.",
+      "html": "<div class=\"ds-frame\"><div class=\"ds-bar\"><button class=\"ds-fb ds-fb-lit\">Play</button><button class=\"ds-fb\">Key A</button><button class=\"ds-fb ds-fb-ghost\">How to play</button></div></div>",
+      "css": ".ds-frame { height: 160px; background: radial-gradient(ellipse at 50% 40%, oklch(0.32 0.14 352 / 0.55), transparent 65%), repeating-linear-gradient(60deg, transparent 0 46px, oklch(0.7 0.2 352 / 0.09) 46px 47px), repeating-linear-gradient(-60deg, transparent 0 46px, oklch(0.7 0.2 352 / 0.09) 46px 47px), repeating-linear-gradient(0deg, transparent 0 80px, oklch(0.7 0.2 352 / 0.06) 80px 81px), oklch(0.15 0.045 340); } .ds-bar { display: flex; flex-wrap: wrap; justify-content: center; gap: 8px; padding: 8px 12px; } .ds-fb { display: inline-flex; align-items: center; gap: 10px; font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; letter-spacing: 0.01em; min-height: 40px; padding: 0 16px; border: 1px solid transparent; border-radius: 3px; cursor: pointer; transition: background 150ms cubic-bezier(.22,1,.36,1), border-color 150ms cubic-bezier(.22,1,.36,1); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); background: oklch(0.22 0.075 345 / 0.84); border-color: oklch(0.62 0.19 352 / 0.5); color: oklch(0.94 0.05 350); } .ds-fb-lit { background: oklch(0.83 0.17 352); color: oklch(0.17 0.06 340); border-color: oklch(0.9 0.12 352); box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.45), 0 0 18px oklch(0.78 0.21 352 / 0.55); } .ds-fb-ghost { background: transparent; border-color: transparent; color: oklch(0.82 0.09 350); } .ds-fb:focus-visible { outline: none; box-shadow: inset 0 0 0 2px var(--foreground, oklch(0.94 0.05 350)); }"
     },
     {
-      "name": "Message bubble",
+      "name": "Message plate",
       "kind": "card",
-      "refersTo": "message-bubble",
-      "description": "Lifted paper bubble for the one-sentence intro and the gesture or pedal hint.",
-      "html": "<p class=\"ds-bubble\">Lines are melody, stickers are drums. The moving bar plays what it touches.</p>",
-      "css": ".ds-bubble { width: fit-content; max-width: 420px; margin: 0; padding: 8px 16px; border-radius: 24px; background: var(--surface, oklch(0.985 0.012 345)); color: var(--foreground, oklch(0.27 0.09 340)); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; text-align: center; text-wrap: pretty; box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25); }"
-    },
-    {
-      "name": "Fingertip pills",
-      "kind": "custom",
-      "refersTo": "fingertip-pill",
-      "description": "Writing-hand pills in each sound's pen; the pressed finger goes solid plum.",
-      "html": "<div class=\"ds-tips\"><span class=\"ds-tip\" style=\"background: oklch(0.68 0.25 357)\">Supersaw</span><span class=\"ds-tip\" style=\"background: oklch(0.8 0.15 185)\">Rubber</span><span class=\"ds-tip ds-tip-on\">Glass</span><span class=\"ds-tip\">Chip</span></div>",
-      "css": ".ds-tips { display: flex; gap: 8px; } .ds-tip { display: inline-flex; align-items: center; height: 26px; padding: 0 9px; border-radius: 9999px; background: oklch(0.995 0.005 345); color: oklch(0.27 0.09 340); font-family: var(--font-body, 'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif); font-size: 15px; font-weight: 700; box-shadow: 0 2px 6px oklch(0.27 0.09 340 / 0.35); } .ds-tip-on { background: oklch(0.27 0.09 340); color: oklch(0.995 0.005 345); }"
+      "refersTo": "message-plate",
+      "description": "Notched raised plate over the stage for the first sentence and hints.",
+      "html": "<div class=\"ds-stage\"><p class=\"ds-msg\">Right hand writes notes. Left hand plays the pedals.</p></div>",
+      "css": ".ds-stage { padding: 24px; background: oklch(0.93 0.045 326); } .ds-msg { width: fit-content; max-width: 360px; margin: 0 auto; padding: 8px 16px; background: oklch(0.19 0.065 343 / 0.97); color: oklch(0.94 0.05 350); font-family: 'Chakra Petch', system-ui, sans-serif; font-size: 15px; font-weight: 600; text-align: center; text-wrap: pretty; box-shadow: 0 0 0 1px oklch(0.62 0.19 352 / 0.5), 0 0 18px oklch(0.7 0.22 352 / 0.28); clip-path: polygon(var(--cut, 9px) 0, 100% 0, 100% calc(100% - var(--cut, 9px)), calc(100% - var(--cut, 9px)) 100%, 0 100%, 0 var(--cut, 9px)); }"
     },
     {
       "name": "Booth pen sticker",
       "kind": "custom",
-      "refersTo": "pen-pink",
-      "description": "A heart clap sticker: colour core, white cut edge, soft plum shadow.",
+      "refersTo": "drum-clap-pink",
+      "description": "A heart clap sticker on the stage: colour core, white cut edge, soft plum shadow.",
       "html": "<svg class=\"ds-sticker\" width=\"64\" height=\"64\" viewBox=\"-1.6 -1.6 3.2 3.2\"><path d=\"M0 0.95 C-1.5 -0.1 -0.75 -1.15 0 -0.42 C0.75 -1.15 1.5 -0.1 0 0.95 Z\" fill=\"oklch(0.72 0.22 352)\" stroke=\"oklch(0.995 0.005 345)\" stroke-width=\"0.62\" stroke-linejoin=\"round\" paint-order=\"stroke\"/></svg>",
-      "css": ".ds-sticker { filter: drop-shadow(0 3px 4px oklch(0.27 0.09 340 / 0.35)); }"
+      "css": ".ds-sticker { background: oklch(0.93 0.045 326); filter: drop-shadow(0 3px 4px oklch(0.27 0.09 340 / 0.35)); }"
     }
   ],
   "narrative": {
-    "northStar": "The sticker booth pen",
-    "overview": "The screen is a bright photo sticker booth. You stand in front of the camera, your own picture fills the stage under a pink exposure, and everything you place on it is drawn with booth pen: a saturated colour core, a thick white cut edge, a soft plum drop shadow. The scribble is the instrument. A candy pink bar holds every control at the top in two deliberate rows; the rest of the viewport belongs to the grid.\n\nThe shell is quiet and the ink is loud. The controls are Arc UI components with Arc's semantic tokens retuned to the booth: candy pink bar, sticker paper surfaces, plum text and hairlines, so the saturated pens, stickers and robots on the stage carry all of the colour. Rank in the controls comes from weight and plum depth, never from size or case. Stage motion is tied to the beat and stepped; chrome motion is Arc's short, non-overshooting springs.\n\nThe world refuses the dark studio-plugin look: no knobs, meters, black panels or a piano-roll grid with one neon accent.",
+    "northStar": "The sticker booth in a pink console",
+    "overview": "**Creative North Star: \"The sticker booth in a pink console\"**\n\nTwo worlds, one screen. In the middle is a bright photo sticker booth: your own picture under a pink exposure on a pastel stage, and everything you place on it drawn with booth pen (a saturated colour core, a thick white cut edge, a soft plum drop shadow). The scribble is the instrument. Around it, every control lives in a late-night console dashboard in pink, after the original Xbox dashboard: a plum-black field laced with a faint web of pink lines, translucent plates with notched corners and lit edges, the chosen item as a solid lit plate, and glowing orbs that light when something sounds.\n\nThe owner pinned this console direction for the controls. It is the reason glows, translucent plates and the web-grid background are allowed in the chrome; outside the chrome they remain banned as generic polish, and the stage keeps its own pastel sticker-booth rules. The controls are Arc UI components with Arc's semantic tokens retuned in `src/index.css` and their shape applied from outside; their code is untouched. Rank in the controls comes from weight, from the lit plate versus the dim plate, and from neon versus soft text, never from size or case.\n\nStage motion is tied to the beat and stepped; chrome motion is Arc's short, non-overshooting springs.",
     "keyCharacteristics": [
-      "Bright pink-lilac booth backdrop, plum ink for every word.",
-      "Booth pen treatment on everything placed: colour core, white edge, soft plum shadow.",
-      "A line's pen colour is its sound.",
-      "One rounded gothic face at one size, rank by weight.",
-      "Softly rounded Arc controls (14px) on a single candy pink bar of two rows.",
-      "Registration ticks instead of ruled grid lines.",
+      "Pastel pink-lilac stage, plum ink and booth pen for everything placed on it.",
+      "A plum-black console frame with a faint triangular web of pink lines, brightest round the stage.",
+      "Translucent plates with two notched corners (9px) and a pink lit edge; the chosen item is a solid lit plate.",
+      "Orbs that light in a pedal's neon or a sound's own pen ink.",
+      "Chakra Petch in the chrome, M PLUS Rounded 1c on the canvas, every word at 15px.",
+      "Each hand owns the panel on its side of the screen; on a phone the stage leads.",
       "Beat-locked, stepped motion on the stage; quick settling springs in the chrome."
     ],
     "rules": [
       {
-        "name": "The Two Colour Shell Rule",
-        "body": "Chrome uses only candy pink, plum and its alpha hairlines, sticker paper and the blush steps. Saturated colour belongs to things on the stage. The one exception is a 14px round dot in a menu item that names the stage ink it stands for (a robot's tint).",
+        "name": "The Two Worlds Rule",
+        "body": "The chrome is plum-black, the plates, the console text and one pink. The stage is the pastel backdrop, plum ink, pen white and the saturated inks. A stage ink enters the chrome only to name the thing it stands for: a sound's orb, a robot's dot.",
         "section": "colors"
       },
       {
-        "name": "The Plum Only Rule",
-        "body": "All text is plum: plum ink, soft plum, muted plum, or paper on plum. No grey text, no coloured text.",
+        "name": "The One Lit Plate Rule",
+        "body": "In any group of choices exactly one item is a solid lit plate, and it is the chosen one. Hover lights an edge, never a fill.",
         "section": "colors"
       },
       {
@@ -742,53 +804,63 @@
       },
       {
         "name": "The One Size Rule",
-        "body": "Every piece of text is 15px. Rank comes from weight (500, 700, 800), from plum depth, and from plum fill versus paper fill, never from a larger size or uppercase.",
+        "body": "Every piece of text is 15px. Rank comes from weight (500, 600, 700) and colour (neon, console text, soft), never from a larger size.",
+        "section": "typography"
+      },
+      {
+        "name": "The Sentence Case Rule",
+        "body": "Console references set their labels in capitals; this build does not. Every label, heading and control is in sentence case.",
         "section": "typography"
       },
       {
         "name": "The Upright Rule",
-        "body": "No italic or oblique text anywhere, including canvas text. `font-synthesis: none` is set on the root so the browser never fakes a slant or a bold.",
+        "body": "No italic or oblique text anywhere, including canvas text.",
         "section": "typography"
       },
       {
         "name": "The Edges Rule",
-        "body": "Controls live in the bar and the gutters. The grid itself carries no chrome; the pedal ring, its guides and the fingertip pills are instrument readouts that exist only while a hand or pedal is in play.",
+        "body": "Controls live in the bars and the side panels. The grid carries no chrome; the pedal ring, its guides, the fingertip pills and a carried robot are instrument readouts that exist only while a hand or pedal is in play.",
         "section": "layout"
       },
       {
-        "name": "The Stuck On Rule",
-        "body": "A shadow is always soft, falls straight down, and only marks something sitting over the stage or floating over it. No hard offset shadows, no glow.",
+        "name": "The Console Light Rule",
+        "body": "Glow is allowed only in the console chrome, because the owner pinned the Xbox dashboard direction there. It is always pink, always centred (no offset), and never on the stage, where depth is the sticker shadow.",
         "section": "elevation"
       },
       {
         "name": "The Cut Edge Rule",
-        "body": "Anything placed on the stage gets a white edge roughly as thick as its colour core (lines and the Singer ribbon: edge 2.1 times the core width; stickers: 0.62 of the radius; robot sprites: 8px; robot hand parts: 5px; the pedal ring: 12px under a 6px core). Without the edge it does not belong to this world.",
+        "body": "Anything placed on the stage gets a white edge roughly as thick as its colour core (lines and ribbons 2.1 times the core; stickers 0.62 of the radius; robot sprites 8px; robot hand parts 5px; the pedal ring 12px under a 6px core).",
+        "section": "shapes"
+      },
+      {
+        "name": "The Inside Focus Rule",
+        "body": "A notched plate clips any outline drawn outside it, so its keyboard focus is a 2px inset ring in console text. Everything else keeps the global 2px console-text outline at 2px offset.",
         "section": "shapes"
       }
     ],
     "dos": [
-      "Do set every word at 15px in M PLUS Rounded 1c and rank it by weight (500, 700, 800).",
-      "Do keep chrome to candy pink, plum, sticker paper and the blush steps, and give the saturated pen, drum and robot inks to the stage; a dot that names a stage ink is the only colour allowed in a control.",
+      "Do keep the console to the plum-black field, the web, translucent plates, console text and one pink; let a stage ink into a control only as a sound's orb or a robot's dot.",
+      "Do cut every console plate with the 9px notch on the top-left and bottom-right corners, and draw its keyboard focus inside the plate.",
+      "Do make the chosen item the one solid lit plate in its group; light only the edge on hover.",
+      "Do confine glow, translucency and the web-grid background to the console chrome, where the owner's pinned Xbox dashboard direction allows them.",
+      "Do set every word at 15px: Chakra Petch (500, 600, 700) in the chrome, M PLUS Rounded 1c on the canvas.",
+      "Do give each hand the panel on its side of the screen, and put the stage first on narrow screens.",
       "Do colour a melody line by its sound, and give any new robot kind an ink already in the pen or drum sets.",
       "Do give anything placed on the stage a white cut edge and the soft plum sticker shadow.",
-      "Do keep robots under placed ink so the player's marks stay readable.",
-      "Do tell drums apart by sticker shape as well as colour.",
-      "Do step beat motion in a single jump with no easing, and remove it under reduced motion while keeping the playhead.",
-      "Do build controls from the Arc UI components in `src/components/arc`, styled only by retuning Arc's tokens in `src/index.css`, and use Arc's radius, control height and motion tokens rather than new values.",
-      "Do let bar fields name themselves by their value and keep their labels for screen readers; show labels inside panels.",
-      "Do keep UI text to the minimum: one sentence before the first play, one hint while the stage is nearly empty or the mouse plays a pedal, fingertip pills and the pedal readout while a hand or pedal is in play."
+      "Do build controls from the Arc UI components in `src/components/arc`, shaped from `src/index.css` without editing their modules.",
+      "Do keep UI text to the minimum: one sentence before the first play, one hint while it helps, and canvas pills only while a hand or pedal is in play."
     ],
     "donts": [
-      "Don't use italic or oblique text anywhere, including canvas text, wordmarks and labels.",
-      "Don't put all-caps eyebrows, kickers or decorative labels above anything, including panel field labels.",
+      "Don't use italic or oblique text anywhere, including canvas text and labels.",
+      "Don't set labels, headings or controls in capitals, even though the console references do; no all-caps eyebrows or kickers above anything.",
       "Don't use JetBrains Mono (or any alias of it) anywhere, including fallback stacks.",
       "Don't use em dashes in any copy, label or generated text.",
       "Don't put an accent stripe on one side of a container, by border, pseudo-element, background or shadow.",
-      "Don't use gradient text, glass panels, glows or neon effects, including Arc's unused brand gradient tokens.",
-      "Don't add text sizes beyond 15px or uppercase labels to create hierarchy.",
-      "Don't draw ruled grid lines; mark intersections with registration ticks and dots. The pedal pad's dotted guides are the only full-length lines, and only while a pedal is down.",
-      "Don't drift toward the dark studio-plugin look: knobs, meters, black panels, a piano roll with one neon accent.",
-      "Don't add hard offset shadows; every shadow is soft and falls straight down."
+      "Don't use gradient text, or Arc's unused brand gradient tokens.",
+      "Don't carry glow, translucent plates or the web grid onto the stage or into any surface outside the console chrome.",
+      "Don't add text sizes beyond 15px to create hierarchy.",
+      "Don't draw ruled lines on the stage grid; mark intersections with registration ticks and dots.",
+      "Don't add hard offset shadows; stage shadows fall straight down and console glows are centred."
     ]
   }
 }

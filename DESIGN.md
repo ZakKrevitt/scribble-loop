@@ -1,25 +1,34 @@
 ---
 name: Scribble Loop
-description: A bright photo sticker booth where the scribbles on your own picture play as a loop.
+description: A pastel photo sticker booth where your scribbles play as a loop, framed by a pink console dashboard.
 colors:
-  bar-candy-pink: "oklch(0.8 0.15 352)"
-  booth-backdrop: "oklch(0.93 0.045 326)"
-  plum-ink: "oklch(0.27 0.09 340)"
-  plum-deep: "oklch(0.2 0.07 340)"
-  plum-soft: "oklch(0.4 0.09 340)"
-  plum-muted: "oklch(0.47 0.08 340)"
-  sticker-paper: "oklch(0.985 0.012 345)"
-  blush-wash: "oklch(0.94 0.04 345)"
-  blush-muted: "oklch(0.9 0.06 348)"
-  blush-track-hover: "oklch(0.86 0.07 348)"
-  plum-hairline: "oklch(0.27 0.09 340 / 0.16)"
-  plum-hairline-subtle: "oklch(0.27 0.09 340 / 0.09)"
-  plum-rule-strong: "oklch(0.27 0.09 340 / 0.32)"
-  plum-tint: "oklch(0.27 0.09 340 / 0.1)"
-  thumb-white: "oklch(100% 0 0)"
+  chrome-plum-black: "oklch(0.15 0.045 340)"
+  web-glow: "oklch(0.32 0.14 352 / 0.55)"
+  web-line: "oklch(0.7 0.2 352 / 0.09)"
+  web-line-faint: "oklch(0.7 0.2 352 / 0.06)"
+  neon: "oklch(0.78 0.21 352)"
+  neon-dim: "oklch(0.62 0.19 352 / 0.5)"
+  neon-hairline: "oklch(0.62 0.19 352 / 0.25)"
+  lit-pink: "oklch(0.83 0.17 352)"
+  lit-pink-edge: "oklch(0.9 0.12 352)"
+  lit-pink-tint: "oklch(0.78 0.21 352 / 0.18)"
+  lit-plate-text: "oklch(0.17 0.06 340)"
+  plate: "oklch(0.22 0.075 345 / 0.84)"
+  plate-raised: "oklch(0.19 0.065 343 / 0.97)"
+  plate-hover: "oklch(0.32 0.12 350 / 0.7)"
+  console-text: "oklch(0.94 0.05 350)"
+  console-text-soft: "oklch(0.82 0.09 350)"
+  console-text-muted: "oklch(0.72 0.11 350)"
+  track: "oklch(0.3 0.09 345)"
+  track-hover: "oklch(0.36 0.11 348)"
+  thumb-pearl: "oklch(0.96 0.03 350)"
+  orb-off: "oklch(0.2 0.06 345)"
+  orb-rim-lit: "oklch(0.97 0.02 350)"
   dialog-scrim: "oklch(10% 0 0 / .46)"
+  booth-backdrop: "oklch(0.93 0.045 326)"
+  booth-wash: "oklch(0.8 0.11 335)"
+  plum-ink: "oklch(0.27 0.09 340)"
   pen-white: "oklch(0.995 0.005 345)"
-  mint-highlight: "oklch(0.88 0.1 185)"
   pen-pink: "oklch(0.68 0.25 357)"
   pen-mint: "oklch(0.8 0.15 185)"
   pen-glass: "oklch(0.86 0.17 92)"
@@ -29,172 +38,139 @@ colors:
   drum-clap-pink: "oklch(0.72 0.22 352)"
   drum-zap-blue: "oklch(0.68 0.18 255)"
   drum-hat-orange: "oklch(0.78 0.17 62)"
-  booth-wash: "oklch(0.8 0.11 335)"
 typography:
-  wordmark:
-    fontFamily: "'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif"
+  heading:
+    fontFamily: "'Chakra Petch', system-ui, sans-serif"
     fontSize: "15px"
-    fontWeight: 800
+    fontWeight: 700
     lineHeight: 1.5
-  label:
+    letterSpacing: "0.01em"
+  control:
+    fontFamily: "'Chakra Petch', system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 600
+    lineHeight: 1.5
+    letterSpacing: "0.01em"
+  body:
+    fontFamily: "'Chakra Petch', system-ui, sans-serif"
+    fontSize: "15px"
+    fontWeight: 500
+    lineHeight: 1.5
+    letterSpacing: "0.01em"
+  canvas-label:
     fontFamily: "'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif"
     fontSize: "15px"
     fontWeight: 700
     lineHeight: 1.5
-  body:
-    fontFamily: "'M PLUS Rounded 1c', ui-rounded, system-ui, sans-serif"
-    fontSize: "15px"
-    fontWeight: 500
-    lineHeight: 1.5
 rounded:
-  control-inner: "10px"
-  control: "14px"
-  control-lg: "16px"
-  panel: "20px"
-  surface: "24px"
+  control: "3px"
+  panel: "4px"
+  surface: "6px"
+  cut: "9px"
   pill: "9999px"
 spacing:
   xs: "4px"
   sm: "8px"
   md: "12px"
   lg: "16px"
-  xl: "20px"
-  2xl: "24px"
 components:
   bar:
-    backgroundColor: "{colors.bar-candy-pink}"
-    textColor: "{colors.plum-ink}"
-    padding: "8px 16px"
-    height: "104px"
+    textColor: "{colors.console-text}"
+    padding: "8px 12px"
   button-primary:
-    backgroundColor: "{colors.plum-ink}"
-    textColor: "{colors.booth-backdrop}"
-    typography: "{typography.body}"
+    backgroundColor: "{colors.lit-pink}"
+    textColor: "{colors.lit-plate-text}"
+    typography: "{typography.control}"
     rounded: "{rounded.control}"
     padding: "0 16px"
     height: "40px"
-  button-primary-lg:
-    backgroundColor: "{colors.plum-ink}"
-    textColor: "{colors.booth-backdrop}"
-    typography: "{typography.body}"
-    rounded: "{rounded.control-lg}"
-    padding: "0 20px"
-    height: "44px"
   button-secondary:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
-    typography: "{typography.body}"
+    backgroundColor: "{colors.plate}"
+    textColor: "{colors.console-text}"
+    typography: "{typography.control}"
     rounded: "{rounded.control}"
     padding: "0 16px"
     height: "40px"
   button-secondary-hover:
-    backgroundColor: "{colors.blush-wash}"
+    backgroundColor: "{colors.plate-hover}"
   button-ghost:
-    textColor: "{colors.plum-soft}"
-    typography: "{typography.body}"
+    textColor: "{colors.console-text-soft}"
+    typography: "{typography.control}"
     rounded: "{rounded.control}"
     padding: "0 16px"
     height: "40px"
   button-ghost-hover:
-    backgroundColor: "{colors.blush-wash}"
-    textColor: "{colors.plum-ink}"
-  segmented-control:
-    backgroundColor: "{colors.blush-wash}"
-    rounded: "{rounded.control}"
-    padding: "3px"
-  segmented-item:
-    textColor: "{colors.plum-muted}"
-    typography: "{typography.body}"
-    rounded: "{rounded.control-inner}"
-    padding: "0 12px"
-    height: "32px"
-  segmented-item-selected:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
-    rounded: "{rounded.control-inner}"
+    backgroundColor: "{colors.plate-hover}"
+    textColor: "{colors.console-text}"
   select-trigger:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
-    typography: "{typography.body}"
+    backgroundColor: "{colors.plate}"
+    textColor: "{colors.console-text}"
+    typography: "{typography.control}"
     rounded: "{rounded.control}"
     padding: "0 12px"
     height: "40px"
   select-list:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
-    rounded: "{rounded.control-lg}"
+    backgroundColor: "{colors.plate-raised}"
+    textColor: "{colors.console-text}"
     padding: "6px"
-  select-item:
-    textColor: "{colors.plum-ink}"
-    typography: "{typography.body}"
-    rounded: "{rounded.control-inner}"
-    padding: "0 34px 0 11px"
-    height: "36px"
-  select-item-highlight:
-    backgroundColor: "{colors.blush-wash}"
-  dropdown-menu:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
-    rounded: "{rounded.panel}"
-    padding: "5px"
-  dropdown-item:
-    textColor: "{colors.plum-ink}"
-    typography: "{typography.body}"
+  segmented-control:
+    backgroundColor: "{colors.plate-hover}"
     rounded: "{rounded.control}"
-    padding: "0 11px"
-    height: "36px"
-  dropdown-item-highlight:
-    backgroundColor: "{colors.blush-wash}"
-  popover:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
+    padding: "3px"
+  segmented-item-selected:
+    backgroundColor: "{colors.plate}"
+    textColor: "{colors.console-text}"
+  hand-panel:
+    backgroundColor: "{colors.plate}"
+    textColor: "{colors.console-text}"
     rounded: "{rounded.panel}"
     padding: "16px"
+    width: "216px"
+  popover:
+    backgroundColor: "{colors.plate-raised}"
+    textColor: "{colors.console-text}"
+    rounded: "{rounded.panel}"
   dialog:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
+    backgroundColor: "{colors.plate-raised}"
+    textColor: "{colors.console-text}"
     typography: "{typography.body}"
     rounded: "{rounded.surface}"
-    padding: "20px"
     width: "440px"
   switch-track:
-    backgroundColor: "{colors.blush-muted}"
+    backgroundColor: "{colors.track}"
     rounded: "{rounded.pill}"
-    padding: "3px"
     width: "42px"
     height: "24px"
   switch-track-on:
-    backgroundColor: "{colors.plum-ink}"
+    backgroundColor: "{colors.neon}"
   switch-thumb:
-    backgroundColor: "{colors.thumb-white}"
+    backgroundColor: "{colors.thumb-pearl}"
     rounded: "{rounded.pill}"
     size: "18px"
   slider-track:
-    backgroundColor: "{colors.blush-muted}"
-    rounded: "{rounded.pill}"
-    height: "6px"
-  slider-fill:
-    backgroundColor: "{colors.plum-ink}"
+    backgroundColor: "{colors.track}"
     rounded: "{rounded.pill}"
   slider-thumb:
-    backgroundColor: "{colors.thumb-white}"
+    backgroundColor: "{colors.thumb-pearl}"
     rounded: "{rounded.pill}"
-    size: "22px"
-  message-bubble:
-    backgroundColor: "{colors.sticker-paper}"
-    textColor: "{colors.plum-ink}"
-    typography: "{typography.label}"
-    rounded: "{rounded.surface}"
+  orb:
+    backgroundColor: "{colors.orb-off}"
+    rounded: "{rounded.pill}"
+    size: "14px"
+  message-plate:
+    backgroundColor: "{colors.plate-raised}"
+    textColor: "{colors.console-text}"
+    typography: "{typography.control}"
     padding: "8px 16px"
   alert-band:
-    backgroundColor: "{colors.plum-ink}"
-    textColor: "{colors.sticker-paper}"
+    backgroundColor: "{colors.lit-pink}"
+    textColor: "{colors.lit-plate-text}"
     typography: "{typography.body}"
     padding: "8px 16px"
   fingertip-pill:
     backgroundColor: "{colors.pen-white}"
     textColor: "{colors.plum-ink}"
-    typography: "{typography.label}"
+    typography: "{typography.canvas-label}"
     rounded: "{rounded.pill}"
   fingertip-pill-pressed:
     backgroundColor: "{colors.plum-ink}"
@@ -206,192 +182,195 @@ components:
 
 ## Overview
 
-**Creative North Star: "The sticker booth pen"**
+**Creative North Star: "The sticker booth in a pink console"**
 
-The screen is a bright photo sticker booth. You stand in front of the camera, your own picture fills the stage under a pink exposure, and everything you place on it is drawn with booth pen: a saturated colour core, a thick white cut edge, a soft plum drop shadow. The scribble is the instrument. A candy pink bar holds every control at the top in two deliberate rows; the rest of the viewport belongs to the grid.
+Two worlds, one screen. In the middle is a bright photo sticker booth: your own picture under a pink exposure on a pastel stage, and everything you place on it drawn with booth pen (a saturated colour core, a thick white cut edge, a soft plum drop shadow). The scribble is the instrument. Around it, every control lives in a late-night console dashboard in pink, after the original Xbox dashboard: a plum-black field laced with a faint web of pink lines, translucent plates with notched corners and lit edges, the chosen item as a solid lit plate, and glowing orbs that light when something sounds.
 
-The shell is quiet and the ink is loud. The controls are Arc UI components with Arc's semantic tokens retuned to the booth: candy pink bar, sticker paper surfaces, plum text and hairlines, so the saturated pens, stickers and robots on the stage carry all of the colour. Rank in the controls comes from weight and plum depth, never from size or case. Stage motion is tied to the beat and stepped; chrome motion is Arc's short, non-overshooting springs.
+The owner pinned this console direction for the controls. It is the reason glows, translucent plates and the web-grid background are allowed in the chrome; outside the chrome they remain banned as generic polish, and the stage keeps its own pastel sticker-booth rules. The controls are Arc UI components with Arc's semantic tokens retuned in `src/index.css` and their shape applied from outside; their code is untouched. Rank in the controls comes from weight, from the lit plate versus the dim plate, and from neon versus soft text, never from size or case.
 
-The world refuses the dark studio-plugin look: no knobs, meters, black panels or a piano-roll grid with one neon accent.
+Stage motion is tied to the beat and stepped; chrome motion is Arc's short, non-overshooting springs.
 
 **Key Characteristics:**
-- Bright pink-lilac booth backdrop, plum ink for every word.
-- Booth pen treatment on everything placed: colour core, white edge, soft plum shadow.
-- A line's pen colour is its sound.
-- One rounded gothic face at one size, rank by weight.
-- Softly rounded Arc controls (14px) on a single candy pink bar of two rows.
-- Registration ticks instead of ruled grid lines.
+- Pastel pink-lilac stage, plum ink and booth pen for everything placed on it.
+- A plum-black console frame with a faint triangular web of pink lines, brightest round the stage.
+- Translucent plates with two notched corners (9px) and a pink lit edge; the chosen item is a solid lit plate.
+- Orbs that light in a pedal's neon or a sound's own pen ink.
+- Chakra Petch in the chrome, M PLUS Rounded 1c on the canvas, every word at 15px.
+- Each hand owns the panel on its side of the screen; on a phone the stage leads.
 - Beat-locked, stepped motion on the stage; quick settling springs in the chrome.
 
 ## Colors
 
-A candy-and-plum shell around a sweet-shop set of saturated pen inks; every colour is authored in OKLCH. The shell colours are Arc UI's semantic tokens (`src/components/arc/foundation.css`) retuned in `src/index.css`.
+A plum-black console lit in one pink, wrapped round a pastel booth whose saturated pen inks carry the stage. Every colour is authored in OKLCH.
 
 ### Primary
-- **Plum ink** (plum-ink; Arc `--foreground`, `--accent`, `--control-on`, `--focus-ring`): every word, the primary button fill, the switch when on, the slider fill, grid ticks at reduced alpha, the cursor core, the pedal ring, the pressed fingertip pill and the camera alert band. It is the only dark in the shell.
-- **Plum deep** (plum-deep; Arc `--accent-strong`): the keyboard focus outline, mixed at 72%.
-- **Candy pink** (bar-candy-pink; `--bar`): the control bar and nothing else. The favicon and `theme-color` carry its hex approximation (#f58fbf).
+- **Neon pink** (neon; `--neon`, Arc `--border-strong`, `--control-on`): panel headings, the How to play headings and list markers, the on switch, plate edges on hover, the lit edge of floating plates, and an unlit pedal orb when it glows.
+- **Lit pink** (lit-pink; Arc `--accent`): the solid lit plate (Play or Stop, the chosen pedal, the chosen sound, the start-with-camera button), the slider fill, text selection and the camera alert band. Its edge is lit-pink-edge (`--accent-strong`) and its text is lit-plate-text (`--accent-foreground`).
+- **Neon dim** (neon-dim; `--neon-dim`, Arc `--border`): resting plate edges, the stage's 1px inset ring and the unlit orb rim. Neon hairline (neon-hairline; `--border-subtle`) rules the How to play table.
 
 ### Secondary
-- **Pen inks** (pen-pink, pen-mint, pen-glass, pen-lilac): melody lines. Each lead sound has its own pen: Supersaw pink, Rubber mint, Glass gold, Chip lilac. A line shows what it plays, and changing its sound changes its colour. The writing hand's fingertip pills wear the pen of the sound each finger draws, and the pointing cursor is filled with the current pen.
+- **Pen inks** (pen-pink, pen-mint, pen-glass, pen-lilac): melody lines. Each lead sound has its own pen: Supersaw pink, Rubber mint, Glass gold, Chip lilac. A line's colour is its sound. The same ink lights that sound's orb in the hand panel, fills the writing hand's fingertip pills, and fills the pointing cursor.
 - **Drum inks** (drum-kick-red, pen-yellow for snare, drum-clap-pink, pen-mint for pop, drum-zap-blue, drum-hat-orange): one per drum sticker. Each drum also has its own silhouette, so colour is never the only cue.
-- **Robot tints**: the five robot kinds reuse inks already in the world, laid over the sprite at 82%: Singer pen mint, Swapper hat orange, Eater kick red, Dropper pen lilac, Bumper zap blue. The same tint is the 14px dot before each name in the Robots menu.
-
-### Tertiary
-- **Mint highlight** (mint-highlight): text selection only. Pen mint, its saturated sibling, draws the pedal ring's second-control arc and the Singer's ribbon.
+- **Robot tints**: the five kinds reuse inks already in the world at 82%: Singer pen mint, Swapper hat orange, Eater kick red, Dropper pen lilac, Bumper zap blue. The same tint is the 14px dot before each name in the Add a robot menu.
 
 ### Neutral
-- **Booth backdrop** (booth-backdrop; `--background`): the page and stage background, pale pink-lilac, and the text on a primary button.
-- **Sticker paper** (sticker-paper; `--surface`, `--surface-raised`, `--accent-foreground`): secondary buttons, select triggers, the selected segment, menus, popovers, the dialog, message bubbles, and text on plum.
-- **Blush wash** (blush-wash; `--surface-muted`): the segmented control's well, hover and highlight fills for buttons, select options and menu items.
-- **Blush** (blush-muted; `--control-track`) and its hover step (blush-track-hover): switch and slider tracks.
-- **Soft plum** (plum-soft; `--text-secondary`): ghost buttons (Undo, Clear), the How to play table headers.
-- **Muted plum** (plum-muted; `--text-muted`): unselected segments and select chevrons.
-- **Plum hairlines** (plum-hairline 16%, plum-hairline-subtle 9%, plum-rule-strong 32%, plum-tint 10%; Arc `--border`, `--border-subtle`, `--border-strong`, `--accent-subtle`): control and panel outlines, menu separators, the dialog header rule and table rules, and hover or open borders.
-- **Thumb white** (thumb-white; Arc `--control-thumb`): switch and slider thumbs, left at Arc's pure white so they read on either track state.
-- **Dialog scrim** (dialog-scrim): Arc's dimming layer behind the How to play dialog.
-- **Pen white** (pen-white): the cut edge on lines, stickers, sprites and the pedal ring, the playhead core, the glint, the dotted pad guides, effects-hand fingertip pills and the halo behind canvas text. Canvas only.
-- **Booth wash** (booth-wash): screened over the live camera image so its shadows lift to pink, followed by a 25% veil of the backdrop.
+- **Chrome plum-black** (chrome-plum-black; `--chrome`, Arc `--background`): the page and the field under the web.
+- **Web** (web-glow, web-line, web-line-faint): the frame's only decoration. A pink radial glow centred behind the stage, two families of 1px lines at 60 and -60 degrees every 47px, and a fainter horizontal line every 81px.
+- **Plates** (plate `--surface`, plate-raised `--surface-raised`, plate-hover `--surface-muted`): translucent plum plates for secondary buttons, triggers and panels; a near-opaque raised plate for menus, lists, popovers, the dialog and messages over the stage; a pinker step for hover, open and highlight.
+- **Console text** (console-text `--foreground`, console-text-soft `--text-secondary`, console-text-muted `--text-muted`): every word in the chrome, the panel subtitles and field labels, ghost buttons, and chevrons.
+- **Track and thumb** (track, track-hover, thumb-pearl): switch and slider tracks and their pearl thumbs.
+- **Orb off and lit rim** (orb-off, orb-rim-lit): an unlit orb's core, and the bright rim of a lit one.
+- **Dialog scrim** (dialog-scrim): Arc's dimming layer behind How to play, with a 7px blur.
+- **Booth backdrop** (booth-backdrop; `--stage`): the stage, and at 25% the veil laid over the camera image.
+- **Booth wash** (booth-wash): screened over the live camera image so its shadows lift to pink.
+- **Plum ink** (plum-ink): canvas only. Grid ticks at reduced alpha, the cursor, pedal ring, robot hand tint, pressed fingertip pills and the sticker shadow.
+- **Pen white** (pen-white): canvas only. The cut edge on everything placed, the playhead core, the glint, dotted pad guides and the halo behind canvas text.
 
 ### Named Rules
-**The Two Colour Shell Rule.** Chrome uses only candy pink, plum and its alpha hairlines, sticker paper and the blush steps. Saturated colour belongs to things on the stage. The one exception is a 14px round dot in a menu item that names the stage ink it stands for (a robot's tint).
+**The Two Worlds Rule.** The chrome is plum-black, the plates, the console text and one pink. The stage is the pastel backdrop, plum ink, pen white and the saturated inks. A stage ink enters the chrome only to name the thing it stands for: a sound's orb, a robot's dot.
 
-**The Plum Only Rule.** All text is plum: plum ink, soft plum, muted plum, or paper on plum. No grey text, no coloured text.
+**The One Lit Plate Rule.** In any group of choices exactly one item is a solid lit plate, and it is the chosen one. Hover lights an edge, never a fill.
 
 **The Ink Is The Sound Rule.** A melody line's colour comes from its sound, never from the order it was drawn in.
 
 ## Typography
 
-**Display Font:** M PLUS Rounded 1c (with ui-rounded, system-ui, sans-serif), set as Arc's `--font-display`
-**Body Font:** M PLUS Rounded 1c, the same family, set as Arc's `--font-body` and on the root
-**Label/Mono Font:** none. Numbers that change (tempo) use tabular figures, not a monospace face.
+**Display Font:** Chakra Petch (with system-ui, sans-serif), set as Arc's `--font-display` and `--font-body` and on the root
+**Body Font:** Chakra Petch, the same family
+**Canvas Font:** M PLUS Rounded 1c (with ui-rounded, system-ui, sans-serif), for every word drawn on the stage
+**Label/Mono Font:** none. Numbers that change (tempo) use tabular figures.
 
-**Character:** One rounded Japanese gothic, loaded locally at weights 500, 700 and 800 for Latin. Its soft terminals match the round pen caps and the softly rounded controls. Arc's `--text-sm` and `--text-field` are retuned to 15px so every control, option and field sits at the one size; `--tracking-body` is 0.
+**Character:** A squared, slightly technical face for the console, loaded locally at 500, 600 and 700, against a soft rounded gothic on the stage whose terminals match the round pen caps. `font-synthesis: none` on the root; `--tracking-body` is 0.01em; Arc's `--text-sm` and `--text-field` are 15px.
 
 ### Hierarchy
-- **Wordmark** (800, 15px): the product name at the left of the bar, shown from 1700px wide and kept for screen readers below that. The section headings in the How to play guide share it.
-- **Label** (700, 15px): the tempo readout ("160 bpm"), the "Pedal hand" heading in the Pedals panel, message bubbles, fingertip pills, the note names drawn down the right edge of the canvas (4px white halo) and the pedal readout over its ring (5px white halo).
-- **Body** (500, 15px): every Arc control, option and menu item, visible field labels inside panels, the dialog body, the guide's lists and table, and the camera alert band.
+- **Heading** (Chakra Petch 700, 15px, neon): the hand name at the top of each panel ("Left hand"), the How to play section headings, and the tempo readout ("160 bpm") in console text.
+- **Control** (Chakra Petch 600, 15px): every button, select trigger, menu item and option, and messages over the stage.
+- **Body** (Chakra Petch 500, 15px, soft): the panel subtitle under each hand name, field labels, the dialog body and table, the camera alert band.
+- **Canvas label** (M PLUS Rounded 1c 700, 15px or scaled by stage size): fingertip pills, the palm pill, note names down the right gutter (4px white halo), the pedal readout (5px white halo) and the "Open to drop Singer" label over a carried robot.
 
 ### Named Rules
-**The One Size Rule.** Every piece of text is 15px. Rank comes from weight (500, 700, 800), from plum depth, and from plum fill versus paper fill, never from a larger size or uppercase.
+**The One Size Rule.** Every piece of text is 15px. Rank comes from weight (500, 600, 700) and colour (neon, console text, soft), never from a larger size.
 
-**The Upright Rule.** No italic or oblique text anywhere, including canvas text. `font-synthesis: none` is set on the root so the browser never fakes a slant or a bold.
+**The Sentence Case Rule.** Console references set their labels in capitals; this build does not. Every label, heading and control is in sentence case.
+
+**The Upright Rule.** No italic or oblique text anywhere, including canvas text.
 
 ## Layout
 
-A full-height column: the bar on top, an optional alert band, and the stage taking every remaining pixel.
+At 1024px and wider the screen is three columns: a 15rem (240px) panel column for each hand, and the stage between them. The column on each side belongs to the hand on that side: the hand that writes gets the sound panel (four sounds, one per finger, Quantize drums, Chords and arp, Add a robot, A fist drops), the hand that plays pedals gets the pedal panel (five pedals, Hold pedals on, Release all pedals). With both hands on pedals, the right column stacks the right pedal panel over a mouse sound panel. Each side column pads 12px and scrolls on its own; panels pad 16px with 12px gaps.
 
-The bar is a grid of two deliberate rows with 8px between rows and between controls, 8px by 16px padding, and 40px controls (Arc `--control-height-md`), so it stands 104px tall at 1280 to 1440px and wider. Row one is the music: Play or Stop, the tempo slider (112px) with its value beside it (72px), Key (96px), Scale (192px), Sound (128px), Quantize (160px), then Chords and arp. Row two is the hands and the canvas: the Draw, Erase and Effects segmented control, Robots, Pedals, Undo, Clear, then How to play and the Camera switch pushed to the right. Each row wraps on its own when narrower; a 390px phone shows seven rows, accepted because the instrument is laptop-first.
+The middle column is a top bar, the stage, and a bottom bar. Bars wrap and centre their controls with 8px gaps and 8px by 12px padding, and carry no fill of their own; the web shows through. The top bar holds the music: Play or Stop, tempo with its value beside it, Key, Scale, Camera, How to play. The bottom bar holds the canvas: Draw, Erase and Effects, the mouse pedal while in Effects, Undo, Clear, and the pedal hand.
 
-In the bar every field names itself by its value ("Key A", "Minor pentatonic", "Supersaw", "Quantize 1/16"), so Arc's field labels and the slider's label and value header are hidden for screen readers only. Inside panels the labels are visible above each field.
+In the bars every field names itself by its value ("Key A", "Pedals: left hand"), so their field labels are for screen readers only. Inside panels labels are visible.
 
-Popover panels hold the rest: Chords and arp (256px wide: Chord, Arpeggiator, Arpeggio speed) and Pedals (288px: Pedal hand, a pedal per hand, Mouse plays, Hold pedals on, Release all pedals), each a column with 12px gaps.
+Below 1024px the layout becomes one column and the stage leads: the stage takes at least 55dvh, both bars sit under it, then the right hand's panel and the left hand's panel, each turned into one 1px-edged strip that scrolls sideways. Panel headings and field labels in the strips are for screen readers only.
 
-The stage draws its grid inset 12px top and bottom, with a 52px left gutter for the drum lane stickers and a 52px right gutter for note names (34px and 42px below 640px). Floating messages are centred and capped at the stage width minus 32px; the in-play hint sits 20px above the bottom edge.
+The stage draws its grid inset 12px top and bottom with a 52px left gutter for drum stickers and a 52px right gutter for note names (34px and 42px below 640px). Messages over the stage are centred and capped at the stage width minus 32px; the in-play hint sits 20px above the bottom edge.
 
-**The Edges Rule.** Controls live in the bar and the gutters. The grid itself carries no chrome; the pedal ring, its guides and the fingertip pills are instrument readouts that exist only while a hand or pedal is in play.
+**The Edges Rule.** Controls live in the bars and the side panels. The grid carries no chrome; the pedal ring, its guides, the fingertip pills and a carried robot are instrument readouts that exist only while a hand or pedal is in play.
 
 ## Elevation & Depth
 
-Depth is a sticker effect on the stage and one floating layer in the chrome. One soft plum shadow says "this is stuck on top": it sits under placed ink, fingertip pills, the floating message bubbles. Bar controls are flat with plum hairlines; a light resting shadow appears only on hover. Menus, popovers and the dialog float on Arc's floating shadow retuned to plum.
+Two systems that never mix. The console uses light, not shadow: plates sit on the web with a 1px pink edge and an 18px pink halo, the lit plate glows brighter, and floating layers add one deep plum shade beneath. The stage uses stickers: one soft plum shadow that falls straight down under everything placed on it.
 
-Stage order, bottom to top: grid and gutters, Singer ribbons, walking robots, melody lines, drum stickers, note names, strokes in progress, playhead, glints, pedal rings, robot hands, fingertip pills, cursors. Robots walk under placed ink so the player's own marks always stay readable.
+Stage order, bottom to top: grid and gutters, Singer ribbons, walking robots, melody lines, drum stickers, note names, strokes in progress, playhead, glints, pedal rings, robot hands, a carried robot, fingertip pills, cursors.
 
 ### Shadow Vocabulary
-- **Sticker shadow** (canvas: plum at 35%, blur 8, offset y 3): lines, drum stickers, walking robots, the pedal ring. The robot hand uses blur 5, offset 2; the cursor and fingertip pills blur 6, offset 2; the glint blur 6 with no offset. The Singer's ribbon has no shadow.
-- **Lift** (`box-shadow: 0 3px 10px oklch(0.27 0.09 340 / 0.25)`): message bubbles over the stage.
-- **Floating** (`--shadow-floating: 0 18px 40px oklch(0.27 0.09 340 / 0.16), 0 3px 10px oklch(0.27 0.09 340 / 0.08)`): open select lists, dropdown menus, popovers and the dialog.
-- **Resting** (Arc `--shadow-resting`, a 1px hairline shadow): hover on secondary buttons and the dropdown trigger, and the selected segment.
+- **Glow** (`--glow`, also Arc `--shadow-raised`): a 1px neon-dim edge and an 18px pink halo. Hand panels and messages over the stage.
+- **Glow strong** (`--glow-strong`): a 1px neon edge and a 22px brighter halo, for a plate that needs to read as active.
+- **Lit plate** (`box-shadow: inset 0 1px 0 oklch(1 0 0 / 0.45), 0 0 18px oklch(0.78 0.21 352 / 0.55)`): the chosen item. Secondary plates and triggers carry only the faint top sheen (`inset 0 1px 0 oklch(0.95 0.05 350 / 0.12)`).
+- **Floating** (Arc `--shadow-floating`: the glow plus `0 24px 48px oklch(0.08 0.03 340 / 0.6)`): open lists, menus, popovers and the dialog.
+- **Orb light** (`0 0 10px` in the orb's own ink): a lit orb.
+- **Sticker shadow** (canvas: plum at 35%, blur 8, offset y 3): lines, drum stickers, walking robots, the pedal ring. Robot hand blur 5, offset 2; cursor and fingertip pills blur 6, offset 2.
 
 ### Named Rules
-**The Stuck On Rule.** A shadow is always soft, falls straight down, and only marks something sitting over the stage or floating over it. No hard offset shadows, no glow.
+**The Console Light Rule.** Glow is allowed only in the console chrome, because the owner pinned the Xbox dashboard direction there. It is always pink, always centred (no offset), and never on the stage, where depth is the sticker shadow.
 
 ## Shapes
 
-Everything is rounded, nothing is square. Arc's radius tokens are the system's: controls 14px (`--radius-control`), large buttons and select lists 16px, menus and popovers 20px (`--radius-panel`), the dialog and message bubbles 24px (`--radius-surface`), tracks, thumbs, fingertip pills and dots full round (`--radius-pill`). Nested shapes step in so their corners stay concentric: segments and select options 10px inside a 14px well, menu items 14px inside a 20px menu. Lines and ribbons have round caps and joins. Drum stickers are drawn shapes, one per drum: a disc (kick), a five-point star (snare), a heart (clap), a ring (pop), a lightning bolt (zap) and a four-point sparkle (hat). The sparkle doubles as the glint where the playhead crosses a sounding line.
+The console is cut, the stage is round. Every console plate (Arc buttons, select and menu triggers, the segmented control, hand panels, popovers, menus, lists, the dialog and messages over the stage) is clipped to a notched silhouette: the top-left and bottom-right corners cut at 45 degrees by `--cut` (9px), the other two square. Arc's radius tokens are retuned small (controls 3px, panels 4px, surfaces 6px) so nothing rounds against the cut. Orbs, tracks and thumbs stay full round.
 
-The grid is not ruled. It marks intersections with registration crosses at every beat (4px arms, 6px and heavier at the bar line) and 1px dots between. Drum lanes in the left gutter are divided by short plum rules.
+On the stage everything is round: round caps and joins on lines and ribbons, full-round fingertip pills, and one drawn shape per drum (disc kick, five-point star snare, heart clap, ring pop, lightning zap, four-point sparkle hat; the sparkle doubles as the glint). The grid is not ruled: registration crosses at every beat (4px arms, 6px and heavier at the bar line) and 1px dots between.
 
-**The Cut Edge Rule.** Anything placed on the stage gets a white edge roughly as thick as its colour core (lines and the Singer ribbon: edge 2.1 times the core width; stickers: 0.62 of the radius; robot sprites: 8px; robot hand parts: 5px; the pedal ring: 12px under a 6px core). Without the edge it does not belong to this world.
+**The Cut Edge Rule.** Anything placed on the stage gets a white edge roughly as thick as its colour core (lines and ribbons 2.1 times the core; stickers 0.62 of the radius; robot sprites 8px; robot hand parts 5px; the pedal ring 12px under a 6px core).
+
+**The Inside Focus Rule.** A notched plate clips any outline drawn outside it, so its keyboard focus is a 2px inset ring in console text. Everything else keeps the global 2px console-text outline at 2px offset.
 
 ## Components
 
-Controls are Arc UI components (`src/components/arc/<name>`), used as shipped with their CSS modules untouched; the booth comes entirely from the retuned tokens. Arc's motion tokens (`src/components/arc/lib/motion-tokens.ts`) govern chrome motion: 100 to 200ms state changes on the standard ease, and panels that settle on a 440ms spring that never overshoots. Under reduced motion Arc drops these transitions.
+Controls are Arc UI components (`src/components/arc/<name>`) with their modules untouched; the console comes from retuned tokens and shape rules in `src/index.css`. Arc's motion tokens govern chrome motion: 100 to 200ms state changes and panels that settle on a 440ms spring without overshoot, dropped under reduced motion.
 
 ### Buttons
-- **Shape:** 14px corners, 40px tall (`md`); `lg` is 44px with 16px corners and 20px side padding, used for the start buttons over the stage.
-- **Primary:** plum fill, backdrop text, 16px side padding. Play and Stop only, at least 80px wide.
-- **Secondary:** paper fill, plum text, plum hairline border. Chords and arp, Pedals, How to play, Release all pedals.
-- **Ghost:** no fill, soft plum text; hover fills blush wash and turns the text plum. Undo and Clear.
-- **Hover / Focus:** primary fades to 91% with a resting shadow; secondary fills blush wash. Keyboard focus is Arc's 2px outline in plum deep at 72%, 2px offset; pointer focus draws no ring.
-- **Disabled:** stays in place so the row does not shift. Undo and Clear disable when there is nothing to undo or clear.
+- **Shape:** notched plate, 40px tall; `lg` (44px) for the two start buttons over the stage.
+- **Primary (the lit plate):** solid lit pink, plum-black text, a pale top sheen and a pink halo. Play or Stop, the chosen pedal and sound in each panel, Start with camera.
+- **Secondary:** translucent plate, neon-dim edge, console text, faint top sheen. Hover lights the edge neon and steps the fill to plate-hover. The unchosen pedals and sounds, Chords and arp, Start with mouse.
+- **Ghost:** no plate, soft text. How to play, Undo, Clear, Release all pedals.
+- **Focus:** 2px inset ring in console text (The Inside Focus Rule).
+- **Disabled:** stays in place. Undo and Clear disable when there is nothing to undo or clear.
+
+### Select and dropdown menu
+- **Trigger:** a secondary-style notched plate naming its value, with a soft chevron.
+- **List or menu:** notched raised plate with the floating shadow, options highlighted in plate-hover. Each robot in Add a robot leads with its 14px tint dot; the A fist drops select picks which robot a fist carries.
 
 ### Segmented control
-- **Style:** a blush wash well with a plum hairline, 14px corners, 3px padding; items are 32px with 10px corners and muted plum text.
-- **State:** the selected item sits on a paper tile with a hairline and resting shadow, in plum ink; the tile slides between items. Draw, Erase and Effects in the bar; Left, Right and Both full width in the Pedals panel.
+- **Style:** a notched plate-hover well with a neon-dim edge; the selected item sits on a plate tile that slides between items. Draw, Erase and Effects.
 
-### Select
-- **Trigger:** paper, plum hairline, 14px corners, 40px tall, the current value in words with a muted plum chevron. Hover and open fill blush wash with the strong hairline.
-- **List:** paper, 16px corners, 6px padding, floating shadow, as wide as its trigger, rising in over 200ms. Options are 36px with 10px corners; the highlighted option fills blush wash and the chosen one shows a check.
+### Switch and slider
+- **Switch:** 42 by 24px track, neon when on, pearl thumb. Camera, Hold pedals on, Face controls, Swap winks.
+- **Slider:** track with a lit pink fill and a pearl thumb; tempo shows its value beside it in tabular figures.
 
-### Dropdown menu
-- **Trigger:** Robots, a secondary-style trigger with a chevron, held to 40px in the bar.
-- **Menu:** paper, 20px corners, 5px padding, floating shadow, at least 192px wide, settling on a spring. Items are 36px with 14px corners and a blush wash highlight that slides between them. Each robot item leads with a 14px dot in its tint; items disable when the grid holds its maximum.
+### Hand panel (signature)
+- **Plate:** translucent plate, notched, with the glow; padding 16px, gaps 12px.
+- **Head:** the hand name in neon heading weight with a one-sentence subtitle under it in soft body ("Pedals. A fist moves to the next one.").
+- **Choices:** one full-width button per pedal or sound, the chosen one lit. Each leads with an orb; on the writing hand each sound names its finger in soft text at the right.
+- **Narrow screens:** a single sideways strip with the heading and labels kept for screen readers.
 
-### Popover
-- **Panel:** paper, plum hairline, 20px corners, 16px padding, floating shadow, settling from its trigger on a spring. Holds the Chords and arp and Pedals panels, whose field labels are visible.
+### Orb
+A 14px round light before each pedal or sound. Off: plum core with a neon-dim rim. Lit: a pale rim, a highlight at the upper left fading into the orb's ink, and a 10px halo of the same ink. A pedal's orb lights in neon while that pedal sounds; a sound's orb is always lit in its own pen ink.
 
-### Switch
-- **Style:** a 42 by 24px blush track with an 18px white thumb; on, the track fills plum. The label sits to the right in body weight. Camera in the bar, Hold pedals on in the Pedals panel.
+### Popover and dialog
+- **Popover:** the Chords and arp panel opening beside its trigger: notched raised plate with the floating shadow.
+- **Dialog:** How to play, notched raised plate at most 440px wide over Arc's blurred scrim; neon section headings, square neon list markers, a table ruled in neon hairline.
 
-### Slider
-- **Style:** a 6px blush track with a plum fill and a 22px white thumb. Tempo shows its value beside the slider in label weight with tabular figures; the slider's own header is hidden in the bar.
+### Messages and alert band
+- **Message plate:** a notched raised plate with the glow, control weight, centred over the stage. The sentence before the first play, toasts, and the hint while the stage is nearly empty or in Effects mode.
+- **Alert band:** a full-width lit pink strip under the top bar, shown only when the camera is blocked or tracking failed.
 
-### Dialog
-- **Style:** the How to play guide (`src/HowTo.tsx`): paper, 24px corners, at most 440px wide, over Arc's dim, blurred scrim. A header with a 32px close button sits above a hairline rule; header and body pad 20px.
-- **Content:** sentence case section headings at 800, disc lists with 4px gaps, and a full-width table with soft plum header cells and a plum hairline under each row.
+### Stage ink (signature)
+Everything on the canvas wears the booth pen treatment.
 
-### Message bubble and alert band
-- **Bubble:** paper, 24px corners, 8px by 16px padding, label weight, lift shadow, centred over the stage. Holds the one-sentence explanation before the first play and the gesture hint while the stage is nearly empty or the mouse is playing a pedal.
-- **Alert band:** a full-width plum strip under the bar with paper body text, shown only when the camera is blocked or tracking failed.
+- **Melody lines:** a 5 to 9px core in the pen of the line's sound over a white edge 2.1 times as wide.
+- **Robots:** the AnyMachine Stilt walk cycle cut into stickers with an 8px white edge, tinted at 82%. They walk under all placed ink.
+- **Carried robot:** while the writing hand makes a fist, the robot chosen under A fist drops walks with the hand at 70% opacity, labelled "Open to drop" and its name in a canvas pill above it. Opening the hand drops it there.
+- **Singer ribbon:** pen mint booth pen fading to the same colour at zero alpha toward the tail, under every robot.
+- **Robot hand:** AnyMachine Stilt parts laid over each tracked hand, tinted plum with a 5px white edge.
+- **Fingertip pills:** full-round pills 24px above each fingertip saying what pinching that finger does; on the writing hand each wears its sound's pen, on the effects hand they are pen white, and the pressed finger's pill goes solid plum.
+- **Cursor, pedal ring and playhead:** plum on white edges; the pedal ring carries a pen mint arc for its second control and a live readout above it.
 
-### Stage ink (signature component)
-The canvas layer is the system's signature, and everything on it wears the booth pen treatment.
-
-- **Melody lines:** a 5 to 9px core by stage height in the pen of the line's sound, over a white edge 2.1 times as wide.
-- **Robots:** the AnyMachine Stilt walk cycle cut into stickers with an 8px white edge, one sheet per kind, tinted at 82% with that kind's ink. They walk under all placed ink.
-- **Singer ribbon:** each Singer drags one continuous ribbon of booth pen in pen mint (4 to 7px core, white edge 2.1 times as wide), smoothed through its samples and fading to zero alpha toward the tail. It fades to the same colour at zero alpha, never to transparent black, and lies under every robot.
-- **Robot hand:** laid over each tracked hand and built from AnyMachine Stilt parts: one limb segment stretched along each finger bone, a bar across the knuckles and one strut to the wrist (no webbing over the palm), with a knee cap on all 21 joints. Parts are tinted plum with a 5px white edge; girth follows hand size from 9 to 26px.
-- **Fingertip pills:** each fingertip carries a full-round pill 24px above it saying what pinching that finger does, in label type (pill 1.75 times the type tall, sticker shadow at blur 6, offset 2). On the writing hand each pill wears the pen of its sound with plum text; on the effects hand pills are pen white with plum text and name the pedal's variant, and the pedal's name sits in a plum pill on the palm. The pressed finger's pill goes solid plum with white text.
-- **Cursor:** hovering is a plum ring of 19px radius on a 10px white edge; drawing is a filled plum dot of 11px radius with a white edge; pointing is a dot of 14px radius filled with the current pen ink on a 6px white edge; erasing is a dashed plum ring on a white edge at the erase radius.
-- **Pedal ring:** a 26px radius ring at the point being played, 6px plum on a 12px white edge, with a pen mint arc of the same weight running clockwise from the top to show the pedal's second control. A live readout of the pedal and its variant ("Echo 1/8 dotted") sits 46px above in label type with a 5px white halo. Dotted guides (2px white at 85%, 2px dots with 8px gaps) run the full width and height of the grid through the point. Every pressed or held pedal shows its own ring.
-- **Playhead:** a 4px white bar over a 7px plum bar at 50%.
-
-On the beat, the thing under the playhead jumps: lines swell to 1.45 times their width for the first half of each step, drum stickers to 1.35 for 90ms, and a robot lifts to 1.08 for 90ms when it acts, with no easing. With reduced motion requested the jumps stop and the playhead remains.
+On the beat, what the playhead touches jumps: lines swell to 1.45 times for the first half of each step, drum stickers to 1.35 for 90ms, a robot lifts to 1.08 for 90ms when it acts, with no easing. Under reduced motion the jumps stop and the playhead remains.
 
 ## Do's and Don'ts
 
 ### Do:
-- **Do** set every word at 15px in M PLUS Rounded 1c and rank it by weight (500, 700, 800).
-- **Do** keep chrome to candy pink, plum, sticker paper and the blush steps, and give the saturated pen, drum and robot inks to the stage; a dot that names a stage ink is the only colour allowed in a control.
+- **Do** keep the console to the plum-black field, the web, translucent plates, console text and one pink; let a stage ink into a control only as a sound's orb or a robot's dot.
+- **Do** cut every console plate with the 9px notch on the top-left and bottom-right corners, and draw its keyboard focus inside the plate.
+- **Do** make the chosen item the one solid lit plate in its group; light only the edge on hover.
+- **Do** confine glow, translucency and the web-grid background to the console chrome, where the owner's pinned Xbox dashboard direction allows them.
+- **Do** set every word at 15px: Chakra Petch (500, 600, 700) in the chrome, M PLUS Rounded 1c on the canvas.
+- **Do** give each hand the panel on its side of the screen, and put the stage first on narrow screens.
 - **Do** colour a melody line by its sound, and give any new robot kind an ink already in the pen or drum sets.
 - **Do** give anything placed on the stage a white cut edge and the soft plum sticker shadow.
-- **Do** keep robots under placed ink so the player's marks stay readable.
-- **Do** tell drums apart by sticker shape as well as colour.
-- **Do** step beat motion in a single jump with no easing, and remove it under reduced motion while keeping the playhead.
-- **Do** build controls from the Arc UI components in `src/components/arc`, styled only by retuning Arc's tokens in `src/index.css`, and use Arc's radius, control height and motion tokens rather than new values.
-- **Do** let bar fields name themselves by their value and keep their labels for screen readers; show labels inside panels.
-- **Do** keep UI text to the minimum: one sentence before the first play, one hint while the stage is nearly empty or the mouse plays a pedal, fingertip pills and the pedal readout while a hand or pedal is in play.
+- **Do** build controls from the Arc UI components in `src/components/arc`, shaped from `src/index.css` without editing their modules.
+- **Do** keep UI text to the minimum: one sentence before the first play, one hint while it helps, and canvas pills only while a hand or pedal is in play.
 
 ### Don't:
-- **Don't** use italic or oblique text anywhere, including canvas text, wordmarks and labels.
-- **Don't** put all-caps eyebrows, kickers or decorative labels above anything, including panel field labels.
+- **Don't** use italic or oblique text anywhere, including canvas text and labels.
+- **Don't** set labels, headings or controls in capitals, even though the console references do; no all-caps eyebrows or kickers above anything.
 - **Don't** use JetBrains Mono (or any alias of it) anywhere, including fallback stacks.
 - **Don't** use em dashes in any copy, label or generated text.
 - **Don't** put an accent stripe on one side of a container, by border, pseudo-element, background or shadow.
-- **Don't** use gradient text, glass panels, glows or neon effects, including Arc's unused brand gradient tokens.
-- **Don't** add text sizes beyond 15px or uppercase labels to create hierarchy.
-- **Don't** draw ruled grid lines; mark intersections with registration ticks and dots. The pedal pad's dotted guides are the only full-length lines, and only while a pedal is down.
-- **Don't** drift toward the dark studio-plugin look: knobs, meters, black panels, a piano roll with one neon accent.
-- **Don't** add hard offset shadows; every shadow is soft and falls straight down.
+- **Don't** use gradient text, or Arc's unused brand gradient tokens.
+- **Don't** carry glow, translucent plates or the web grid onto the stage or into any surface outside the console chrome.
+- **Don't** add text sizes beyond 15px to create hierarchy.
+- **Don't** draw ruled lines on the stage grid; mark intersections with registration ticks and dots.
+- **Don't** add hard offset shadows; stage shadows fall straight down and console glows are centred.
