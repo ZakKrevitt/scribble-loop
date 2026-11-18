@@ -89,6 +89,11 @@ export function HowTo({ writingHand }: HowToProps) {
           <li>Quantize, in the bar, snaps drums to 1/16, 1/8 or 1/4, or turns snapping off.</li>
           <li>Chords and arp stacks every note into a chord, and the arpeggiator plays it one note at a time.</li>
           <li>
+            With the camera on, wink your left eye to turn the arpeggiator on or off, and your right eye for chords.
+            Open your mouth to spread them: wider chords, and arpeggios over more octaves. If the winks come out the
+            wrong way round, use Swap winks in Chords and arp.
+          </li>
+          <li>
             Robots walk the grid by themselves. The Singer glides a held note, the Swapper changes sounds, the Eater
             eats notes, the Dropper leaves some behind, and the Bumper shouts when you hit it.
           </li>

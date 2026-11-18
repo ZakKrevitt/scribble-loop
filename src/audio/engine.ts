@@ -820,11 +820,30 @@ export class Engine {
     }
   }
 
-  /** The rows the current chord stacks on a line's note. An arpeggio with no chord climbs octaves. */
+  /** How open the chords and arpeggios are, 0 close to 1 wide. The face's mouth drives it. */
+  private spread = 0
+
+  setSpread(spread: number): void {
+    this.spread = Math.max(0, Math.min(1, spread))
+  }
+
+  /**
+   * The rows the current chord stacks on a line's note. An arpeggio with no chord climbs octaves.
+   * Spread opens the voicing: upper notes rise an octave, then alternate ones a second.
+   */
   private chordShape(): number[] {
     const size = SCALES[this.settings.scale].length
     const chord = this.settings.arp !== 'Off' && this.settings.chord === 'Off' ? 'Octaves' : this.settings.chord
-    return chordRows(chord, size)
+    const s = this.spread
+    return chordRows(chord, size).map((r, i) => (i === 0 ? r : r + size * Math.round(s * (1 + (i % 2)))))
+  }
+
+  /** The arpeggio's notes: the chord, repeated up one to three octaves as the spread widens. */
+  private arpShape(): number[] {
+    const size = SCALES[this.settings.scale].length
+    const base = this.chordShape()
+    const octaves = 1 + Math.round(this.spread * 2)
+    return Array.from({ length: octaves }, (_, o) => base.map((r) => r + o * size)).flat()
   }
 
   private indexDrums(): void {
@@ -930,10 +949,11 @@ export class Engine {
       } else {
         // One voice plucks the chord's notes in turn, several times a step when the rate is fast.
         const per = ARP_RATES[this.settings.arpRate]
-        const order = arpOrder(arp, shape.length)
+        const notes = this.arpShape()
+        const order = arpOrder(arp, notes.length)
         let n = this.arpStep.get(id) ?? 0
         for (let k = 0; k < per; k++) {
-          const r = row + shape[order[n % order.length]]
+          const r = row + notes[order[n % order.length]]
           voices[0].play(time + (k * length) / per, frequency(midiForRow(r, key, scale)), r, 1, true)
           n++
           this.stats.notes++

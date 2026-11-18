@@ -16,7 +16,8 @@ import {
   type Point,
 } from '@/model/score'
 import { Smoother, readHand, type Pose, type Touch } from '@/tracking/gestures'
-import type { HandTracker } from '@/tracking/handTracker'
+import type { FaceTracker, HandTracker } from '@/tracking/handTracker'
+import { WinkReader, mouthOpen, type Wink } from '@/tracking/face'
 import { FxLayer } from './fx'
 import {
   BOT_TINT,
@@ -77,6 +78,10 @@ interface StageProps {
   hold: boolean
   stream: MediaStream | null
   tracker: HandTracker | null
+  /** Face controls: winks toggle chords and the arpeggiator, the open mouth spreads them. */
+  faceTracker: FaceTracker | null
+  faceOn: boolean
+  onWink: (eye: Wink) => void
   /** Place a stroke. A hand's pinch passes the sound of the finger it pinched with. */
   onPlace: (draft: Draft, lead?: LeadName) => void
   onErase: (at: Point, radius: number, aspect: number) => void
@@ -239,6 +244,8 @@ export function Stage(props: StageProps) {
     }
     partsStrip.src = '/sprites/stilt-parts.webp'
     let lastVideoTime = -1
+    const winks = new WinkReader()
+    let faceFrame = 0
 
     const mouse = {
       pen: new Pen(aspect, MOUSE_FEEL),
@@ -351,6 +358,17 @@ export function Stage(props: StageProps) {
       const ready = tracker && stream && video.readyState >= 2 && video.videoWidth > 0
       if (ready && video.currentTime !== lastVideoTime) {
         lastVideoTime = video.currentTime
+        // The face is read every other frame; winks and the mouth do not need full speed.
+        const { faceTracker, faceOn } = live.current
+        if (faceTracker && faceOn && faceFrame++ % 2 === 0) {
+          const face = faceTracker.detect(video, now)
+          if (canvas.dataset.face !== String(Boolean(face))) canvas.dataset.face = String(Boolean(face))
+          if (face) {
+            const wink = winks.read(face.blinkLeft, face.blinkRight)
+            if (wink) live.current.onWink(wink)
+            engine.setSpread(mouthOpen(face.jaw))
+          }
+        }
         const hands = tracker.detect(video, now)
         const videoAspect = video.videoWidth / video.videoHeight
         const free = new Set(slots)

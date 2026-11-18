@@ -49,7 +49,13 @@ import {
 import { BOT_INFO } from "@/robots/bots";
 import { BOT_TINT, LEAD_INK } from "@/stage/draw";
 import { Stage, type Mode, type PedalHands, type Side } from "@/stage/Stage";
-import { createHandTracker, type HandTracker } from "@/tracking/handTracker";
+import {
+  createFaceTracker,
+  createHandTracker,
+  type FaceTracker,
+  type HandTracker,
+} from "@/tracking/handTracker";
+import type { Wink } from "@/tracking/face";
 import { HowTo } from "./HowTo";
 
 type Camera = "off" | "loading" | "on" | "blocked" | "failed";
@@ -107,6 +113,13 @@ export default function App() {
   const [camera, setCamera] = useState<Camera>("off");
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [tracker, setTracker] = useState<HandTracker | null>(null);
+  const [faceTracker, setFaceTracker] = useState<FaceTracker | null>(null);
+  const [faceOn, setFaceOn] = useState(true);
+  const [swapWinks, setSwapWinks] = useState(false);
+  const [toast, setToast] = useState<string | null>(null);
+  const toastTimer = useRef(0);
+  const lastChord = useRef<ChordName>("Triad");
+  const lastArp = useRef<ArpName>("Up");
 
   const engine = useMemo(() => new Engine(START), []);
   const nextId = useRef(1);
@@ -174,6 +187,36 @@ export default function App() {
     }, 150);
     return () => window.clearInterval(id);
   }, [engine]);
+
+  const say = useCallback((text: string) => {
+    setToast(text);
+    window.clearTimeout(toastTimer.current);
+    toastTimer.current = window.setTimeout(() => setToast(null), 1400);
+  }, []);
+
+  /** A left wink toggles the arpeggiator and a right wink the chords, unless swapped. */
+  const wink = useCallback(
+    (eye: Wink) => {
+      const s = settingsRef.current;
+      const arp = (eye === "left") !== swapWinks;
+      if (arp) {
+        if (s.arp !== "Off") lastArp.current = s.arp;
+        const next = s.arp === "Off" ? lastArp.current : "Off";
+        setSettings((x) => ({ ...x, arp: next }));
+        say(
+          next === "Off"
+            ? "Arpeggiator off"
+            : `Arpeggiator ${next.toLowerCase()}`,
+        );
+      } else {
+        if (s.chord !== "Off") lastChord.current = s.chord;
+        const next = s.chord === "Off" ? lastChord.current : "Off";
+        setSettings((x) => ({ ...x, chord: next }));
+        say(next === "Off" ? "Chords off" : `${next} chords`);
+      }
+    },
+    [say, swapWinks],
+  );
 
   const cyclePedal = useCallback((side: Side) => {
     setPedalBySide((p) => ({
@@ -322,15 +365,20 @@ export default function App() {
       return;
     }
     try {
-      const ready = tracker ?? (await createHandTracker());
+      const [ready, face] = await Promise.all([
+        tracker ?? createHandTracker(),
+        // The face model is optional: without it the hands still play.
+        faceTracker ?? createFaceTracker().catch(() => null),
+      ]);
       setTracker(ready);
+      setFaceTracker(face);
       setStream(media);
       setCamera("on");
     } catch {
       media.getTracks().forEach((t) => t.stop());
       setCamera("failed");
     }
-  }, [tracker]);
+  }, [tracker, faceTracker]);
 
   useEffect(() => {
     const key = (e: KeyboardEvent) => {
@@ -403,6 +451,21 @@ export default function App() {
           onValueChange={(v) =>
             setSettings((s) => ({ ...s, arpRate: v as ArpRate }))
           }
+        />
+        <Switch
+          label="Face controls"
+          checked={faceOn}
+          onCheckedChange={setFaceOn}
+        />
+        <p className="text-[15px] font-medium text-[var(--text-secondary)]">
+          Wink your {swapWinks ? "right" : "left"} eye for the arpeggiator, your{" "}
+          {swapWinks ? "left" : "right"} for chords. Open your mouth to spread
+          them wider.
+        </p>
+        <Switch
+          label="Swap winks"
+          checked={swapWinks}
+          onCheckedChange={setSwapWinks}
         />
       </PopoverContent>
     </Popover>
@@ -622,6 +685,9 @@ export default function App() {
           hold={hold}
           stream={stream}
           tracker={tracker}
+          faceTracker={faceTracker}
+          faceOn={faceOn}
+          onWink={wink}
           onPlace={place}
           onErase={erase}
           onRecolor={recolor}
@@ -657,6 +723,14 @@ export default function App() {
                 </div>
               </div>
             </div>
+          )}
+          {toast && (
+            <p
+              role="status"
+              className="pill pointer-events-none absolute inset-x-0 top-5 mx-auto"
+            >
+              {toast}
+            </p>
           )}
           {started && (items.length < 3 || mode === "effects") && (
             <p className="pill pointer-events-none absolute inset-x-0 bottom-5 mx-auto">

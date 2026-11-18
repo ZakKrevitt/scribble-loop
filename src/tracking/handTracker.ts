@@ -1,4 +1,4 @@
-import { FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision'
+import { FaceLandmarker, FilesetResolver, HandLandmarker } from '@mediapipe/tasks-vision'
 import type { Point } from '@/model/score'
 
 /** One tracked hand: 21 keypoints as fractions of the camera image. */
@@ -44,6 +44,49 @@ export async function createHandTracker(): Promise<HandTracker> {
         const side = label === 'Left' ? 'left' : label === 'Right' ? 'right' : null
         return { landmarks, side }
       })
+    },
+    close() {
+      landmarker.close()
+    },
+  }
+}
+
+/** Blink and jaw scores for the player's face, from 0 to 1. Left and right are the player's own. */
+export interface FaceReading {
+  blinkLeft: number
+  blinkRight: number
+  jaw: number
+}
+
+export interface FaceTracker {
+  detect(video: HTMLVideoElement, timeMs: number): FaceReading | null
+  close(): void
+}
+
+const FACE_MODEL = '/models/face_landmarker.task'
+
+export async function createFaceTracker(): Promise<FaceTracker> {
+  const files = await FilesetResolver.forVisionTasks(WASM)
+  const make = (delegate: 'GPU' | 'CPU') =>
+    FaceLandmarker.createFromOptions(files, {
+      baseOptions: { modelAssetPath: FACE_MODEL, delegate },
+      runningMode: 'VIDEO',
+      numFaces: 1,
+      outputFaceBlendshapes: true,
+    })
+  let landmarker: FaceLandmarker
+  try {
+    landmarker = await make('GPU')
+  } catch {
+    landmarker = await make('CPU')
+  }
+  return {
+    detect(video, timeMs) {
+      const shapes = landmarker.detectForVideo(video, timeMs).faceBlendshapes?.[0]?.categories
+      if (!shapes) return null
+      const score = (name: string) => shapes.find((c) => c.categoryName === name)?.score ?? 0
+      // MediaPipe follows ARKit's naming, where eyeBlinkLeft is the person's own left eye.
+      return { blinkLeft: score('eyeBlinkLeft'), blinkRight: score('eyeBlinkRight'), jaw: score('jawOpen') }
     },
     close() {
       landmarker.close()
