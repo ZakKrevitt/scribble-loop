@@ -117,6 +117,8 @@ export default function App() {
   const [mousePedal, setMousePedal] = useState<EffectName>("Filter");
   const [hold, setHold] = useState(false);
   const [camera, setCamera] = useState<Camera>("off");
+  /** How strongly the booth's pink wash and veil cover the camera, 0 to 100. */
+  const [overlay, setOverlay] = useState(100);
   const [stream, setStream] = useState<MediaStream | null>(null);
   const [tracker, setTracker] = useState<HandTracker | null>(null);
   const [faceTracker, setFaceTracker] = useState<FaceTracker | null>(null);
@@ -723,6 +725,27 @@ export default function App() {
             disabled={camera === "loading"}
             onCheckedChange={(on) => (on ? void cameraOn() : cameraOff())}
           />
+          {withCamera && (
+            <div className="flex shrink-0 items-center gap-2">
+              <div className="w-28">
+                <Slider
+                  label="Overlay"
+                  min={0}
+                  max={100}
+                  value={overlay}
+                  showValue={false}
+                  format={(v) => `${v}%`}
+                  onValueChange={setOverlay}
+                />
+              </div>
+              <span
+                className="w-12 text-[15px] font-bold tabular-nums"
+                aria-hidden="true"
+              >
+                {overlay}%
+              </span>
+            </div>
+          )}
           {withCamera && faceOn && <FaceHud face={face} />}
           <Button
             variant={recordSeconds === null ? "secondary" : "primary"}
@@ -769,6 +792,7 @@ export default function App() {
           mousePedal={mousePedal}
           hold={hold}
           stream={stream}
+          overlay={overlay / 100}
           tracker={tracker}
           faceTracker={faceTracker}
           faceOn={faceOn}

@@ -31,7 +31,7 @@ export function HowTo({ writingHand }: HowToProps) {
             <li>Pinch and hold still: a drum. The longer you hold, the louder it hits.</li>
             <li>Make a fist to change the sound. Its name shows on your palm, and lines take its colour.</li>
             <li>Point your index finger at a line to change that line to the next sound.</li>
-            <li>To erase with your hand, switch the bottom bar to Erase, then pinch over anything.</li>
+            <li>Pinch thumb and middle finger and drag to erase whatever you pass over.</li>
           </ul>
           <p>The white bar sweeps left to right and plays whatever it touches.</p>
         </section>

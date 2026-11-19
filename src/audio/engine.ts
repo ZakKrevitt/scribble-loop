@@ -609,10 +609,16 @@ const MIX = {
   leadDrive: 2,
   /** After the lead drive, back down to a level the mix can hold. */
   leadTrim: 0.95,
-  /** How far each kick pushes the leads down, as a gain. */
-  duck: 0.3,
+  /** How far each kick pushes the leads down, as a gain. Deep, so the kick owns the low end. */
+  duck: 0.15,
   drums: 0.5,
   drumDrive: 2.4,
+  /** The kick has its own hot drive, pushed near square so its sub reads loud and dense, then a trim. */
+  kick: 1,
+  kickDrive: 3.2,
+  kickTrim: 0.85,
+  /** A clean sine under the driven kick that carries the low tail past the drive. */
+  kickSub: 1,
   /** The master clipper's drive, and the level into it. */
   clip: 1.25,
   bus: 0.7,
@@ -632,6 +638,9 @@ export class Engine {
   private leadBus!: GainNode
   private duck!: GainNode
   private drumBus!: GainNode
+  private kickBus!: GainNode
+  /** The last kick's sub, so the next kick can choke it like an 808 instead of muddying over it. */
+  private kickTail: GainNode | null = null
   private reverb!: GainNode
   private noise!: AudioBuffer
   private fxIn!: GainNode
@@ -797,6 +806,16 @@ export class Engine {
     drumDrive.curve = clipCurve(MIX.drumDrive)
     drumDrive.oversample = '2x'
     this.drumBus.connect(drumDrive).connect(this.fxIn)
+
+    // The kick skips the drum drive for its own, hotter one, so it saturates into a fat sub.
+    this.kickBus = ctx.createGain()
+    this.kickBus.gain.value = MIX.kick
+    const kickDrive = ctx.createWaveShaper()
+    kickDrive.curve = clipCurve(MIX.kickDrive)
+    kickDrive.oversample = '2x'
+    const kickTrim = ctx.createGain()
+    kickTrim.gain.value = MIX.kickTrim
+    this.kickBus.connect(kickDrive).connect(kickTrim).connect(this.fxIn)
 
     this.noise = ctx.createBuffer(1, ctx.sampleRate, ctx.sampleRate)
     const n = this.noise.getChannelData(0)
@@ -1415,8 +1434,14 @@ export class Engine {
 
     switch (drum) {
       case 'kick': {
-        const life = 0.3 + 0.35 * size
-        tone('sine', 190, 44, 0.11, life + 0.2).connect(env(level * 1.3, life)).connect(this.drumBus)
+        const life = 0.35 + 0.4 * size
+        // The body: a fast drop to a deep sine, driven near square for weight.
+        tone('sine', 170, 41, 0.09, life + 0.3).connect(env(level * 1.4, life)).connect(this.kickBus)
+        // The sub: a clean sine gliding down under the body, ringing on after the body fades.
+        this.kickTail?.gain.setTargetAtTime(0, time, 0.008)
+        const tail = env(level * MIX.kickSub, life * 2.5)
+        tone('sine', 62, 38, 0.3, life * 2.5 + 0.3).connect(tail).connect(this.fxIn)
+        this.kickTail = tail
         const click = ctx.createBiquadFilter()
         click.type = 'highpass'
         click.frequency.value = 3000

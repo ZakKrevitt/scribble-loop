@@ -94,7 +94,7 @@ export class Recorder {
   private report: Report | null = null
 
   /** Draw this frame into the recording. `video` is the camera, or null when it is off. */
-  frame(video: HTMLVideoElement | null, stage: HTMLCanvasElement): void {
+  frame(video: HTMLVideoElement | null, stage: HTMLCanvasElement, overlay = 1): void {
     const take = this.take
     if (!take) return
     const now = performance.now()
@@ -117,12 +117,15 @@ export class Recorder {
       ctx.filter = 'brightness(1.1) saturate(1.15)'
       ctx.drawImage(video, (w - dw) / 2, (h - dh) / 2, dw, dh)
       ctx.restore()
+      // The wash and veil at the overlay strength the player chose, as on screen.
+      ctx.globalAlpha = overlay
       ctx.globalCompositeOperation = 'screen'
       ctx.fillStyle = WASH
       ctx.fillRect(0, 0, w, h)
       ctx.globalCompositeOperation = 'source-over'
       ctx.fillStyle = VEIL
       ctx.fillRect(0, 0, w, h)
+      ctx.globalAlpha = 1
     }
     ctx.drawImage(stage, 0, 0, w, h)
 

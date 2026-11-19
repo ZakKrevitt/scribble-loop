@@ -91,6 +91,8 @@ interface StageProps {
   mousePedal: EffectName
   hold: boolean
   stream: MediaStream | null
+  /** How strongly the booth wash and veil cover the camera, 0 (bare camera) to 1. */
+  overlay: number
   tracker: HandTracker | null
   /** Face controls: winks toggle chords and the arpeggiator, the mouth drops robots, a tilt picks one. */
   faceTracker: FaceTracker | null
@@ -433,32 +435,37 @@ export function Stage(props: StageProps) {
       pedal(name, slot.pedalAt, point, FINGERS.indexOf(slot.press), twist)
     }
 
-    /** The writing hand: thumb and index draw, a fist steps the sound, pointing recolours a line. */
-    const write = (slot: HandSlot, point: Point, pinchAt: Point, pose: Pose, now: number) => {
+    /**
+     * The writing hand: thumb and index draw, thumb and middle erase, a fist steps the sound,
+     * pointing recolours a line. In Erase mode thumb and index erase too.
+     */
+    const write = (slot: HandSlot, point: Point, pinchAt: Point, rubAt: Point, pose: Pose, now: number) => {
       const { engine, mode, items } = live.current
       const touched = robotAt(point)
       if (touched !== undefined && !slot.touching.has(touched)) engine.hit(touched)
       slot.touching.clear()
       if (touched !== undefined) slot.touching.add(touched)
 
-      const pinched = slot.press === 'index'
-      if (slot.action.kind === 'idle' && pinched) {
-        slot.lead = live.current.settings.lead
-        if (mode === 'erase') {
-          slot.action = { kind: 'erase' }
-          erase(pinchAt)
-        } else {
-          slot.action = { kind: 'draw' }
-          slot.pen.down(pinchAt, now)
-        }
-      } else if (slot.action.kind !== 'idle' && !pinched) {
+      const want: 'draw' | 'erase' | null =
+        slot.press === 'middle' ? 'erase' : slot.press === 'index' ? (mode === 'erase' ? 'erase' : 'draw') : null
+      const at = slot.press === 'middle' ? rubAt : pinchAt
+      // Letting go, or switching fingers mid-stroke, ends what the hand was doing.
+      if (slot.action.kind !== 'idle' && slot.action.kind !== want) {
         slot.action = finish(slot.action, slot.pen, now, slot.pedalAt, slot.lead)
-      } else if (slot.action.kind === 'draw') {
-        slot.pen.move(pinchAt, now)
-      } else if (slot.action.kind === 'erase') {
-        erase(pinchAt)
       }
-      if (slot.action.kind !== 'idle') slot.point = pinchAt
+      if (slot.action.kind === 'idle' && want === 'draw') {
+        slot.lead = live.current.settings.lead
+        slot.action = { kind: 'draw' }
+        slot.pen.down(at, now)
+      } else if (slot.action.kind === 'idle' && want === 'erase') {
+        slot.action = { kind: 'erase' }
+        erase(at)
+      } else if (slot.action.kind === 'draw') {
+        slot.pen.move(at, now)
+      } else if (slot.action.kind === 'erase') {
+        erase(at)
+      }
+      if (slot.action.kind !== 'idle') slot.point = at
 
       // A fist moves on to the next sound, once per fist.
       slot.fistFrames = slot.action.kind === 'idle' && pose === 'fist' ? slot.fistFrames + 1 : 0
@@ -587,7 +594,11 @@ export function Stage(props: StageProps) {
               x: (reading.thumb.x + reading.tips.index.x) / 2,
               y: (reading.thumb.y + reading.tips.index.y) / 2,
             })
-            write(slot, point, pinchAt, reading.pose, now)
+            const rubAt = toStage({
+              x: (reading.thumb.x + reading.tips.middle.x) / 2,
+              y: (reading.thumb.y + reading.tips.middle.y) / 2,
+            })
+            write(slot, point, pinchAt, rubAt, reading.pose, now)
           }
         }
       }
@@ -769,14 +780,14 @@ export function Stage(props: StageProps) {
       render(now)
 
       // Recording: composite the camera, the booth wash and the stage into one frame.
-      const { recording, engine, stream } = live.current
+      const { recording, engine, stream, overlay } = live.current
       if (recording && !wasRecording) {
         recorder.start(engine, width, height, (seconds, state) => live.current.onRecordProgress(seconds, state))
       } else if (!recording && wasRecording) {
         recorder.stop()
       }
       wasRecording = recording
-      if (recording) recorder.frame(stream ? video : null, canvas)
+      if (recording) recorder.frame(stream ? video : null, canvas, overlay)
 
       const hands = (slots[0].point ? 1 : 0) + (slots[1].point ? 1 : 0)
       if (hands !== seenHands) {
@@ -870,9 +881,15 @@ export function Stage(props: StageProps) {
       />
       {props.stream && (
         <>
-          {/* Booth exposure: screen a pink over the shot so shadows lift to pink, then a thin veil. */}
-          <div aria-hidden="true" className="absolute inset-0 bg-[oklch(0.8_0.11_335)] mix-blend-screen" />
-          <div aria-hidden="true" className="stage-veil absolute inset-0" />
+          {/* Booth exposure: screen a pink over the shot so shadows lift to pink, then a thin veil.
+              Each layer takes the overlay strength itself: a shared wrapper with opacity would
+              isolate the screen blend from the video under it. */}
+          <div
+            aria-hidden="true"
+            className="absolute inset-0 bg-[oklch(0.8_0.11_335)] mix-blend-screen"
+            style={{ opacity: props.overlay }}
+          />
+          <div aria-hidden="true" className="stage-veil absolute inset-0" style={{ opacity: props.overlay }} />
         </>
       )}
       <canvas
