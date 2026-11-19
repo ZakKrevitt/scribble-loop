@@ -1,0 +1,4083 @@
+{
+ "capturedAt": "2026-11-18T04:22:11.258Z",
+ "frames": [
+  {
+   "id": "5:2",
+   "name": "Booth [/ -> src/App.tsx]",
+   "type": "FRAME",
+   "w": 1440,
+   "h": 900,
+   "fills": [
+    {
+     "t": "SOLID",
+     "var": "color/chrome"
+    }
+   ],
+   "layout": [
+    "HORIZONTAL",
+    0,
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    "MIN",
+    "MIN"
+   ],
+   "children": [
+    {
+     "id": "13:260",
+     "name": "Frame web (CSS background, do not edit)",
+     "type": "RECTANGLE",
+     "w": 1440,
+     "h": 900,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "fills": [
+      {
+       "t": "IMAGE",
+       "img": "26f58bad26934e284cc89ac3d50e61faa640e602"
+      }
+     ]
+    },
+    {
+     "id": "5:3",
+     "name": "Left aside (pedal panel)",
+     "type": "FRAME",
+     "sizing": [
+      "FIXED",
+      "FILL"
+     ],
+     "w": 240,
+     "layout": [
+      "VERTICAL",
+      0,
+      [
+       12,
+       12,
+       12,
+       12
+      ],
+      "MIN",
+      "MIN"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingTop": "space/3",
+      "paddingRight": "space/3",
+      "paddingBottom": "space/3"
+     },
+     "children": [
+      {
+       "id": "5:4",
+       "name": "Panel (.panel)",
+       "type": "FRAME",
+       "sizing": [
+        "FILL",
+        "HUG"
+       ],
+       "layout": [
+        "VERTICAL",
+        12,
+        [
+         16,
+         16,
+         16,
+         16
+        ],
+        "MIN",
+        "MIN"
+       ],
+       "vars": {
+        "itemSpacing": "space/3",
+        "paddingLeft": "space/4",
+        "paddingTop": "space/4",
+        "paddingRight": "space/4",
+        "paddingBottom": "space/4"
+       },
+       "children": [
+        {
+         "id": "13:261",
+         "name": "Notch (clip-path)",
+         "type": "INSTANCE",
+         "w": 216,
+         "h": 514,
+         "abs": true,
+         "x": 0,
+         "y": 0,
+         "component": "util/notch"
+        },
+        {
+         "id": "13:267",
+         "name": "Plate",
+         "type": "RECTANGLE",
+         "w": 216,
+         "h": 514,
+         "abs": true,
+         "x": 0,
+         "y": 0,
+         "fills": [
+          {
+           "t": "SOLID",
+           "var": "color/surface",
+           "a": 0.84
+          }
+         ],
+         "radius": 4,
+         "effect": "shadow/raised",
+         "vars": {
+          "topLeftRadius": "radius/panel",
+          "topRightRadius": "radius/panel",
+          "bottomLeftRadius": "radius/panel",
+          "bottomRightRadius": "radius/panel"
+         }
+        },
+        {
+         "id": "5:5",
+         "name": "Heading (h2)",
+         "type": "FRAME",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          2,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "children": [
+          {
+           "id": "5:6",
+           "name": "Title",
+           "type": "TEXT",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/neon"
+            }
+           ],
+           "text": "Left hand",
+           "style": "text-sm/bold"
+          },
+          {
+           "id": "5:7",
+           "name": "Subtitle",
+           "type": "TEXT",
+           "sizing": [
+            "FILL",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Pedals. A fist moves to the next one.",
+           "style": "text-sm/medium"
+          }
+         ]
+        },
+        {
+         "id": "13:275",
+         "name": "Pedal hands",
+         "type": "FRAME",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          6,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "children": [
+          {
+           "id": "13:276",
+           "name": "Label",
+           "type": "TEXT",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Pedal hands",
+           "style": "text-sm/medium"
+          },
+          {
+           "id": "13:277",
+           "name": "Pedal hands (SegmentedControl fullWidth)",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "HUG"
+           ],
+           "layout": [
+            "HORIZONTAL",
+            2,
+            [
+             3,
+             3,
+             3,
+             3
+            ],
+            "MIN",
+            "MIN"
+           ],
+           "component": "SegmentedControl",
+           "ov": [
+            {
+             "id": "I13:277;12:263",
+             "name": "Notch (clip-path)",
+             "type": "INSTANCE",
+             "w": 184,
+             "h": 38,
+             "abs": true,
+             "x": 0,
+             "y": 0,
+             "fields": [
+              "name"
+             ]
+            },
+            {
+             "id": "I13:277;4:24",
+             "name": "Segment/Left",
+             "type": "INSTANCE",
+             "sizing": [
+              "HUG",
+              "FIXED"
+             ],
+             "h": 32,
+             "fills": [
+              {
+               "t": "SOLID",
+               "var": "color/surface",
+               "a": 0.84
+              }
+             ],
+             "strokes": [
+              {
+               "t": "SOLID",
+               "var": "color/border",
+               "a": 0.5
+              }
+             ],
+             "strokeW": 1,
+             "effect": "shadow/resting",
+             "layout": [
+              "HORIZONTAL",
+              0,
+              [
+               0,
+               12,
+               0,
+               12
+              ],
+              "CENTER",
+              "CENTER"
+             ],
+             "vars": {
+              "paddingLeft": "space/3",
+              "paddingRight": "space/3",
+              "height": "size/control-sm"
+             },
+             "fields": [
+              "componentProperties",
+              "name"
+             ]
+            },
+            {
+             "id": "I13:277;4:26",
+             "name": "Segment/Both",
+             "type": "INSTANCE",
+             "sizing": [
+              "HUG",
+              "FIXED"
+             ],
+             "h": 32,
+             "layout": [
+              "HORIZONTAL",
+              0,
+              [
+               0,
+               12,
+               0,
+               12
+              ],
+              "CENTER",
+              "CENTER"
+             ],
+             "vars": {
+              "paddingLeft": "space/3",
+              "paddingRight": "space/3",
+              "height": "size/control-sm"
+             },
+             "fields": [
+              "componentProperties",
+              "name"
+             ]
+            },
+            {
+             "id": "I13:277;4:28",
+             "name": "Segment/Right",
+             "type": "INSTANCE",
+             "sizing": [
+              "HUG",
+              "FIXED"
+             ],
+             "h": 32,
+             "layout": [
+              "HORIZONTAL",
+              0,
+              [
+               0,
+               12,
+               0,
+               12
+              ],
+              "CENTER",
+              "CENTER"
+             ],
+             "vars": {
+              "paddingLeft": "space/3",
+              "paddingRight": "space/3",
+              "height": "size/control-sm"
+             },
+             "fields": [
+              "componentProperties",
+              "name"
+             ]
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "5:8",
+         "name": "Pedals (EFFECTS)",
+         "type": "FRAME",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          6,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "children": [
+          {
+           "id": "5:9",
+           "name": "Filter",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            12,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=primary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Filter"
+           }
+          },
+          {
+           "id": "5:13",
+           "name": "Echo",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            12,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Echo"
+           }
+          },
+          {
+           "id": "5:17",
+           "name": "Reverb",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            12,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Reverb"
+           }
+          },
+          {
+           "id": "5:21",
+           "name": "Drive",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            12,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Drive"
+           }
+          },
+          {
+           "id": "5:25",
+           "name": "Crush",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            12,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Crush"
+           }
+          }
+         ]
+        },
+        {
+         "id": "5:29",
+         "name": "Hold pedals on",
+         "type": "INSTANCE",
+         "sizing": [
+          "HUG",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          12,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/3",
+          "height": "size/control-md"
+         },
+         "component": "Switch/Checked=false",
+         "props": {
+          "Label": "Hold pedals on"
+         }
+        },
+        {
+         "id": "5:33",
+         "name": "Release all pedals",
+         "type": "INSTANCE",
+         "sizing": [
+          "FILL",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           16,
+           0,
+           16
+          ],
+          "CENTER",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/4",
+          "paddingRight": "space/4",
+          "height": "size/control-md"
+         },
+         "component": "Button/Variant=ghost, Size=md",
+         "props": {
+          "Show orb": false,
+          "Label": "Release all pedals"
+         }
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "5:37",
+     "name": "Main",
+     "type": "FRAME",
+     "sizing": [
+      "FILL",
+      "FILL"
+     ],
+     "layout": [
+      "VERTICAL",
+      0,
+      [
+       0,
+       0,
+       0,
+       0
+      ],
+      "MIN",
+      "MIN"
+     ],
+     "children": [
+      {
+       "id": "5:38",
+       "name": "Top bar (.bar)",
+       "type": "FRAME",
+       "sizing": [
+        "FILL",
+        "HUG"
+       ],
+       "layout": [
+        "HORIZONTAL",
+        8,
+        [
+         8,
+         12,
+         8,
+         12
+        ],
+        "CENTER",
+        "CENTER"
+       ],
+       "vars": {
+        "itemSpacing": "space/2",
+        "paddingLeft": "space/3",
+        "paddingTop": "space/2",
+        "paddingRight": "space/3",
+        "paddingBottom": "space/2"
+       },
+       "children": [
+        {
+         "id": "5:39",
+         "name": "Play",
+         "type": "INSTANCE",
+         "w": 80,
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           16,
+           0,
+           16
+          ],
+          "CENTER",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/4",
+          "paddingRight": "space/4",
+          "height": "size/control-md"
+         },
+         "component": "Button/Variant=primary, Size=md",
+         "props": {
+          "Show orb": false,
+          "Label": "Play"
+         }
+        },
+        {
+         "id": "5:43",
+         "name": "Tempo",
+         "type": "FRAME",
+         "sizing": [
+          "HUG",
+          "HUG"
+         ],
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2"
+         },
+         "children": [
+          {
+           "id": "5:44",
+           "name": "Tempo slider",
+           "type": "INSTANCE",
+           "w": 112,
+           "h": 40,
+           "component": "Slider"
+          },
+          {
+           "id": "5:48",
+           "name": "Tempo readout",
+           "type": "TEXT",
+           "sizing": [
+            "FIXED",
+            "HUG"
+           ],
+           "w": 72,
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/foreground"
+            }
+           ],
+           "text": "160 bpm",
+           "style": "text-sm/bold"
+          }
+         ]
+        },
+        {
+         "id": "5:49",
+         "name": "Key",
+         "type": "INSTANCE",
+         "sizing": [
+          "FIXED",
+          "HUG"
+         ],
+         "w": 96,
+         "layout": [
+          "VERTICAL",
+          8,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "vars": {
+          "itemSpacing": "space/2"
+         },
+         "component": "Select",
+         "props": {
+          "Value": "Key A",
+          "Show label": false,
+          "Label": "Key"
+         }
+        },
+        {
+         "id": "5:56",
+         "name": "Scale",
+         "type": "INSTANCE",
+         "sizing": [
+          "FIXED",
+          "HUG"
+         ],
+         "w": 192,
+         "layout": [
+          "VERTICAL",
+          8,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "vars": {
+          "itemSpacing": "space/2"
+         },
+         "component": "Select",
+         "props": {
+          "Value": "Minor pentatonic",
+          "Show label": false,
+          "Label": "Scale"
+         }
+        },
+        {
+         "id": "5:62",
+         "name": "Camera",
+         "type": "INSTANCE",
+         "sizing": [
+          "HUG",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          12,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/3",
+          "height": "size/control-md"
+         },
+         "component": "Switch/Checked=false",
+         "props": {
+          "Label": "Camera"
+         }
+        },
+        {
+         "id": "5:66",
+         "name": "How to play",
+         "type": "INSTANCE",
+         "sizing": [
+          "HUG",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           16,
+           0,
+           16
+          ],
+          "CENTER",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/4",
+          "paddingRight": "space/4",
+          "height": "size/control-md"
+         },
+         "component": "Button/Variant=ghost, Size=md",
+         "props": {
+          "Show orb": false,
+          "Label": "How to play"
+         }
+        }
+       ]
+      },
+      {
+       "id": "5:70",
+       "name": "Stage (.stage) [src/stage/Stage.tsx]",
+       "type": "FRAME",
+       "sizing": [
+        "FILL",
+        "FILL"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/stage"
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/neon-dim",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1,
+       "children": [
+        {
+         "id": "5:71",
+         "name": "Canvas render (drawn in code, do not edit)",
+         "type": "RECTANGLE",
+         "w": 960,
+         "h": 788,
+         "x": 0,
+         "y": 0,
+         "fills": [
+          {
+           "t": "IMAGE",
+           "img": "b405cd68aae7d0b97ac23e627446818fc4949fe4"
+          }
+         ]
+        },
+        {
+         "id": "5:72",
+         "name": "Start overlay (!started)",
+         "type": "FRAME",
+         "sizing": [
+          "HUG",
+          "HUG"
+         ],
+         "x": 297,
+         "y": 335,
+         "layout": [
+          "VERTICAL",
+          16,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/4"
+         },
+         "children": [
+          {
+           "id": "5:73",
+           "name": "Start message",
+           "type": "INSTANCE",
+           "sizing": [
+            "FIXED",
+            "HUG"
+           ],
+           "w": 366,
+           "layout": [
+            "HORIZONTAL",
+            0,
+            [
+             8,
+             16,
+             8,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingTop": "space/2",
+            "paddingRight": "space/4",
+            "paddingBottom": "space/2"
+           },
+           "component": "Pill",
+           "props": {
+            "Text": "Right hand writes notes. Left hand plays the pedals."
+           }
+          },
+          {
+           "id": "5:75",
+           "name": "Start buttons",
+           "type": "FRAME",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "layout": [
+            "HORIZONTAL",
+            12,
+            [
+             0,
+             0,
+             0,
+             0
+            ],
+            "MIN",
+            "MIN"
+           ],
+           "vars": {
+            "itemSpacing": "space/3"
+           },
+           "children": [
+            {
+             "id": "5:76",
+             "name": "Start with camera",
+             "type": "INSTANCE",
+             "sizing": [
+              "HUG",
+              "FIXED"
+             ],
+             "h": 44,
+             "layout": [
+              "HORIZONTAL",
+              8,
+              [
+               0,
+               18,
+               0,
+               18
+              ],
+              "CENTER",
+              "CENTER"
+             ],
+             "vars": {
+              "itemSpacing": "space/2",
+              "paddingLeft": "space/5",
+              "paddingRight": "space/5",
+              "height": "size/control-lg"
+             },
+             "component": "Button/Variant=primary, Size=lg",
+             "props": {
+              "Show orb": false,
+              "Label": "Start with camera"
+             }
+            },
+            {
+             "id": "5:80",
+             "name": "Start with mouse",
+             "type": "INSTANCE",
+             "sizing": [
+              "HUG",
+              "FIXED"
+             ],
+             "h": 44,
+             "layout": [
+              "HORIZONTAL",
+              8,
+              [
+               0,
+               18,
+               0,
+               18
+              ],
+              "CENTER",
+              "CENTER"
+             ],
+             "vars": {
+              "itemSpacing": "space/2",
+              "paddingLeft": "space/5",
+              "paddingRight": "space/5",
+              "height": "size/control-lg"
+             },
+             "component": "Button/Variant=secondary, Size=lg",
+             "props": {
+              "Show orb": false,
+              "Label": "Start with mouse"
+             }
+            }
+           ]
+          }
+         ]
+        }
+       ]
+      },
+      {
+       "id": "5:84",
+       "name": "Bottom bar (.bar)",
+       "type": "FRAME",
+       "sizing": [
+        "FILL",
+        "HUG"
+       ],
+       "layout": [
+        "HORIZONTAL",
+        8,
+        [
+         8,
+         12,
+         8,
+         12
+        ],
+        "CENTER",
+        "CENTER"
+       ],
+       "vars": {
+        "itemSpacing": "space/2",
+        "paddingLeft": "space/3",
+        "paddingTop": "space/2",
+        "paddingRight": "space/3",
+        "paddingBottom": "space/2"
+       },
+       "children": [
+        {
+         "id": "5:85",
+         "name": "What the mouse does",
+         "type": "INSTANCE",
+         "sizing": [
+          "HUG",
+          "HUG"
+         ],
+         "layout": [
+          "HORIZONTAL",
+          2,
+          [
+           3,
+           3,
+           3,
+           3
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "component": "SegmentedControl"
+        },
+        {
+         "id": "5:95",
+         "name": "Undo",
+         "type": "INSTANCE",
+         "sizing": [
+          "HUG",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           16,
+           0,
+           16
+          ],
+          "CENTER",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/4",
+          "paddingRight": "space/4",
+          "height": "size/control-md"
+         },
+         "component": "Button/Variant=ghost, Size=md",
+         "props": {
+          "Show orb": false,
+          "Label": "Undo"
+         },
+         "ov": [
+          {
+           "id": "I5:95;3:15",
+           "name": "Label",
+           "type": "TEXT",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Undo",
+           "style": "text-sm/medium",
+           "fields": [
+            "fills"
+           ]
+          }
+         ]
+        },
+        {
+         "id": "5:99",
+         "name": "Clear",
+         "type": "INSTANCE",
+         "sizing": [
+          "HUG",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           16,
+           0,
+           16
+          ],
+          "CENTER",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/4",
+          "paddingRight": "space/4",
+          "height": "size/control-md"
+         },
+         "component": "Button/Variant=ghost, Size=md",
+         "props": {
+          "Show orb": false,
+          "Label": "Clear"
+         },
+         "ov": [
+          {
+           "id": "I5:99;3:15",
+           "name": "Label",
+           "type": "TEXT",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Clear",
+           "style": "text-sm/medium",
+           "fields": [
+            "fills"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    },
+    {
+     "id": "5:109",
+     "name": "Right aside (sound panel)",
+     "type": "FRAME",
+     "sizing": [
+      "FIXED",
+      "FILL"
+     ],
+     "w": 240,
+     "layout": [
+      "VERTICAL",
+      0,
+      [
+       12,
+       12,
+       12,
+       12
+      ],
+      "MIN",
+      "MIN"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingTop": "space/3",
+      "paddingRight": "space/3",
+      "paddingBottom": "space/3"
+     },
+     "children": [
+      {
+       "id": "5:110",
+       "name": "Panel (.panel)",
+       "type": "FRAME",
+       "sizing": [
+        "FILL",
+        "HUG"
+       ],
+       "layout": [
+        "VERTICAL",
+        12,
+        [
+         16,
+         16,
+         16,
+         16
+        ],
+        "MIN",
+        "MIN"
+       ],
+       "vars": {
+        "itemSpacing": "space/3",
+        "paddingLeft": "space/4",
+        "paddingTop": "space/4",
+        "paddingRight": "space/4",
+        "paddingBottom": "space/4"
+       },
+       "children": [
+        {
+         "id": "13:268",
+         "name": "Notch (clip-path)",
+         "type": "INSTANCE",
+         "w": 216,
+         "h": 587,
+         "abs": true,
+         "x": 0,
+         "y": 0,
+         "component": "util/notch"
+        },
+        {
+         "id": "13:274",
+         "name": "Plate",
+         "type": "RECTANGLE",
+         "w": 216,
+         "h": 587,
+         "abs": true,
+         "x": 0,
+         "y": 0,
+         "fills": [
+          {
+           "t": "SOLID",
+           "var": "color/surface",
+           "a": 0.84
+          }
+         ],
+         "radius": 4,
+         "effect": "shadow/raised",
+         "vars": {
+          "topLeftRadius": "radius/panel",
+          "topRightRadius": "radius/panel",
+          "bottomLeftRadius": "radius/panel",
+          "bottomRightRadius": "radius/panel"
+         }
+        },
+        {
+         "id": "5:111",
+         "name": "Heading (h2)",
+         "type": "FRAME",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          2,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "children": [
+          {
+           "id": "5:112",
+           "name": "Title",
+           "type": "TEXT",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/neon"
+            }
+           ],
+           "text": "Right hand",
+           "style": "text-sm/bold"
+          },
+          {
+           "id": "5:113",
+           "name": "Subtitle",
+           "type": "TEXT",
+           "sizing": [
+            "FILL",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Pinch thumb and index to draw. A fist changes the sound.",
+           "style": "text-sm/medium"
+          }
+         ]
+        },
+        {
+         "id": "5:114",
+         "name": "Leads (LEADS)",
+         "type": "FRAME",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          6,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "children": [
+          {
+           "id": "5:115",
+           "name": "Supersaw",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            10,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=primary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Supersaw"
+           },
+           "swaps": [
+            {
+             "id": "I5:115;12:107",
+             "name": "Orb",
+             "component": "Orb/On=true"
+            }
+           ]
+          },
+          {
+           "id": "5:119",
+           "name": "Rubber",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            10,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Rubber"
+           },
+           "ov": [
+            {
+             "id": "I5:119;12:115",
+             "name": "Orb",
+             "type": "INSTANCE",
+             "w": 14,
+             "h": 14,
+             "fills": [
+              {
+               "t": "SOLID",
+               "var": "lead/rubber"
+              }
+             ],
+             "strokes": [
+              {
+               "t": "SOLID",
+               "rgb": [
+                1,
+                0.941,
+                0.968
+               ]
+              }
+             ],
+             "strokeW": 1.5,
+             "radius": 7,
+             "effects": [
+              "DROP_SHADOW"
+             ],
+             "fields": [
+              "effects",
+              "fills"
+             ]
+            }
+           ],
+           "swaps": [
+            {
+             "id": "I5:119;12:115",
+             "name": "Orb",
+             "component": "Orb/On=true"
+            }
+           ]
+          },
+          {
+           "id": "5:123",
+           "name": "Glass",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            10,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Glass"
+           },
+           "ov": [
+            {
+             "id": "I5:123;12:115",
+             "name": "Orb",
+             "type": "INSTANCE",
+             "w": 14,
+             "h": 14,
+             "fills": [
+              {
+               "t": "SOLID",
+               "var": "lead/glass"
+              }
+             ],
+             "strokes": [
+              {
+               "t": "SOLID",
+               "rgb": [
+                1,
+                0.941,
+                0.968
+               ]
+              }
+             ],
+             "strokeW": 1.5,
+             "radius": 7,
+             "effects": [
+              "DROP_SHADOW"
+             ],
+             "fields": [
+              "effects",
+              "fills"
+             ]
+            }
+           ],
+           "swaps": [
+            {
+             "id": "I5:123;12:115",
+             "name": "Orb",
+             "component": "Orb/On=true"
+            }
+           ]
+          },
+          {
+           "id": "5:127",
+           "name": "Chip",
+           "type": "INSTANCE",
+           "sizing": [
+            "FILL",
+            "FIXED"
+           ],
+           "h": 40,
+           "layout": [
+            "HORIZONTAL",
+            10,
+            [
+             0,
+             16,
+             0,
+             16
+            ],
+            "CENTER",
+            "CENTER"
+           ],
+           "vars": {
+            "paddingLeft": "space/4",
+            "paddingRight": "space/4",
+            "height": "size/control-md"
+           },
+           "component": "Button/Variant=secondary, Size=md",
+           "props": {
+            "Show orb": true,
+            "Label": "Chip"
+           },
+           "ov": [
+            {
+             "id": "I5:127;12:115",
+             "name": "Orb",
+             "type": "INSTANCE",
+             "w": 14,
+             "h": 14,
+             "fills": [
+              {
+               "t": "SOLID",
+               "var": "lead/chip"
+              }
+             ],
+             "strokes": [
+              {
+               "t": "SOLID",
+               "rgb": [
+                1,
+                0.941,
+                0.968
+               ]
+              }
+             ],
+             "strokeW": 1.5,
+             "radius": 7,
+             "effects": [
+              "DROP_SHADOW"
+             ],
+             "fields": [
+              "effects",
+              "fills"
+             ]
+            }
+           ],
+           "swaps": [
+            {
+             "id": "I5:127;12:115",
+             "name": "Orb",
+             "component": "Orb/On=true"
+            }
+           ]
+          }
+         ]
+        },
+        {
+         "id": "5:131",
+         "name": "Quantize drums",
+         "type": "INSTANCE",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          8,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "vars": {
+          "itemSpacing": "space/2"
+         },
+         "component": "Select",
+         "props": {
+          "Value": "1/16",
+          "Show label": true,
+          "Label": "Quantize drums"
+         },
+         "ov": [
+          {
+           "id": "I5:131;3:31",
+           "name": "Label",
+           "type": "TEXT",
+           "sizing": [
+            "HUG",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Quantize drums",
+           "style": "text-sm/medium",
+           "fields": [
+            "fills"
+           ]
+          }
+         ]
+        },
+        {
+         "id": "5:137",
+         "name": "Chords and arp",
+         "type": "INSTANCE",
+         "sizing": [
+          "FILL",
+          "FIXED"
+         ],
+         "h": 40,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           16,
+           0,
+           16
+          ],
+          "CENTER",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/4",
+          "paddingRight": "space/4",
+          "height": "size/control-md"
+         },
+         "component": "Button/Variant=secondary, Size=md",
+         "props": {
+          "Show orb": false,
+          "Label": "Chords and arp"
+         }
+        },
+        {
+         "id": "5:141",
+         "name": "Add a robot",
+         "type": "INSTANCE",
+         "sizing": [
+          "FILL",
+          "FIXED"
+         ],
+         "h": 32,
+         "layout": [
+          "HORIZONTAL",
+          8,
+          [
+           0,
+           12,
+           0,
+           12
+          ],
+          "MIN",
+          "CENTER"
+         ],
+         "vars": {
+          "itemSpacing": "space/2",
+          "paddingLeft": "space/3",
+          "paddingRight": "space/3",
+          "height": "size/control-sm"
+         },
+         "component": "DropdownMenu",
+         "props": {
+          "Label": "Add a robot"
+         }
+        },
+        {
+         "id": "13:295",
+         "name": "Mouth drops",
+         "type": "INSTANCE",
+         "sizing": [
+          "FILL",
+          "HUG"
+         ],
+         "layout": [
+          "VERTICAL",
+          8,
+          [
+           0,
+           0,
+           0,
+           0
+          ],
+          "MIN",
+          "MIN"
+         ],
+         "vars": {
+          "itemSpacing": "space/2"
+         },
+         "component": "Select",
+         "props": {
+          "Value": "Singer",
+          "Show label": true,
+          "Label": "Mouth drops (tilt your head to change)"
+         },
+         "ov": [
+          {
+           "id": "I13:295;3:31",
+           "name": "Label",
+           "type": "TEXT",
+           "sizing": [
+            "FILL",
+            "HUG"
+           ],
+           "fills": [
+            {
+             "t": "SOLID",
+             "var": "color/text-secondary"
+            }
+           ],
+           "text": "Mouth drops (tilt your head to change)",
+           "style": "text-sm/medium",
+           "fields": [
+            "fills",
+            "layoutAlign",
+            "textAutoResize"
+           ]
+          }
+         ]
+        }
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "3:4",
+   "name": "icon/chevron-down",
+   "type": "COMPONENT",
+   "w": 16,
+   "h": 16,
+   "children": [
+    {
+     "id": "3:3",
+     "name": "Vector",
+     "type": "VECTOR",
+     "w": 8,
+     "h": 4,
+     "x": 4,
+     "y": 6,
+     "strokes": [
+      {
+       "t": "SOLID",
+       "var": "color/text-muted"
+      }
+     ],
+     "strokeW": 1.17
+    }
+   ]
+  },
+  {
+   "id": "3:29",
+   "name": "Button",
+   "type": "COMPONENT_SET",
+   "sizing": [
+    "FIXED",
+    "HUG"
+   ],
+   "w": 420,
+   "radius": 5,
+   "layout": [
+    "HORIZONTAL",
+    16,
+    [
+     24,
+     24,
+     24,
+     24
+    ],
+    "MIN",
+    "MIN",
+    "WRAP"
+   ],
+   "children": [
+    {
+     "id": "3:5",
+     "name": "Variant=primary, Size=md",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 40,
+     "layout": [
+      "HORIZONTAL",
+      8,
+      [
+       0,
+       16,
+       0,
+       16
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/2",
+      "paddingLeft": "space/4",
+      "paddingRight": "space/4",
+      "height": "size/control-md"
+     },
+     "children": [
+      {
+       "id": "12:108",
+       "name": "Notch (clip-path)",
+       "type": "INSTANCE",
+       "w": 81,
+       "h": 40,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "component": "util/notch"
+      },
+      {
+       "id": "12:114",
+       "name": "Plate",
+       "type": "RECTANGLE",
+       "w": 81,
+       "h": 40,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/accent"
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/accent-strong"
+        }
+       ],
+       "strokeW": 1,
+       "radius": 3,
+       "effect": "edge/primary",
+       "vars": {
+        "topLeftRadius": "radius/control",
+        "topRightRadius": "radius/control",
+        "bottomLeftRadius": "radius/control",
+        "bottomRightRadius": "radius/control"
+       }
+      },
+      {
+       "id": "12:107",
+       "name": "Orb",
+       "type": "INSTANCE",
+       "hidden": true,
+       "w": 14,
+       "h": 14,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          0.156,
+          0.032,
+          0.11
+         ]
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1.5,
+       "radius": 7,
+       "component": "Orb/On=false"
+      },
+      {
+       "id": "3:7",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/accent-foreground"
+        }
+       ],
+       "text": "Button",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "3:9",
+     "name": "Variant=secondary, Size=md",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 40,
+     "layout": [
+      "HORIZONTAL",
+      8,
+      [
+       0,
+       16,
+       0,
+       16
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/2",
+      "paddingLeft": "space/4",
+      "paddingRight": "space/4",
+      "height": "size/control-md"
+     },
+     "children": [
+      {
+       "id": "12:116",
+       "name": "Notch (clip-path)",
+       "type": "INSTANCE",
+       "w": 81,
+       "h": 40,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "component": "util/notch"
+      },
+      {
+       "id": "12:122",
+       "name": "Plate",
+       "type": "RECTANGLE",
+       "w": 81,
+       "h": 40,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/surface",
+         "a": 0.84
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1,
+       "radius": 3,
+       "effect": "edge/secondary",
+       "vars": {
+        "topLeftRadius": "radius/control",
+        "topRightRadius": "radius/control",
+        "bottomLeftRadius": "radius/control",
+        "bottomRightRadius": "radius/control"
+       }
+      },
+      {
+       "id": "12:115",
+       "name": "Orb",
+       "type": "INSTANCE",
+       "hidden": true,
+       "w": 14,
+       "h": 14,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          0.156,
+          0.032,
+          0.11
+         ]
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1.5,
+       "radius": 7,
+       "component": "Orb/On=false"
+      },
+      {
+       "id": "3:11",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/foreground"
+        }
+       ],
+       "text": "Button",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "3:13",
+     "name": "Variant=ghost, Size=md",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 40,
+     "layout": [
+      "HORIZONTAL",
+      8,
+      [
+       0,
+       16,
+       0,
+       16
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/2",
+      "paddingLeft": "space/4",
+      "paddingRight": "space/4",
+      "height": "size/control-md"
+     },
+     "children": [
+      {
+       "id": "12:123",
+       "name": "Orb",
+       "type": "INSTANCE",
+       "hidden": true,
+       "w": 14,
+       "h": 14,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          0.156,
+          0.032,
+          0.11
+         ]
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1.5,
+       "radius": 7,
+       "component": "Orb/On=false"
+      },
+      {
+       "id": "3:15",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/text-secondary"
+        }
+       ],
+       "text": "Button",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "3:17",
+     "name": "Variant=primary, Size=lg",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 44,
+     "layout": [
+      "HORIZONTAL",
+      8,
+      [
+       0,
+       18,
+       0,
+       18
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/2",
+      "paddingLeft": "space/5",
+      "paddingRight": "space/5",
+      "height": "size/control-lg"
+     },
+     "children": [
+      {
+       "id": "12:125",
+       "name": "Notch (clip-path)",
+       "type": "INSTANCE",
+       "w": 85,
+       "h": 44,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "component": "util/notch"
+      },
+      {
+       "id": "12:131",
+       "name": "Plate",
+       "type": "RECTANGLE",
+       "w": 85,
+       "h": 44,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/accent"
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/accent-strong"
+        }
+       ],
+       "strokeW": 1,
+       "radius": 5,
+       "effect": "edge/primary"
+      },
+      {
+       "id": "12:124",
+       "name": "Orb",
+       "type": "INSTANCE",
+       "hidden": true,
+       "w": 14,
+       "h": 14,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          0.156,
+          0.032,
+          0.11
+         ]
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1.5,
+       "radius": 7,
+       "component": "Orb/On=false"
+      },
+      {
+       "id": "3:19",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/accent-foreground"
+        }
+       ],
+       "text": "Button",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "3:21",
+     "name": "Variant=secondary, Size=lg",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 44,
+     "layout": [
+      "HORIZONTAL",
+      8,
+      [
+       0,
+       18,
+       0,
+       18
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/2",
+      "paddingLeft": "space/5",
+      "paddingRight": "space/5",
+      "height": "size/control-lg"
+     },
+     "children": [
+      {
+       "id": "12:133",
+       "name": "Notch (clip-path)",
+       "type": "INSTANCE",
+       "w": 85,
+       "h": 44,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "component": "util/notch"
+      },
+      {
+       "id": "12:139",
+       "name": "Plate",
+       "type": "RECTANGLE",
+       "w": 85,
+       "h": 44,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/surface",
+         "a": 0.84
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1,
+       "radius": 5,
+       "effect": "edge/secondary"
+      },
+      {
+       "id": "12:132",
+       "name": "Orb",
+       "type": "INSTANCE",
+       "hidden": true,
+       "w": 14,
+       "h": 14,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          0.156,
+          0.032,
+          0.11
+         ]
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1.5,
+       "radius": 7,
+       "component": "Orb/On=false"
+      },
+      {
+       "id": "3:23",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/foreground"
+        }
+       ],
+       "text": "Button",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "3:25",
+     "name": "Variant=ghost, Size=lg",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 44,
+     "layout": [
+      "HORIZONTAL",
+      8,
+      [
+       0,
+       18,
+       0,
+       18
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/2",
+      "paddingLeft": "space/5",
+      "paddingRight": "space/5",
+      "height": "size/control-lg"
+     },
+     "children": [
+      {
+       "id": "12:140",
+       "name": "Orb",
+       "type": "INSTANCE",
+       "hidden": true,
+       "w": 14,
+       "h": 14,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          0.156,
+          0.032,
+          0.11
+         ]
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1.5,
+       "radius": 7,
+       "component": "Orb/On=false"
+      },
+      {
+       "id": "3:27",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/text-secondary"
+        }
+       ],
+       "text": "Button",
+       "style": "text-sm/medium"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "3:30",
+   "name": "Select",
+   "type": "COMPONENT",
+   "sizing": [
+    "FIXED",
+    "HUG"
+   ],
+   "w": 184,
+   "layout": [
+    "VERTICAL",
+    8,
+    [
+     0,
+     0,
+     0,
+     0
+    ],
+    "MIN",
+    "MIN"
+   ],
+   "vars": {
+    "itemSpacing": "space/2"
+   },
+   "children": [
+    {
+     "id": "3:31",
+     "name": "Label",
+     "type": "TEXT",
+     "sizing": [
+      "HUG",
+      "HUG"
+     ],
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/foreground"
+      }
+     ],
+     "text": "Label",
+     "style": "text-sm/medium"
+    },
+    {
+     "id": "3:32",
+     "name": "Trigger",
+     "type": "FRAME",
+     "sizing": [
+      "FILL",
+      "FIXED"
+     ],
+     "h": 40,
+     "layout": [
+      "HORIZONTAL",
+      12,
+      [
+       0,
+       12,
+       0,
+       12
+      ],
+      "SPACE_BETWEEN",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/3",
+      "paddingLeft": "space/3",
+      "paddingRight": "space/3",
+      "height": "size/control-md"
+     },
+     "children": [
+      {
+       "id": "12:249",
+       "name": "Notch (clip-path)",
+       "type": "INSTANCE",
+       "w": 184,
+       "h": 40,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "component": "util/notch"
+      },
+      {
+       "id": "12:255",
+       "name": "Plate",
+       "type": "RECTANGLE",
+       "w": 184,
+       "h": 40,
+       "abs": true,
+       "x": 0,
+       "y": 0,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/surface",
+         "a": 0.84
+        }
+       ],
+       "strokes": [
+        {
+         "t": "SOLID",
+         "var": "color/border",
+         "a": 0.5
+        }
+       ],
+       "strokeW": 1,
+       "radius": 3,
+       "effect": "edge/secondary",
+       "vars": {
+        "topLeftRadius": "radius/control",
+        "topRightRadius": "radius/control",
+        "bottomLeftRadius": "radius/control",
+        "bottomRightRadius": "radius/control"
+       }
+      },
+      {
+       "id": "3:33",
+       "name": "Value",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/foreground"
+        }
+       ],
+       "text": "Value",
+       "style": "text-sm/medium"
+      },
+      {
+       "id": "3:34",
+       "name": "icon/chevron-down",
+       "type": "INSTANCE",
+       "w": 16,
+       "h": 16,
+       "component": "icon/chevron-down"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "3:36",
+   "name": "DropdownMenu",
+   "type": "COMPONENT",
+   "sizing": [
+    "HUG",
+    "FIXED"
+   ],
+   "h": 32,
+   "layout": [
+    "HORIZONTAL",
+    8,
+    [
+     0,
+     12,
+     0,
+     12
+    ],
+    "MIN",
+    "CENTER"
+   ],
+   "vars": {
+    "itemSpacing": "space/2",
+    "paddingLeft": "space/3",
+    "paddingRight": "space/3",
+    "height": "size/control-sm"
+   },
+   "children": [
+    {
+     "id": "12:256",
+     "name": "Notch (clip-path)",
+     "type": "INSTANCE",
+     "w": 86,
+     "h": 32,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "component": "util/notch"
+    },
+    {
+     "id": "12:262",
+     "name": "Plate",
+     "type": "RECTANGLE",
+     "w": 86,
+     "h": 32,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/surface",
+       "a": 0.84
+      }
+     ],
+     "strokes": [
+      {
+       "t": "SOLID",
+       "var": "color/border",
+       "a": 0.5
+      }
+     ],
+     "strokeW": 1,
+     "radius": 3,
+     "effect": "edge/secondary",
+     "vars": {
+      "topLeftRadius": "radius/control",
+      "topRightRadius": "radius/control",
+      "bottomLeftRadius": "radius/control",
+      "bottomRightRadius": "radius/control"
+     }
+    },
+    {
+     "id": "3:37",
+     "name": "Label",
+     "type": "TEXT",
+     "sizing": [
+      "HUG",
+      "HUG"
+     ],
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/foreground"
+      }
+     ],
+     "text": "Menu",
+     "style": "text-sm/medium"
+    },
+    {
+     "id": "3:38",
+     "name": "icon/chevron-down",
+     "type": "INSTANCE",
+     "w": 15,
+     "h": 15,
+     "component": "icon/chevron-down"
+    }
+   ]
+  },
+  {
+   "id": "3:40",
+   "name": "Pill",
+   "type": "COMPONENT",
+   "sizing": [
+    "FIXED",
+    "HUG"
+   ],
+   "w": 386,
+   "layout": [
+    "HORIZONTAL",
+    0,
+    [
+     8,
+     16,
+     8,
+     16
+    ],
+    "CENTER",
+    "CENTER"
+   ],
+   "vars": {
+    "paddingLeft": "space/4",
+    "paddingTop": "space/2",
+    "paddingRight": "space/4",
+    "paddingBottom": "space/2"
+   },
+   "children": [
+    {
+     "id": "12:270",
+     "name": "Notch (clip-path)",
+     "type": "INSTANCE",
+     "w": 386,
+     "h": 37,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "component": "util/notch"
+    },
+    {
+     "id": "12:276",
+     "name": "Plate",
+     "type": "RECTANGLE",
+     "w": 386,
+     "h": 37,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/surface-raised",
+       "a": 0.97
+      }
+     ],
+     "radius": 6,
+     "effect": "shadow/glow",
+     "vars": {
+      "topLeftRadius": "radius/surface",
+      "topRightRadius": "radius/surface",
+      "bottomLeftRadius": "radius/surface",
+      "bottomRightRadius": "radius/surface"
+     }
+    },
+    {
+     "id": "3:41",
+     "name": "Text",
+     "type": "TEXT",
+     "sizing": [
+      "FILL",
+      "HUG"
+     ],
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/foreground"
+      }
+     ],
+     "text": "Message",
+     "style": "text-sm/semibold",
+     "align": "CENTER"
+    }
+   ]
+  },
+  {
+   "id": "4:13",
+   "name": "Switch",
+   "type": "COMPONENT_SET",
+   "sizing": [
+    "HUG",
+    "HUG"
+   ],
+   "radius": 5,
+   "layout": [
+    "HORIZONTAL",
+    24,
+    [
+     24,
+     24,
+     24,
+     24
+    ],
+    "MIN",
+    "MIN"
+   ],
+   "children": [
+    {
+     "id": "4:5",
+     "name": "Checked=false",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 40,
+     "layout": [
+      "HORIZONTAL",
+      12,
+      [
+       0,
+       0,
+       0,
+       0
+      ],
+      "MIN",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/3",
+      "height": "size/control-md"
+     },
+     "children": [
+      {
+       "id": "4:6",
+       "name": "Track",
+       "type": "FRAME",
+       "w": 42,
+       "h": 24,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/control-track"
+        }
+       ],
+       "radius": 9999,
+       "layout": [
+        "HORIZONTAL",
+        0,
+        [
+         3,
+         3,
+         3,
+         3
+        ],
+        "MIN",
+        "CENTER"
+       ],
+       "vars": {
+        "topLeftRadius": "radius/pill",
+        "topRightRadius": "radius/pill",
+        "bottomLeftRadius": "radius/pill",
+        "bottomRightRadius": "radius/pill"
+       },
+       "children": [
+        {
+         "id": "4:7",
+         "name": "Thumb",
+         "type": "ELLIPSE",
+         "w": 18,
+         "h": 18,
+         "fills": [
+          {
+           "t": "SOLID",
+           "var": "color/control-thumb"
+          }
+         ],
+         "effect": "shadow/control-thumb"
+        }
+       ]
+      },
+      {
+       "id": "4:8",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/foreground"
+        }
+       ],
+       "text": "Label",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "4:9",
+     "name": "Checked=true",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 40,
+     "layout": [
+      "HORIZONTAL",
+      12,
+      [
+       0,
+       0,
+       0,
+       0
+      ],
+      "MIN",
+      "CENTER"
+     ],
+     "vars": {
+      "itemSpacing": "space/3",
+      "height": "size/control-md"
+     },
+     "children": [
+      {
+       "id": "4:10",
+       "name": "Track",
+       "type": "FRAME",
+       "w": 42,
+       "h": 24,
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/control-on"
+        }
+       ],
+       "radius": 9999,
+       "layout": [
+        "HORIZONTAL",
+        0,
+        [
+         3,
+         3,
+         3,
+         3
+        ],
+        "MAX",
+        "CENTER"
+       ],
+       "vars": {
+        "topLeftRadius": "radius/pill",
+        "topRightRadius": "radius/pill",
+        "bottomLeftRadius": "radius/pill",
+        "bottomRightRadius": "radius/pill"
+       },
+       "children": [
+        {
+         "id": "4:11",
+         "name": "Thumb",
+         "type": "ELLIPSE",
+         "w": 18,
+         "h": 18,
+         "fills": [
+          {
+           "t": "SOLID",
+           "var": "color/control-thumb"
+          }
+         ],
+         "effect": "shadow/control-thumb"
+        }
+       ]
+      },
+      {
+       "id": "4:12",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/foreground"
+        }
+       ],
+       "text": "Label",
+       "style": "text-sm/medium"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "4:14",
+   "name": "Slider",
+   "type": "COMPONENT",
+   "w": 112,
+   "h": 40,
+   "children": [
+    {
+     "id": "4:15",
+     "name": "Track",
+     "type": "RECTANGLE",
+     "w": 90,
+     "h": 6,
+     "x": 11,
+     "y": 17,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/control-track"
+      }
+     ],
+     "radius": 9999,
+     "vars": {
+      "topLeftRadius": "radius/pill",
+      "topRightRadius": "radius/pill",
+      "bottomLeftRadius": "radius/pill",
+      "bottomRightRadius": "radius/pill"
+     }
+    },
+    {
+     "id": "4:16",
+     "name": "Fill",
+     "type": "RECTANGLE",
+     "w": 47,
+     "h": 6,
+     "x": 11,
+     "y": 17,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/control-on"
+      }
+     ],
+     "radius": 9999,
+     "vars": {
+      "topLeftRadius": "radius/pill",
+      "topRightRadius": "radius/pill",
+      "bottomLeftRadius": "radius/pill",
+      "bottomRightRadius": "radius/pill"
+     }
+    },
+    {
+     "id": "4:17",
+     "name": "Thumb",
+     "type": "ELLIPSE",
+     "w": 22,
+     "h": 22,
+     "x": 47,
+     "y": 9,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/control-thumb"
+      }
+     ],
+     "effect": "shadow/control-thumb"
+    }
+   ]
+  },
+  {
+   "id": "4:22",
+   "name": "Segment",
+   "type": "COMPONENT_SET",
+   "sizing": [
+    "HUG",
+    "HUG"
+   ],
+   "radius": 5,
+   "layout": [
+    "HORIZONTAL",
+    24,
+    [
+     24,
+     24,
+     24,
+     24
+    ],
+    "MIN",
+    "MIN"
+   ],
+   "children": [
+    {
+     "id": "4:18",
+     "name": "Selected=true",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 32,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/surface",
+       "a": 0.84
+      }
+     ],
+     "strokes": [
+      {
+       "t": "SOLID",
+       "var": "color/border",
+       "a": 0.5
+      }
+     ],
+     "strokeW": 1,
+     "effect": "shadow/resting",
+     "layout": [
+      "HORIZONTAL",
+      0,
+      [
+       0,
+       12,
+       0,
+       12
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingRight": "space/3",
+      "height": "size/control-sm"
+     },
+     "children": [
+      {
+       "id": "4:19",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/foreground"
+        }
+       ],
+       "text": "Segment",
+       "style": "text-sm/medium"
+      }
+     ]
+    },
+    {
+     "id": "4:20",
+     "name": "Selected=false",
+     "type": "COMPONENT",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 32,
+     "layout": [
+      "HORIZONTAL",
+      0,
+      [
+       0,
+       12,
+       0,
+       12
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingRight": "space/3",
+      "height": "size/control-sm"
+     },
+     "children": [
+      {
+       "id": "4:21",
+       "name": "Label",
+       "type": "TEXT",
+       "sizing": [
+        "HUG",
+        "HUG"
+       ],
+       "fills": [
+        {
+         "t": "SOLID",
+         "var": "color/text-muted"
+        }
+       ],
+       "text": "Segment",
+       "style": "text-sm/medium"
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "4:23",
+   "name": "SegmentedControl",
+   "type": "COMPONENT",
+   "sizing": [
+    "HUG",
+    "HUG"
+   ],
+   "layout": [
+    "HORIZONTAL",
+    2,
+    [
+     3,
+     3,
+     3,
+     3
+    ],
+    "MIN",
+    "MIN"
+   ],
+   "children": [
+    {
+     "id": "12:263",
+     "name": "Notch (clip-path)",
+     "type": "INSTANCE",
+     "w": 211,
+     "h": 38,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "component": "util/notch"
+    },
+    {
+     "id": "12:269",
+     "name": "Plate",
+     "type": "RECTANGLE",
+     "w": 211,
+     "h": 38,
+     "abs": true,
+     "x": 0,
+     "y": 0,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/surface-muted",
+       "a": 0.7
+      }
+     ],
+     "strokes": [
+      {
+       "t": "SOLID",
+       "var": "color/border",
+       "a": 0.5
+      }
+     ],
+     "strokeW": 1,
+     "radius": 3,
+     "vars": {
+      "topLeftRadius": "radius/control",
+      "topRightRadius": "radius/control",
+      "bottomLeftRadius": "radius/control",
+      "bottomRightRadius": "radius/control"
+     }
+    },
+    {
+     "id": "4:24",
+     "name": "Segment/Draw",
+     "type": "INSTANCE",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 32,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "color/surface",
+       "a": 0.84
+      }
+     ],
+     "strokes": [
+      {
+       "t": "SOLID",
+       "var": "color/border",
+       "a": 0.5
+      }
+     ],
+     "strokeW": 1,
+     "effect": "shadow/resting",
+     "layout": [
+      "HORIZONTAL",
+      0,
+      [
+       0,
+       12,
+       0,
+       12
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingRight": "space/3",
+      "height": "size/control-sm"
+     },
+     "component": "Segment/Selected=true",
+     "props": {
+      "Label": "Draw"
+     }
+    },
+    {
+     "id": "4:26",
+     "name": "Segment/Erase",
+     "type": "INSTANCE",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 32,
+     "layout": [
+      "HORIZONTAL",
+      0,
+      [
+       0,
+       12,
+       0,
+       12
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingRight": "space/3",
+      "height": "size/control-sm"
+     },
+     "component": "Segment/Selected=false",
+     "props": {
+      "Label": "Erase"
+     }
+    },
+    {
+     "id": "4:28",
+     "name": "Segment/Effects",
+     "type": "INSTANCE",
+     "sizing": [
+      "HUG",
+      "FIXED"
+     ],
+     "h": 32,
+     "layout": [
+      "HORIZONTAL",
+      0,
+      [
+       0,
+       12,
+       0,
+       12
+      ],
+      "CENTER",
+      "CENTER"
+     ],
+     "vars": {
+      "paddingLeft": "space/3",
+      "paddingRight": "space/3",
+      "height": "size/control-sm"
+     },
+     "component": "Segment/Selected=false",
+     "props": {
+      "Label": "Effects"
+     }
+    }
+   ]
+  },
+  {
+   "id": "12:97",
+   "name": "util/notch",
+   "type": "COMPONENT",
+   "w": 40,
+   "h": 40,
+   "children": [
+    {
+     "id": "12:98",
+     "name": "mid",
+     "type": "RECTANGLE",
+     "w": 40,
+     "h": 22,
+     "x": 0,
+     "y": 9,
+     "fills": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        0,
+        0,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "12:99",
+     "name": "top",
+     "type": "RECTANGLE",
+     "w": 31,
+     "h": 9,
+     "x": 9,
+     "y": 0,
+     "fills": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        0,
+        0,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "12:100",
+     "name": "bottom",
+     "type": "RECTANGLE",
+     "w": 31,
+     "h": 9,
+     "x": 0,
+     "y": 31,
+     "fills": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        0,
+        0,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "12:101",
+     "name": "cut top-left",
+     "type": "VECTOR",
+     "w": 9,
+     "h": 9,
+     "x": 0,
+     "y": 0,
+     "fills": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        0,
+        0,
+        0
+       ]
+      }
+     ]
+    },
+    {
+     "id": "12:102",
+     "name": "cut bottom-right",
+     "type": "VECTOR",
+     "w": 9,
+     "h": 9,
+     "x": 31,
+     "y": 31,
+     "fills": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        0,
+        0,
+        0
+       ]
+      }
+     ]
+    }
+   ]
+  },
+  {
+   "id": "12:106",
+   "name": "Orb",
+   "type": "COMPONENT_SET",
+   "sizing": [
+    "HUG",
+    "HUG"
+   ],
+   "radius": 5,
+   "layout": [
+    "HORIZONTAL",
+    16,
+    [
+     16,
+     16,
+     16,
+     16
+    ],
+    "MIN",
+    "MIN"
+   ],
+   "children": [
+    {
+     "id": "12:103",
+     "name": "On=false",
+     "type": "COMPONENT",
+     "w": 14,
+     "h": 14,
+     "fills": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        0.156,
+        0.032,
+        0.11
+       ]
+      }
+     ],
+     "strokes": [
+      {
+       "t": "SOLID",
+       "var": "color/border",
+       "a": 0.5
+      }
+     ],
+     "strokeW": 1.5,
+     "radius": 7,
+     "children": []
+    },
+    {
+     "id": "12:104",
+     "name": "On=true",
+     "type": "COMPONENT",
+     "w": 14,
+     "h": 14,
+     "fills": [
+      {
+       "t": "SOLID",
+       "var": "lead/supersaw"
+      }
+     ],
+     "strokes": [
+      {
+       "t": "SOLID",
+       "rgb": [
+        1,
+        0.941,
+        0.968
+       ]
+      }
+     ],
+     "strokeW": 1.5,
+     "radius": 7,
+     "effects": [
+      "DROP_SHADOW"
+     ],
+     "children": [
+      {
+       "id": "12:105",
+       "name": "Glint",
+       "type": "ELLIPSE",
+       "w": 5,
+       "h": 5,
+       "x": 2.4,
+       "y": 1.7,
+       "fills": [
+        {
+         "t": "SOLID",
+         "rgb": [
+          1,
+          1,
+          1
+         ],
+         "a": 0.9
+        }
+       ],
+       "effects": [
+        "LAYER_BLUR"
+       ]
+      }
+     ]
+    }
+   ]
+  }
+ ],
+ "variables": [
+  {
+   "id": "VariableID:2:4",
+   "name": "color/chrome",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.08940000087022781,
+     "g": 0.014299999922513962,
+     "b": 0.066600002348423,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:5",
+   "name": "color/background",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "type": "VARIABLE_ALIAS",
+     "id": "VariableID:2:4"
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:6",
+   "name": "color/surface",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.1914999932050705,
+     "g": 0.029100000858306885,
+     "b": 0.1347000002861023,
+     "a": 0.8399999737739563
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:7",
+   "name": "color/surface-muted",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.3578999936580658,
+     "g": 0.04569999873638153,
+     "b": 0.2321999967098236,
+     "a": 0.699999988079071
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:8",
+   "name": "color/foreground",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 1,
+     "g": 0.871399998664856,
+     "b": 0.940500020980835,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:9",
+   "name": "color/text-secondary",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.9470999836921692,
+     "g": 0.6761999726295471,
+     "b": 0.8011000156402588,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:10",
+   "name": "color/text-muted",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.8489000201225281,
+     "g": 0.5306000113487244,
+     "b": 0.6833000183105469,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:11",
+   "name": "color/border",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "type": "VARIABLE_ALIAS",
+     "id": "VariableID:11:99"
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:12",
+   "name": "color/border-subtle",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.838699996471405,
+     "g": 0.2847000062465668,
+     "b": 0.5723999738693237,
+     "a": 0.25
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:13",
+   "name": "color/border-strong",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "type": "VARIABLE_ALIAS",
+     "id": "VariableID:11:98"
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:14",
+   "name": "color/control-track",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.295199990272522,
+     "g": 0.08910000324249268,
+     "b": 0.21930000185966492,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:15",
+   "name": "color/control-thumb",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 1,
+     "g": 0.917900025844574,
+     "b": 0.9591000080108643,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:16",
+   "name": "lead/supersaw",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 1,
+     "g": 0.20239999890327454,
+     "b": 0.6054999828338623,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:17",
+   "name": "lead/rubber",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0,
+     "g": 0.8629000186920166,
+     "b": 0.7932999730110168,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:18",
+   "name": "lead/glass",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.9764000177383423,
+     "g": 0.8001999855041504,
+     "b": 0.12999999523162842,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:19",
+   "name": "lead/chip",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.6934999823570251,
+     "g": 0.40450000762939453,
+     "b": 0.9675999879837036,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:2:20",
+   "name": "space/1",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 4
+   }
+  },
+  {
+   "id": "VariableID:2:21",
+   "name": "space/2",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 8
+   }
+  },
+  {
+   "id": "VariableID:2:22",
+   "name": "space/3",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 12
+   }
+  },
+  {
+   "id": "VariableID:2:23",
+   "name": "space/4",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 16
+   }
+  },
+  {
+   "id": "VariableID:2:24",
+   "name": "space/5",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 18
+   }
+  },
+  {
+   "id": "VariableID:2:25",
+   "name": "space/6",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 20
+   }
+  },
+  {
+   "id": "VariableID:2:26",
+   "name": "space/8",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 24
+   }
+  },
+  {
+   "id": "VariableID:2:27",
+   "name": "space/10",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 32
+   }
+  },
+  {
+   "id": "VariableID:2:28",
+   "name": "radius/control",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 3
+   }
+  },
+  {
+   "id": "VariableID:2:29",
+   "name": "radius/panel",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 4
+   }
+  },
+  {
+   "id": "VariableID:2:30",
+   "name": "radius/surface",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 6
+   }
+  },
+  {
+   "id": "VariableID:2:31",
+   "name": "radius/pill",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 9999
+   }
+  },
+  {
+   "id": "VariableID:2:32",
+   "name": "size/control-sm",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 32
+   }
+  },
+  {
+   "id": "VariableID:2:33",
+   "name": "size/control-md",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 40
+   }
+  },
+  {
+   "id": "VariableID:2:34",
+   "name": "size/control-lg",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 44
+   }
+  },
+  {
+   "id": "VariableID:2:35",
+   "name": "text/xs",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 12
+   }
+  },
+  {
+   "id": "VariableID:2:36",
+   "name": "text/sm",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 15
+   }
+  },
+  {
+   "id": "VariableID:4:4",
+   "name": "color/control-on",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "type": "VARIABLE_ALIAS",
+     "id": "VariableID:11:98"
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:97",
+   "name": "color/stage",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.9742000102996826,
+     "g": 0.8708000183105469,
+     "b": 0.9739999771118164,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:98",
+   "name": "color/neon",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 1,
+     "g": 0.4555000066757202,
+     "b": 0.7736999988555908,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:99",
+   "name": "color/neon-dim",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.838699996471405,
+     "g": 0.2847000062465668,
+     "b": 0.5723999738693237,
+     "a": 0.5
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:100",
+   "name": "color/surface-raised",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.14880000054836273,
+     "g": 0.019099999219179153,
+     "b": 0.10679999738931656,
+     "a": 0.9700000286102295
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:101",
+   "name": "color/accent",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 1,
+     "g": 0.5845999717712402,
+     "b": 0.82669997215271,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:102",
+   "name": "color/accent-strong",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 1,
+     "g": 0.7401999831199646,
+     "b": 0.9031999707221985,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:103",
+   "name": "color/accent-foreground",
+   "type": "COLOR",
+   "values": {
+    "2:0": {
+     "r": 0.1216999962925911,
+     "g": 0.012799999676644802,
+     "b": 0.0917000025510788,
+     "a": 1
+    }
+   }
+  },
+  {
+   "id": "VariableID:11:104",
+   "name": "size/cut",
+   "type": "FLOAT",
+   "values": {
+    "2:1": 9
+   }
+  }
+ ]
+}
